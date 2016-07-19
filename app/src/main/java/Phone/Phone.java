@@ -1,6 +1,6 @@
 package Phone;
 
-        import java.io.Serializable;
+import java.io.Serializable;
 
 /**
  * Created by Nathan on 6/11/2016.
