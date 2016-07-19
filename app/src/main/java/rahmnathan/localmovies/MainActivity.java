@@ -20,7 +20,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import rahmnathan.localmovies.Phone.Phone;
+import Phone.Phone;
 
 public class MainActivity extends AppCompatActivity {
 

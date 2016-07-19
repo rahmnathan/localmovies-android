@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import rahmnathan.localmovies.Phone.Phone;
+import Phone.Phone;
 
 /**
  * Created by Nathan on 7/10/2016.

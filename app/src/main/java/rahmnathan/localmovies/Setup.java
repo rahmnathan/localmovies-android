@@ -10,13 +10,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import rahmnathan.localmovies.Phone.Phone;
 
 /**
  * Created by nathan on 3/4/16.

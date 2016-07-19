@@ -1,4 +1,4 @@
-package rahmnathan.localmovies.Phone;
+package Phone;
 
         import java.io.Serializable;
 

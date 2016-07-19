@@ -7,7 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import rahmnathan.localmovies.Phone.Phone;
+import Phone.Phone;
 
 /**
  * Created by nathan on 3/7/16.
