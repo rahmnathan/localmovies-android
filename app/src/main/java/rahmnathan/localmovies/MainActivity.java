@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     static List<String> titles = new ArrayList<>();
 
-    private static final String mainPath = "C:\\Users\\Nathan\\Desktop\\WD Backup\\Media\\";
+    private static final String mainPath = "/media/pi/MyPassport/Media/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

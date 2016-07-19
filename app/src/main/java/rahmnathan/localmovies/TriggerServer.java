@@ -34,7 +34,7 @@ public class TriggerServer extends Thread {
 
         // Reading information from setup file and assigning it to variables
 
-        currentPath = "initial" + currentPath + "Movies\\";
+        currentPath = "initial" + currentPath + "Movies/";
 
         File setupFile = new File(Environment.getExternalStorageDirectory(), "setup.txt");
         String[] sort = null;
