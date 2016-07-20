@@ -4,10 +4,10 @@ import android.content.Context;
 import android.os.Environment;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
@@ -18,11 +18,11 @@ import Phone.Phone;
  */
 public class TriggerServer extends Thread {
 
-    private Context con;
+    private Context context;
     private String path;
 
-    public TriggerServer(String path, Context con){
-        this.con = con;
+    public TriggerServer(String path, Context context){
+        this.context = context;
         this.path = path;
     }
 
@@ -32,27 +32,19 @@ public class TriggerServer extends Thread {
 
     private Phone getPhoneInfo(String currentPath) {
 
-        // Reading information from setup file and assigning it to variables
-
-        currentPath = "initial" + currentPath + "Movies/";
-
         File setupFile = new File(Environment.getExternalStorageDirectory(), "setup.txt");
-        String[] sort = null;
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(setupFile));
-            sort = reader.readLine().split("splithere159");
-            reader.close();
-        } catch (IOException e) {
+            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(setupFile));
+            MainActivity.myPhone = (Phone) objectInputStream.readObject();
+            objectInputStream.close();
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        MainActivity.myPhone = new Phone(sort[0], sort[1], sort[2], currentPath);
+        MainActivity.myPhone.setPath("initial" + currentPath + "Movies/");
 
-        try{
-            MainActivity.myPhone.setComputerIP(sort[3]);
-        } catch (ArrayIndexOutOfBoundsException e){
+        if(MainActivity.myPhone.getComputerIP().equals(""))
             MainActivity.myPhone.setComputerIP(getServerIP());
-        }
 
         return MainActivity.myPhone;
     }
@@ -62,7 +54,7 @@ public class TriggerServer extends Thread {
         MainActivity.runOnUI(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(con, "Scanning for server", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Scanning for server", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -76,7 +68,7 @@ public class TriggerServer extends Thread {
                 if(i == 256){
                     MainActivity.runOnUI(new Runnable() {
                             @Override
-                            public void run() {Toast.makeText(con, "Unable to find server", Toast.LENGTH_LONG).show();
+                            public void run() {Toast.makeText(context, "Unable to find server", Toast.LENGTH_LONG).show();
                             }
                     });
                     break;

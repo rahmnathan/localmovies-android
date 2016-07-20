@@ -9,18 +9,18 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import Phone.Phone;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 /**
  * Created by nathan on 3/4/16.
  */
 
 public class Setup extends Activity {
-
-    // These are our textfields
 
     private EditText chrome;
     private EditText phone;
@@ -66,25 +66,25 @@ public class Setup extends Activity {
     private void saveData(String chrome, String phone, String name, String server){
 
         try {
-
             ActivityCompat.requestPermissions(
                     Setup.this,
                     PERMISSIONS_STORAGE,
                     REQUEST_EXTERNAL_STORAGE
             );
 
-            // Navigating to setup file and writing data to file with unique string between variables
+            // Navigating to setup file and writing data to it
 
             File setupFile = new File(Environment.getExternalStorageDirectory(), "setup.txt");
             if (!setupFile.exists()){
                 setupFile.createNewFile();
             }
-            
-            FileWriter writer = new FileWriter(setupFile);
-            writer.append(chrome + "splithere159" + phone +
-                    "splithere159" + name + "splithere159" + server);
-            writer.flush();
-            writer.close();
+
+            Phone myPhone = new Phone(chrome, phone, name, "");
+            myPhone.setComputerIP(server);
+
+            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(setupFile));
+            os.writeObject(myPhone);
+            os.close();
 
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
