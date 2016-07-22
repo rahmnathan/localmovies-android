@@ -1,13 +1,8 @@
 package rahmnathan.localmovies;
 
 import android.content.Context;
-import android.os.Environment;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
@@ -19,34 +14,19 @@ import Phone.Phone;
 public class TriggerServer extends Thread {
 
     private Context context;
-    private String path;
+    private Phone myPhone;
 
-    public TriggerServer(String path, Context context){
+    public TriggerServer(Phone myPhone, Context context){
+        this.myPhone = myPhone;
         this.context = context;
-        this.path = path;
     }
 
     public void run(){
-        new Server().send(getPhoneInfo(path));
-    }
-
-    private Phone getPhoneInfo(String currentPath) {
-
-        File setupFile = new File(Environment.getExternalStorageDirectory(), "setup.txt");
-        try {
-            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(setupFile));
-            MainActivity.myPhone = (Phone) objectInputStream.readObject();
-            objectInputStream.close();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        MainActivity.myPhone.setPath("initial" + currentPath + "Movies/");
 
         if(MainActivity.myPhone.getComputerIP().equals(""))
             MainActivity.myPhone.setComputerIP(getServerIP());
 
-        return MainActivity.myPhone;
+        new Server().send(myPhone);
     }
 
     private String getServerIP() {
@@ -67,9 +47,9 @@ public class TriggerServer extends Thread {
             try {
                 if(i == 256){
                     MainActivity.runOnUI(new Runnable() {
-                            @Override
-                            public void run() {Toast.makeText(context, "Unable to find server", Toast.LENGTH_LONG).show();
-                            }
+                        @Override
+                        public void run() {Toast.makeText(context, "Unable to find server", Toast.LENGTH_LONG).show();
+                        }
                     });
                     break;
                 }

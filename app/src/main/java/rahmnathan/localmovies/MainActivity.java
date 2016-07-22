@@ -9,6 +9,7 @@ import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,12 +32,17 @@ public class MainActivity extends AppCompatActivity {
 
     static List<String> titles = new ArrayList<>();
 
-    private static final String mainPath = "/media/pi/MyPassport/Media/";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
+                Log.e("Alert","Uncaught Exception");
+            }
+        });
 
         if (Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -45,9 +51,15 @@ public class MainActivity extends AppCompatActivity {
 
         titles.add("Loading. . .");
 
-        // Triggering initial send of titles from server
+        // Getting phone info and Triggering initial send of titles from server
 
-        new TriggerServer(mainPath, MainActivity.this).start();
+        try {
+            myPhone = new Setup(this).getPhoneInfo();
+        } catch(NullPointerException e){
+            startActivity(new Intent(this, Setup.class));
+        }
+
+        new TriggerServer(myPhone, this).start();
 
         // Creating buttons for controls, setup, series, and movies
 
@@ -72,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                myPhone.setPath(mainPath + "Series/");
+                myPhone.setPath(myPhone.getMainPath() + "Series/");
 
                 // Receiving series list and updating listview
 
@@ -85,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                myPhone.setPath(mainPath + "Movies/");
+                myPhone.setPath(myPhone.getMainPath() + "Movies/");
 
                 // Receiving movie list and updating listview
 

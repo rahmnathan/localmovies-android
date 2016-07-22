@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
-enum controls {
-    VOLUME_UP, VOLUME_DOWN, SEEK_FORWARD, SEEK_BACK, PLAY_PAUSE, STOP
-}
-
 public class Remote extends Activity {
+
+    private enum controls {
+        VOLUME_UP, VOLUME_DOWN, SEEK_FORWARD, SEEK_BACK, PLAY_PAUSE, STOP
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
