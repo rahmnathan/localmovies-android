@@ -2,7 +2,6 @@ package rahmnathan.localmovies;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -18,12 +17,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-
-/**
- * Created by nathan on 3/4/16.
- */
 
 public class Setup extends Activity {
 
@@ -33,21 +26,11 @@ public class Setup extends Activity {
     private EditText server;
     private EditText path;
 
-    private Context context;
-
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static final String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
-
-    public Setup(Context context){
-        this.context = context;
-    }
-
-    public Setup(){
-        ;
-    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

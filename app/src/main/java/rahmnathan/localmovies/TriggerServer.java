@@ -8,9 +8,6 @@ import java.net.Socket;
 
 import Phone.Phone;
 
-/**
- * Created by Nathan on 7/10/2016.
- */
 public class TriggerServer extends Thread {
 
     private Context context;

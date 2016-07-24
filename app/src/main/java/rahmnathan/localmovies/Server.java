@@ -9,13 +9,9 @@ import java.util.ArrayList;
 
 import Phone.Phone;
 
-/**
- * Created by nathan on 3/7/16.
- */
-
 public class Server {
 
-    public void receive() {
+    private void receive() {
         try {
             // Checking for title list from server
 

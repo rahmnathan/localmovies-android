@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         // Getting phone info and Triggering initial send of titles from server
 
         try {
-            myPhone = new Setup(this).getPhoneInfo();
+            myPhone = new Setup().getPhoneInfo();
         } catch(NullPointerException e){
             startActivity(new Intent(this, Setup.class));
         }
