@@ -42,14 +42,16 @@ public class Server {
 
     public void send(Phone myPhone){
 
-        // Sending command int to server
+        // Sending phone info to server
 
-        int portNum = 3998;
-        String path = myPhone.getPath();
+        int portNum;
+        String currentPath = myPhone.getPath();
 
-        if(path.startsWith("initial")){
+        if(!currentPath.startsWith("initial")){
+            portNum = 3998;
+        } else{
             portNum = 3999;
-            myPhone.setPath(path.substring(7));
+            myPhone.setPath(currentPath.substring(7));
         }
 
         try {
@@ -62,7 +64,7 @@ public class Server {
             socket.close();
             if(!myPhone.isCasting()){
 
-                // If we're viewing Series and not episodes we receive new list and update listview
+                // If we're not playing a movie we wait to receive the new list
 
                 receive();
             }

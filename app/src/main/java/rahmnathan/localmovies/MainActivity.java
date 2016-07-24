@@ -108,8 +108,8 @@ public class MainActivity extends AppCompatActivity {
         // Creating ListAdapter and listView to display titles
 
         ad = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, titles);
-        final ListView listView = (ListView) findViewById(R.id.listView);
-        listView.setAdapter(ad);
+        final ListView movieList = (ListView) findViewById(R.id.listView);
+        movieList.setAdapter(ad);
 
         // Setting up our search box with a text change listener
 
@@ -124,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-                // TODO Auto-generated method stub
             }
             @Override
             public void afterTextChanged(Editable arg0) {
@@ -133,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Setting click listener for list items
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        movieList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (myPhone.getPath().toLowerCase().contains("season") ||
@@ -142,19 +141,18 @@ public class MainActivity extends AppCompatActivity {
                      If we're viewing movies or episodes we
                      play the movie and start our Remote activity
                    */
-                    myPhone.setPath(myPhone.getPath() + listView.getItemAtPosition(position));
+                    myPhone.setPath(myPhone.getPath() + movieList.getItemAtPosition(position));
                     myPhone.setCasting(true);
                     new Server().send(myPhone);
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_SHORT).show();
                     myPhone.setCasting(false);
                     startActivity(new Intent(MainActivity.this, Remote.class));
                 } else {
-                    myPhone.setPath(myPhone.getPath() + listView.getItemAtPosition(position) + "/");
+                    myPhone.setPath(myPhone.getPath() + movieList.getItemAtPosition(position) + "/");
                     new Server().send(myPhone);
                 }
             }
-        }
-        );
+        });
     }
 
     static {
@@ -164,5 +162,4 @@ public class MainActivity extends AppCompatActivity {
     public static void runOnUI(Runnable runnable) {
         UIHandler.post(runnable);
     }
-
 }
