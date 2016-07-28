@@ -1,14 +1,16 @@
-package rahmnathan.localmovies;
+package networking;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
+
+import activity.MainActivity;
+import rahmnathan.localmovies.R;
 
 public class Remote extends Activity {
 
@@ -76,16 +78,16 @@ public class Remote extends Activity {
     private void sendControl(String command) {
 
         int portNum = 3995;
+        String[] commandArray = {command, MainActivity.myPhone.getPhoneName()};
 
         try {
-
             Socket socket = new Socket(MainActivity.myPhone.getComputerIP(), portNum);
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 
-            bw.write(command + "splithere159" + MainActivity.myPhone.getPhoneName());
+            objectOutputStream.writeObject(commandArray);
 
-            bw.flush();
             socket.close();
+
         }catch(IOException e){
             e.printStackTrace();
         }

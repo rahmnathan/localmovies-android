@@ -1,10 +1,8 @@
-package rahmnathan.localmovies;
+package activity;
 
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -18,19 +16,17 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import Phone.Phone;
+import networking.Phone;
+import networking.Remote;
+import networking.Server;
+import networking.TriggerServer;
+import setup.Setup;
+import rahmnathan.localmovies.R;
 
 public class MainActivity extends AppCompatActivity {
 
-    static ArrayAdapter ad;
-    static Phone myPhone;
-
-    public static Handler UIHandler;
-
-    static List<String> titles = new ArrayList<>();
+    public static ArrayAdapter ad;
+    public static Phone myPhone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
-
-        titles.add("Loading. . .");
 
         // Getting phone info and Triggering initial send of titles from server
 
@@ -107,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Creating ListAdapter and listView to display titles
 
-        ad = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, titles);
+        ad = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         final ListView movieList = (ListView) findViewById(R.id.listView);
         movieList.setAdapter(ad);
 
@@ -153,13 +147,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    static {
-        UIHandler = new Handler(Looper.getMainLooper());
-    }
-
-    public static void runOnUI(Runnable runnable) {
-        UIHandler.post(runnable);
     }
 }

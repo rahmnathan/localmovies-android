@@ -1,4 +1,7 @@
-package rahmnathan.localmovies;
+package networking;
+
+import android.os.Handler;
+import android.os.Looper;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -6,31 +9,27 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
-import Phone.Phone;
+import activity.MainActivity;
 
 public class Server {
 
-    private void receive() {
+    private static final Handler UIHandler = new Handler(Looper.getMainLooper());
+
+    private void receiveTitles() {
         try {
             // Checking for title list from server
 
             ServerSocket serverSocket = new ServerSocket(3998);
             Socket socket = serverSocket.accept();
             ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-            MainActivity.titles = (ArrayList<String>) objectInputStream.readObject();
-            objectInputStream.close();
+
+            updateListView((ArrayList<String>) objectInputStream.readObject());
+
             socket.close();
             serverSocket.close();
 
-            MainActivity.runOnUI(new Runnable() {
-                @Override
-                public void run() {
-                    MainActivity.ad.clear();
-                    MainActivity.ad.addAll(MainActivity.titles);
-                    MainActivity.ad.notifyDataSetChanged();
-                }
-            });
         }  catch(Exception e){
             e.printStackTrace();
         }
@@ -51,21 +50,35 @@ public class Server {
         }
 
         try {
-            Socket socket = new Socket(MainActivity.myPhone.getComputerIP(), portNum);
+            Socket socket = new Socket(myPhone.getComputerIP(), portNum);
 
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
             objectOutputStream.writeObject(myPhone);
 
-            objectOutputStream.close();
             socket.close();
             if(!myPhone.isCasting()){
 
-                // If we're not playing a movie we wait to receive the new list
+                // If we're not playing a movie we wait to receiveTitles the new list
 
-                receive();
+                receiveTitles();
             }
         }catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+    private void updateListView(final List<String> titleList){
+        runOnUI(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.ad.clear();
+                MainActivity.ad.addAll(titleList);
+                MainActivity.ad.notifyDataSetChanged();
+            }
+        });
+    }
+
+    public static void runOnUI(Runnable runnable) {
+        UIHandler.post(runnable);
     }
 }

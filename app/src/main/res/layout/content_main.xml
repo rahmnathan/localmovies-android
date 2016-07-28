@@ -11,7 +11,7 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:orientation="vertical"
-    tools:context="rahmnathan.localmovies.MainActivity"
+    tools:context="activity.MainActivity"
     android:weightSum="1">
 
     <EditText

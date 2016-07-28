@@ -1,12 +1,14 @@
-package Phone;
+package phone;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import networking.Phone;
+
 public class PhoneTest {
 
-    Phone myPhone;
+    private Phone myPhone;
 
     @Before
     public void initialize(){

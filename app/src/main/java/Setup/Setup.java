@@ -1,4 +1,4 @@
-package rahmnathan.localmovies;
+package setup;
 
 import android.Manifest;
 import android.app.Activity;
@@ -9,7 +9,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import Phone.Phone;
+import networking.Phone;
+import activity.MainActivity;
+import rahmnathan.localmovies.R;
 
 import java.io.File;
 import java.io.FileInputStream;

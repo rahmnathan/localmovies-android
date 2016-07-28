@@ -1,4 +1,4 @@
-package rahmnathan.localmovies;
+package networking;
 
 import android.content.Context;
 import android.widget.Toast;
@@ -6,12 +6,12 @@ import android.widget.Toast;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import Phone.Phone;
+import activity.MainActivity;
 
 public class TriggerServer extends Thread {
 
-    private Context context;
-    private Phone myPhone;
+    private final Context context;
+    private final Phone myPhone;
 
     public TriggerServer(Phone myPhone, Context context){
         this.myPhone = myPhone;
@@ -28,7 +28,7 @@ public class TriggerServer extends Thread {
 
     private String getServerIP() {
 
-        MainActivity.runOnUI(new Runnable() {
+        Server.runOnUI(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(context, "Scanning for server", Toast.LENGTH_SHORT).show();
@@ -43,7 +43,7 @@ public class TriggerServer extends Thread {
         while (i < 257) {
             try {
                 if(i == 256){
-                    MainActivity.runOnUI(new Runnable() {
+                    Server.runOnUI(new Runnable() {
                         @Override
                         public void run() {Toast.makeText(context, "Unable to find server", Toast.LENGTH_LONG).show();
                         }
