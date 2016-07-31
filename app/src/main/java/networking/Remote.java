@@ -25,18 +25,17 @@ public class Remote extends Activity {
 
         // Setting up all of our buttons
 
-        Button play = (Button) findViewById(R.id.play);
-        Button seekForward = (Button) findViewById(R.id.seekForward);
-        Button seekBack = (Button) findViewById(R.id.seekBack);
-        Button volumeUp = (Button) findViewById(R.id.volumeUp);
-        Button volumeDown = (Button) findViewById(R.id.volumeDown);
-        Button stop = (Button) findViewById(R.id.stop);
+        final Button play = (Button) findViewById(R.id.play);
+        final Button seekForward = (Button) findViewById(R.id.seekForward);
+        final Button seekBack = (Button) findViewById(R.id.seekBack);
+        final Button volumeUp = (Button) findViewById(R.id.volumeUp);
+        final Button volumeDown = (Button) findViewById(R.id.volumeDown);
+        final Button stop = (Button) findViewById(R.id.stop);
 
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                     sendControl(controls.PLAY_PAUSE.name());
-                    System.out.println(controls.PLAY_PAUSE.toString());
             }
         });
 
@@ -44,6 +43,7 @@ public class Remote extends Activity {
             @Override
             public void onClick(View view) {
                 sendControl(controls.SEEK_BACK.name());
+
             }
         });
 
@@ -88,7 +88,7 @@ public class Remote extends Activity {
 
             socket.close();
 
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
