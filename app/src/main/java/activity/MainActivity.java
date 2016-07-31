@@ -15,6 +15,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.File;
+
 import networking.ClientOutput;
 import networking.Phone;
 import remote.Remote;
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                myPhone.setPath(myPhone.getMainPath() + "Series/");
+                myPhone.setPath(myPhone.getMainPath() + "Series" + File.separator);
 
                 // Receiving series list and updating listview
 
@@ -84,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                myPhone.setPath(myPhone.getMainPath() + "Movies/");
+                myPhone.setPath(myPhone.getMainPath() + "Movies" + File.separator);
 
                 // Receiving movie list and updating listview
 
@@ -135,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                     myPhone.setCasting(false);
                     startActivity(new Intent(MainActivity.this, Remote.class));
                 } else {
-                    myPhone.setPath(myPhone.getPath() + movieList.getItemAtPosition(position) + "/");
+                    myPhone.setPath(myPhone.getPath() + movieList.getItemAtPosition(position) + File.separator);
                     clientOutput.send(myPhone);
                 }
             }

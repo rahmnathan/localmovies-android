@@ -107,7 +107,7 @@ public class Setup extends Activity {
             e.printStackTrace();
         }
 
-        MainActivity.myPhone.setPath(MainActivity.myPhone.getMainPath() + "Movies/");
+        MainActivity.myPhone.setPath(MainActivity.myPhone.getMainPath() + "Movies" + File.separator);
 
         return MainActivity.myPhone;
     }
