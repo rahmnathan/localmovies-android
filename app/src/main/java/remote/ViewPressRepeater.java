@@ -6,9 +6,9 @@ import java.net.Socket;
 
 import activity.MainActivity;
 
-public class ViewPressRepeater extends Thread {
+class ViewPressRepeater extends Thread {
 
-    private String command;
+    private final String command;
 
     public ViewPressRepeater(String command){
         this.command = command;
@@ -18,7 +18,7 @@ public class ViewPressRepeater extends Thread {
         do{
             sendControl(command);
             try{
-                Thread.sleep(300);
+                Thread.sleep(200);
             } catch(InterruptedException e){
                 e.printStackTrace();
             }

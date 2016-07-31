@@ -15,9 +15,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import networking.ClientOutput;
 import networking.Phone;
 import remote.Remote;
-import networking.Server;
 import networking.TriggerServer;
 import setup.Setup;
 import rahmnathan.localmovies.R;
@@ -26,18 +26,12 @@ public class MainActivity extends AppCompatActivity {
 
     public static ArrayAdapter ad;
     public static Phone myPhone;
+    private final ClientOutput clientOutput = new ClientOutput();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-//        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-//            @Override
-//            public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
-//                Log.e("Alert","Uncaught Exception");
-//            }
-//        });
 
         if (Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -81,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Receiving series list and updating listview
 
-                new Server().send(myPhone);
+                clientOutput.send(myPhone);
             }
         });
 
@@ -94,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Receiving movie list and updating listview
 
-                new Server().send(myPhone);
+                clientOutput.send(myPhone);
             }
         });
 
@@ -136,13 +130,13 @@ public class MainActivity extends AppCompatActivity {
                    */
                     myPhone.setPath(myPhone.getPath() + movieList.getItemAtPosition(position));
                     myPhone.setCasting(true);
-                    new Server().send(myPhone);
+                    clientOutput.send(myPhone);
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_SHORT).show();
                     myPhone.setCasting(false);
                     startActivity(new Intent(MainActivity.this, Remote.class));
                 } else {
                     myPhone.setPath(myPhone.getPath() + movieList.getItemAtPosition(position) + "/");
-                    new Server().send(myPhone);
+                    clientOutput.send(myPhone);
                 }
             }
         });

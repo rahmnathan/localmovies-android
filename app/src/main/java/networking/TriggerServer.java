@@ -23,12 +23,12 @@ public class TriggerServer extends Thread {
         if(MainActivity.myPhone.getComputerIP().equals(""))
             MainActivity.myPhone.setComputerIP(getServerIP());
 
-        new Server().send(myPhone);
+        new ClientOutput().send(myPhone);
     }
 
     private String getServerIP() {
 
-        Server.runOnUI(new Runnable() {
+        ServerInput.runOnUI(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(context, "Scanning for server", Toast.LENGTH_SHORT).show();
@@ -43,7 +43,7 @@ public class TriggerServer extends Thread {
         while (i < 257) {
             try {
                 if(i == 256){
-                    Server.runOnUI(new Runnable() {
+                    ServerInput.runOnUI(new Runnable() {
                         @Override
                         public void run() {Toast.makeText(context, "Unable to find server", Toast.LENGTH_LONG).show();
                         }
@@ -51,7 +51,7 @@ public class TriggerServer extends Thread {
                     break;
                 }
                 Socket socket = new Socket();
-                socket.connect(new InetSocketAddress(IPRange + i, 3999), 110);
+                socket.connect(new InetSocketAddress(IPRange + i, 3998), 110);
                 socket.close();
                 address = IPRange + i;
                 break;
