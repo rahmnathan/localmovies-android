@@ -30,7 +30,7 @@
         </activity>
 
         <activity
-            android:name="networking.Remote"
+            android:name="remote.Remote"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

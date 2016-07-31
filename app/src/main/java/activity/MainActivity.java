@@ -7,7 +7,6 @@ import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,7 +16,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import networking.Phone;
-import networking.Remote;
+import remote.Remote;
 import networking.Server;
 import networking.TriggerServer;
 import setup.Setup;

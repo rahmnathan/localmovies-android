@@ -13,11 +13,11 @@ import java.util.List;
 
 import activity.MainActivity;
 
-public class Server {
+public class Server implements ServerInterface {
 
     private static final Handler UIHandler = new Handler(Looper.getMainLooper());
 
-    private void receiveTitles() {
+    public void receive() {
         try {
             // Checking for title list from server
 
@@ -35,32 +35,34 @@ public class Server {
         }
     }
 
-    public void send(Phone myPhone){
+    public void send(Object myPhone){
 
         // Sending phone info to server
 
+        Phone phone = (Phone) myPhone;
+
         int portNum;
-        String currentPath = myPhone.getPath();
+        String currentPath = phone.getPath();
 
         if(!currentPath.startsWith("initial")){
             portNum = 3998;
         } else{
             portNum = 3999;
-            myPhone.setPath(currentPath.substring(7));
+            phone.setPath(currentPath.substring(7));
         }
 
         try {
-            Socket socket = new Socket(myPhone.getComputerIP(), portNum);
+            Socket socket = new Socket(phone.getComputerIP(), portNum);
 
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            objectOutputStream.writeObject(myPhone);
+            objectOutputStream.writeObject(phone);
 
             socket.close();
-            if(!myPhone.isCasting()){
+            if(!phone.isCasting()){
 
-                // If we're not playing a movie we wait to receiveTitles the new list
+                // If we're not playing a movie we wait to receive the new list
 
-                receiveTitles();
+                receive();
             }
         }catch(IOException e){
             e.printStackTrace();

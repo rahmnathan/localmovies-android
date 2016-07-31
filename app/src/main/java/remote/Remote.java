@@ -1,15 +1,11 @@
-package networking;
+package remote;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-
-import activity.MainActivity;
 import rahmnathan.localmovies.R;
 
 public class Remote extends Activity {
@@ -17,6 +13,8 @@ public class Remote extends Activity {
     private enum controls {
         VOLUME_UP, VOLUME_DOWN, SEEK_FORWARD, SEEK_BACK, PLAY_PAUSE, STOP
     }
+
+    public static volatile boolean repeat = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,61 +33,62 @@ public class Remote extends Activity {
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    sendControl(controls.PLAY_PAUSE.name());
+                new ViewPressRepeater(controls.PLAY_PAUSE.name()).start();
             }
         });
 
-        seekBack.setOnClickListener(new View.OnClickListener() {
+        seekBack.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View view) {
-                sendControl(controls.SEEK_BACK.name());
+            public boolean onTouch(View view, MotionEvent motionEvent) {
 
+                switch (motionEvent.getAction()){
+                    case MotionEvent.ACTION_DOWN:
+                        repeat = true;
+                        new ViewPressRepeater(controls.SEEK_BACK.name()).start();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        repeat = false;
+                        break;
+                }
+                return true;
             }
         });
 
-        seekForward.setOnClickListener(new View.OnClickListener() {
+        seekForward.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View view) {
-                sendControl(controls.SEEK_FORWARD.name());
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                switch (motionEvent.getAction()){
+                    case MotionEvent.ACTION_DOWN:
+                        repeat = true;
+                        new ViewPressRepeater(controls.SEEK_FORWARD.name()).start();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        repeat = false;
+                        break;
+                }
+                return true;
             }
         });
 
         volumeUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendControl(controls.VOLUME_UP.name());
+                new ViewPressRepeater(controls.VOLUME_UP.name()).start();
             }
         });
 
         volumeDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendControl(controls.VOLUME_DOWN.name());
+                new ViewPressRepeater(controls.VOLUME_DOWN.name()).start();
             }
         });
 
         stop.setOnClickListener(new View.OnClickListener() {
             public void onClick(View View) {
-                sendControl(controls.STOP.name());
+                new ViewPressRepeater(controls.STOP.name()).start();
             }
         });
-    }
-
-    private void sendControl(String command) {
-
-        int portNum = 3995;
-        String[] commandArray = {command, MainActivity.myPhone.getPhoneName()};
-
-        try {
-            Socket socket = new Socket(MainActivity.myPhone.getComputerIP(), portNum);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-
-            objectOutputStream.writeObject(commandArray);
-
-            socket.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
