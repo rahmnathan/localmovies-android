@@ -20,20 +20,24 @@ public class ServerRequest {
 
         // Sending phone info to server
 
-        String uri = "http://" + myPhone.getComputerIP() + ":8080/titlerequest?path=" + myPhone.getPath() +
+        String restRequest = "http://" + myPhone.getComputerIP() + ":8080/titlerequest?path=" + myPhone.getPath() +
                 "&phoneName=" + myPhone.getPhoneName() + "&phoneIP=" + myPhone.getPhoneIP() +
                 "&computerIP=" + myPhone.getComputerIP() + "&chromeIP=" + myPhone.getCastIP() +
                 "&casting=" + myPhone.isCasting();
 
         try {
-            URL url = new URL(uri);
+            URL url = new URL(restRequest);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             if (!myPhone.isCasting()) {
                 BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-                List<String> list = Arrays.asList(br.readLine().replace("\"", "").replace("[", "").replace("]", "").split(","));
+                List<String> list = Arrays.asList(br.readLine()
+                        .replace("\"", "")
+                        .replace("[", "")
+                        .replace("]", "")
+                        .split(","));
 
                 updateListView(list);
             }
@@ -54,7 +58,7 @@ public class ServerRequest {
         });
     }
 
-    public static void runOnUI(Runnable runnable) {
+    private static void runOnUI(Runnable runnable) {
         UIHandler.post(runnable);
     }
 }

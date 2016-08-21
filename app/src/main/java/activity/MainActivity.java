@@ -1,15 +1,12 @@
 package activity;
 
-import android.Manifest;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,8 +29,6 @@ public class MainActivity extends AppCompatActivity {
     public static Phone myPhone;
     private final ServerRequest serverRequest = new ServerRequest();
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,22 +39,15 @@ public class MainActivity extends AppCompatActivity {
             StrictMode.setThreadPolicy(policy);
         }
 
-//        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-//            @Override
-//            public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
-//                Log.e("Alert","Uncaught Exception");
-//            }
-//        });
-
         // Getting phone info and Triggering initial send of titles from server
 
         try {
             myPhone = new Setup().getPhoneInfo();
-        } catch(Exception e){
-            startActivity(new Intent(this, Setup.class));
-        }
+            new ServerRequest().send(myPhone);
 
-        new ServerRequest().send(myPhone);
+        } catch(NullPointerException e){
+            startActivity(new Intent(MainActivity.this, Setup.class));
+        }
 
         // Creating buttons for controls, setup, series, and movies
 
@@ -86,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
                 myPhone.setPath(myPhone.getMainPath() + "Series" + File.separator);
 
-                // Receiving series list and updating listview
+                // Requesting series list and updating listview
 
                 serverRequest.send(myPhone);
             }
@@ -99,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
                 myPhone.setPath(myPhone.getMainPath() + "Movies" + File.separator);
 
-                // Receiving movie list and updating listview
+                // Requesting movie list and updating listview
 
                 serverRequest.send(myPhone);
             }
@@ -129,8 +117,6 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable arg0) {
             }
         });
-
-        // Setting click listener for list items
 
         movieList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

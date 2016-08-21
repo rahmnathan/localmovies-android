@@ -3,7 +3,6 @@ package networking;
 import java.io.Serializable;
 
 public class Phone implements Serializable {
-    private static final long serialVersionUID = 514387573;
     private final String phoneIP;
     private final String mainPath;
     private final String castIP;
