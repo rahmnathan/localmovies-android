@@ -1,9 +1,11 @@
 package activity;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,18 +20,19 @@ import android.widget.Toast;
 
 import java.io.File;
 
-import networking.ClientOutput;
+import networking.ServerRequest;
 import networking.Phone;
 import remote.Remote;
-import networking.TriggerServer;
-import setup.Setup;
 import rahmnathan.localmovies.R;
+import setup.Setup;
 
 public class MainActivity extends AppCompatActivity {
 
     public static ArrayAdapter ad;
     public static Phone myPhone;
-    private final ClientOutput clientOutput = new ClientOutput();
+    private final ServerRequest serverRequest = new ServerRequest();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,22 +44,22 @@ public class MainActivity extends AppCompatActivity {
             StrictMode.setThreadPolicy(policy);
         }
 
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
-                Log.e("Alert","Uncaught Exception");
-            }
-        });
+//        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+//            @Override
+//            public void uncaughtException(Thread paramThread, Throwable paramThrowable) {
+//                Log.e("Alert","Uncaught Exception");
+//            }
+//        });
 
         // Getting phone info and Triggering initial send of titles from server
 
         try {
             myPhone = new Setup().getPhoneInfo();
-        } catch(NullPointerException e){
+        } catch(Exception e){
             startActivity(new Intent(this, Setup.class));
         }
 
-        new TriggerServer(myPhone, this).start();
+        new ServerRequest().send(myPhone);
 
         // Creating buttons for controls, setup, series, and movies
 
@@ -85,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Receiving series list and updating listview
 
-                clientOutput.send(myPhone);
+                serverRequest.send(myPhone);
             }
         });
 
@@ -98,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Receiving movie list and updating listview
 
-                clientOutput.send(myPhone);
+                serverRequest.send(myPhone);
             }
         });
 
@@ -140,13 +143,13 @@ public class MainActivity extends AppCompatActivity {
                    */
                     myPhone.setPath(myPhone.getPath() + movieList.getItemAtPosition(position));
                     myPhone.setCasting(true);
-                    clientOutput.send(myPhone);
+                    serverRequest.send(myPhone);
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_SHORT).show();
                     myPhone.setCasting(false);
                     startActivity(new Intent(MainActivity.this, Remote.class));
                 } else {
                     myPhone.setPath(myPhone.getPath() + movieList.getItemAtPosition(position) + File.separator);
-                    clientOutput.send(myPhone);
+                    serverRequest.send(myPhone);
                 }
             }
         });

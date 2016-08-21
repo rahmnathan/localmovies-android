@@ -2,6 +2,8 @@ package setup;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -38,6 +40,12 @@ public class Setup extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.setup_main);
 
+        ActivityCompat.requestPermissions(
+                this,
+                PERMISSIONS_STORAGE,
+                REQUEST_EXTERNAL_STORAGE
+        );
+
         chrome = (EditText) findViewById(R.id.chrome);
         phone = (EditText) findViewById(R.id.phone);
         name = (EditText) findViewById(R.id.phoneName);
@@ -70,11 +78,6 @@ public class Setup extends Activity {
     private void saveData(String chrome, String phone, String name, String server, String path){
 
         try {
-            ActivityCompat.requestPermissions(
-                    Setup.this,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
 
             // Navigating to setup file and writing data to it
 
