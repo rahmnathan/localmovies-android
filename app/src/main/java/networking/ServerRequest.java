@@ -20,10 +20,15 @@ public class ServerRequest {
 
         // Sending phone info to server
 
-        String restRequest = "http://" + myPhone.getComputerIP() + ":8080/titlerequest?path=" + myPhone.getPath().replace(" ", "%20") +
-                "&phoneName=" + myPhone.getPhoneName() + "&phoneIP=" + myPhone.getPhoneIP() +
-                "&computerIP=" + myPhone.getComputerIP() + "&chromeIP=" + myPhone.getCastIP() +
-                "&casting=" + myPhone.isCasting();
+        String restRequest;
+
+        if(myPhone.isCasting()){
+            restRequest = "http://" + myPhone.getComputerIP() + ":8080/titlerequest?path=" + myPhone.getPath().replace(" ", "%20") +
+                    "&phoneName=" + myPhone.getPhoneName() + "&phoneIP=" + myPhone.getPhoneIP() +
+                    "&computerIP=" + myPhone.getComputerIP() + "&chromeIP=" + myPhone.getCastIP();
+        } else{
+            restRequest = "http://" + myPhone.getComputerIP() + ":8080/playmovie?path=" + myPhone.getPath().replace(" ", "%20");
+        }
 
         try {
             URL url = new URL(restRequest);
