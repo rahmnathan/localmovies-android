@@ -2,7 +2,9 @@ package remote;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.HttpURLConnection;
 import java.net.Socket;
+import java.net.URL;
 
 import activity.MainActivity;
 
@@ -28,18 +30,17 @@ class ViewPressRepeater extends Thread {
 
     private void sendControl(String command) {
 
-        int portNum = 3995;
-        String[] commandArray = {command, MainActivity.myPhone.getPhoneName()};
+        String uri = "http://" + MainActivity.myPhone.getComputerIP() + "8080/control?control=" +
+                command + "&name=" + MainActivity.myPhone.getPhoneName();
 
         try {
-            Socket socket = new Socket(MainActivity.myPhone.getComputerIP(), portNum);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            URL url = new URL(uri);
 
-            objectOutputStream.writeObject(commandArray);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-            socket.close();
+            connection.disconnect();
 
-        } catch (IOException e) {
+        }catch(IOException e){
             e.printStackTrace();
         }
     }
