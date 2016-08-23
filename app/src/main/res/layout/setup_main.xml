@@ -25,33 +25,10 @@
         android:id="@+id/serverLabel"
         android:layout_gravity="center_horizontal" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="(Leave blank to automatically scan)"
-        android:id="@+id/textView3"
-        android:layout_gravity="center_horizontal"
-        android:textSize="10dp" />
-
     <EditText
         android:layout_width="235dp"
         android:layout_height="wrap_content"
         android:id="@+id/ServerIP"
-        android:layout_gravity="center_horizontal" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Phone IP"
-        android:id="@+id/textView2"
-        android:layout_gravity="center_horizontal" />
-
-    <EditText
-        android:layout_width="220dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/phone"
         android:layout_gravity="center_horizontal" />
 
     <TextView

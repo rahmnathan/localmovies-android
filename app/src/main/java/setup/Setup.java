@@ -23,7 +23,6 @@ import java.io.ObjectOutputStream;
 public class Setup extends Activity {
 
     private EditText chrome;
-    private EditText phone;
     private EditText name;
     private EditText server;
     private EditText path;
@@ -45,7 +44,6 @@ public class Setup extends Activity {
         );
 
         chrome = (EditText) findViewById(R.id.chrome);
-        phone = (EditText) findViewById(R.id.phone);
         name = (EditText) findViewById(R.id.phoneName);
         server = (EditText) findViewById(R.id.ServerIP);
         path = (EditText) findViewById(R.id.inputPath);
@@ -54,7 +52,6 @@ public class Setup extends Activity {
 
         try {
             chrome.setText(MainActivity.myPhone.getCastIP());
-            phone.setText(MainActivity.myPhone.getPhoneIP());
             name.setText(MainActivity.myPhone.getPhoneName());
             server.setText(MainActivity.myPhone.getComputerIP());
             path.setText(MainActivity.myPhone.getMainPath());
@@ -66,14 +63,13 @@ public class Setup extends Activity {
         set.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveData(chrome.getText().toString(), phone.getText().toString(),
-                        name.getText().toString(), server.getText().toString(),
-                        path.getText().toString());
+                saveData(chrome.getText().toString(), name.getText().toString(),
+                        server.getText().toString(), path.getText().toString());
             }
         });
     }
 
-    private void saveData(String chrome, String phone, String name, String server, String path){
+    private void saveData(String chrome, String name, String server, String path){
 
         try {
 
@@ -84,7 +80,7 @@ public class Setup extends Activity {
                 setupFile.createNewFile();
             }
 
-            Phone myPhone = new Phone(chrome, phone, name, path);
+            Phone myPhone = new Phone(chrome, name, path);
             myPhone.setComputerIP(server);
 
             ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(setupFile));

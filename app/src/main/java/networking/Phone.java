@@ -3,22 +3,16 @@ package networking;
 import java.io.Serializable;
 
 public class Phone implements Serializable {
-    private final String phoneIP;
     private final String mainPath;
     private final String castIP;
     private final String phoneName;
     private String computerIP;
     private String path;
 
-    public Phone(String castIP, String phoneIP, String phoneName, String mainPath) {
-        this.phoneIP = phoneIP;
+    public Phone(String castIP, String phoneName, String mainPath) {
         this.castIP = castIP;
         this.phoneName = phoneName;
         this.mainPath = mainPath;
-    }
-
-    public String getPhoneIP() {
-        return phoneIP;
     }
 
     public String getComputerIP() {

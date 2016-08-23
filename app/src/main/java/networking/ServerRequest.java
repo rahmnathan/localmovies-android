@@ -40,8 +40,8 @@ public class ServerRequest {
 
     public void playMovie(Phone myPhone){
 
-        String restRequest = "http://" + myPhone.getComputerIP() + ":8080/playmovie?path=" + myPhone.getPath().replace(" ", "%20") +
-                "&phoneName=" + myPhone.getPhoneName() + "&phoneIP=" + myPhone.getPhoneIP() +
+        String restRequest = "http://" + myPhone.getComputerIP() + ":8080/playmovie?path=" +
+                myPhone.getPath().replace(" ", "%20") + "&phoneName=" + myPhone.getPhoneName() +
                 "&computerIP=" + myPhone.getComputerIP() + "&chromeIP=" + myPhone.getCastIP();
 
         try {
