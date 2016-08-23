@@ -34,12 +34,12 @@ import setup.Setup;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static ArrayAdapter ad;
+    private static ArrayAdapter ad;
     public static Phone myPhone;
     private static final Handler UIHandler = new Handler(Looper.getMainLooper());
     private final ServerRequest serverRequest = new ServerRequest();
 
-    LoadingCache<String, List<String>> titles =
+    private final LoadingCache<String, List<String>> titles =
             CacheBuilder.newBuilder()
             .maximumSize(100)
             .expireAfterWrite(10, TimeUnit.MINUTES)

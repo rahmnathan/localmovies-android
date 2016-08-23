@@ -1,9 +1,7 @@
 package remote;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
-import java.net.Socket;
 import java.net.URL;
 
 import activity.MainActivity;

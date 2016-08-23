@@ -9,7 +9,6 @@ public class Phone implements Serializable {
     private final String phoneName;
     private String computerIP;
     private String path;
-    private boolean casting;
 
     public Phone(String castIP, String phoneIP, String phoneName, String mainPath) {
         this.phoneIP = phoneIP;
@@ -44,14 +43,6 @@ public class Phone implements Serializable {
 
     public String getPath(){
         return path;
-    }
-
-    public void setCasting(boolean casting){
-        this.casting = casting;
-    }
-
-    public boolean isCasting(){
-        return casting;
     }
 
     public String getMainPath(){
