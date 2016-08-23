@@ -36,6 +36,8 @@ class ViewPressRepeater extends Thread {
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
+            connection.getResponseCode();
+
             connection.disconnect();
 
         }catch(IOException e){

@@ -19,13 +19,13 @@ public class ServerRequest {
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-                List<String> list = Arrays.asList(br.readLine()
-                        .replace("\"", "")
-                        .replace("[", "")
-                        .replace("]", "")
-                        .split(","));
+            List<String> list = Arrays.asList(br.readLine()
+                    .replace("\"", "")
+                    .replace("[", "")
+                    .replace("]", "")
+                    .split(","));
 
             connection.disconnect();
 
@@ -48,6 +48,8 @@ public class ServerRequest {
             URL url = new URL(restRequest);
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            connection.getResponseCode();
 
             connection.disconnect();
 
