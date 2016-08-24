@@ -17,18 +17,13 @@ class ViewPressRepeater extends Thread {
     public void run(){
         do{
             sendControl(command);
-            try{
-                Thread.sleep(200);
-            } catch(InterruptedException e){
-                e.printStackTrace();
-            }
         }
         while (Remote.repeat);
     }
 
     private void sendControl(String command) {
 
-        String uri = "http://" + MainActivity.myPhone.getComputerIP() + "8080/control?control=" +
+        String uri = "http://" + MainActivity.myPhone.getComputerIP() + ":3999/control?control=" +
                 command + "&name=" + MainActivity.myPhone.getPhoneName();
 
         try {

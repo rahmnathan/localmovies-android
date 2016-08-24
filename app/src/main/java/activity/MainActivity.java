@@ -3,8 +3,6 @@ package activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -23,34 +21,34 @@ import com.google.common.cache.LoadingCache;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import networking.ServerRequest;
 import networking.Phone;
-import remote.Remote;
+import networking.ServerDiscoverer;
+import networking.ServerRequest;
 import rahmnathan.localmovies.R;
+import remote.Remote;
 import setup.Setup;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static ArrayAdapter ad;
+    public static ArrayAdapter ad;
     public static Phone myPhone;
-    private static final Handler UIHandler = new Handler(Looper.getMainLooper());
-    private final ServerRequest serverRequest = new ServerRequest();
+    public static final ServerRequest serverRequest = new ServerRequest();
 
-    private final LoadingCache<String, List<String>> titles =
+
+    public static final LoadingCache<String, List<String>> titles =
             CacheBuilder.newBuilder()
-            .maximumSize(100)
-            .expireAfterWrite(10, TimeUnit.MINUTES)
-            .build(
-                    new CacheLoader<String, List<String>>() {
+                    .maximumSize(100)
+                    .expireAfterWrite(10, TimeUnit.MINUTES)
+                    .build(
+                            new CacheLoader<String, List<String>>() {
 
-                        @Override
-                        public List<String> load(String path) {
-                            return serverRequest.requestTitles(myPhone);
-                        }
-                    });
+                                @Override
+                                public List<String> load(String path) {
+                                    return serverRequest.requestTitles(MainActivity.myPhone);
+                                }
+                            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             myPhone = new Setup().getPhoneInfo();
-            updateListView(titles.get(myPhone.getPath()));
+            new ServerDiscoverer(myPhone, this).start();
 
-        } catch(NullPointerException | ExecutionException e){
+        } catch(NullPointerException e){
             startActivity(new Intent(MainActivity.this, Setup.class));
         }
 
@@ -99,11 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Requesting series list and updating listview
 
-                try {
-                    updateListView(titles.get(myPhone.getPath()));
-                }catch(ExecutionException e){
-                    e.printStackTrace();
-                }
+                new ThreadManager("GetTitles").start();
             }
         });
 
@@ -116,11 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Requesting movie list and updating listview
 
-                try {
-                    updateListView(titles.get(myPhone.getPath()));
-                } catch (ExecutionException e){
-                    e.printStackTrace();
-                }
+                new ThreadManager("GetTitles").start();
             }
         });
 
@@ -159,33 +149,15 @@ public class MainActivity extends AppCompatActivity {
                      play the movie and start our Remote activity
                    */
                     myPhone.setPath(myPhone.getPath() + movieList.getItemAtPosition(position));
-                    serverRequest.playMovie(myPhone);
+                    new ThreadManager("PlayMovie").start();
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this, Remote.class));
                 } else {
                     myPhone.setPath(myPhone.getPath() + movieList.getItemAtPosition(position) + File.separator);
-                    try {
-                        updateListView(titles.get(myPhone.getPath()));
-                    } catch(ExecutionException e){
-                        e.printStackTrace();
-                    }
+
+                    new ThreadManager("GetTitles").start();
                 }
             }
         });
-    }
-
-    private void updateListView(final List<String> titleList){
-        runOnUI(new Runnable() {
-            @Override
-            public void run() {
-                MainActivity.ad.clear();
-                MainActivity.ad.addAll(titleList);
-                MainActivity.ad.notifyDataSetChanged();
-            }
-        });
-    }
-
-    private static void runOnUI(Runnable runnable) {
-        UIHandler.post(runnable);
     }
 }

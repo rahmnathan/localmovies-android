@@ -25,6 +25,16 @@
         android:id="@+id/serverLabel"
         android:layout_gravity="center_horizontal" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="(Leave blank to automatically scan)"
+        android:id="@+id/textView2"
+        android:layout_gravity="center_horizontal"
+        android:textSize="9dp"
+        android:textIsSelectable="true" />
+
     <EditText
         android:layout_width="235dp"
         android:layout_height="wrap_content"
