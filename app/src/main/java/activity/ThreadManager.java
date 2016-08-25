@@ -3,10 +3,6 @@ package activity;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -22,24 +18,11 @@ public class ThreadManager extends Thread {
         this.request = request;
     }
 
-    public static final LoadingCache<String, List<String>> titles =
-            CacheBuilder.newBuilder()
-                    .maximumSize(100)
-                    .build(
-                            new CacheLoader<String, List<String>>() {
-
-                                @Override
-                                public List<String> load(String currentPath) {
-                                    return serverRequest.requestTitles(MainActivity.myPhone);
-                                }
-                            });
-
-
     public void run(){
         switch(request){
             case "GetTitles":
                 try {
-                    updateListView(titles.get(MainActivity.myPhone.getPath()));
+                    updateListView(MainActivity.titles.get(MainActivity.myPhone.getPath()));
                 } catch (ExecutionException e){
                     e.printStackTrace();
                 }
@@ -48,7 +31,7 @@ public class ThreadManager extends Thread {
                 serverRequest.playMovie(MainActivity.myPhone);
                 break;
             case "Refresh":
-                titles.invalidateAll();
+                MainActivity.titles.invalidateAll();
                 serverRequest.refresh(MainActivity.myPhone);
                 MainActivity.myPhone.setPath(MainActivity.myPhone.getMainPath() + "Movies/");
                 updateListView(serverRequest.requestTitles(MainActivity.myPhone));
