@@ -9,8 +9,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import activity.ThreadManager;
 import networking.Phone;
 import activity.MainActivity;
+import networking.ServerRequest;
 import rahmnathan.localmovies.R;
 
 import java.io.File;
@@ -65,6 +68,14 @@ public class Setup extends Activity {
             public void onClick(View v) {
                 saveData(chrome.getText().toString(), name.getText().toString(),
                         server.getText().toString(), path.getText().toString());
+            }
+        });
+
+        Button refresh = (Button) findViewById(R.id.refresh);
+        refresh.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                new ThreadManager("Refresh").start();
             }
         });
     }

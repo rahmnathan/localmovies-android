@@ -15,17 +15,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-
 import java.io.File;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import networking.Phone;
 import networking.ServerDiscoverer;
-import networking.ServerRequest;
 import rahmnathan.localmovies.R;
 import remote.Remote;
 import setup.Setup;
@@ -34,21 +27,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static ArrayAdapter ad;
     public static Phone myPhone;
-    public static final ServerRequest serverRequest = new ServerRequest();
-
-
-    public static final LoadingCache<String, List<String>> titles =
-            CacheBuilder.newBuilder()
-                    .maximumSize(100)
-                    .expireAfterWrite(10, TimeUnit.MINUTES)
-                    .build(
-                            new CacheLoader<String, List<String>>() {
-
-                                @Override
-                                public List<String> load(String path) {
-                                    return serverRequest.requestTitles(MainActivity.myPhone);
-                                }
-                            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

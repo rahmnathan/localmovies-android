@@ -57,4 +57,17 @@ public class ServerRequest {
             e.printStackTrace();
         }
     }
+
+    public void refresh(Phone myPhone){
+        String restRequest = "http://" + myPhone.getComputerIP() + ":3999/refresh";
+
+        try{
+            URL url = new URL(restRequest);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.getResponseCode();
+            connection.disconnect();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }
