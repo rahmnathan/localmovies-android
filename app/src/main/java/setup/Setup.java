@@ -13,7 +13,6 @@ import android.widget.Toast;
 import activity.ThreadManager;
 import networking.Phone;
 import activity.MainActivity;
-import networking.ServerRequest;
 import rahmnathan.localmovies.R;
 
 import java.io.File;
@@ -81,9 +80,7 @@ public class Setup extends Activity {
     }
 
     private void saveData(String chrome, String name, String server, String path){
-
         try {
-
             // Navigating to setup file and writing data to it
 
             File setupFile = new File(Environment.getExternalStorageDirectory(), "setup.txt");

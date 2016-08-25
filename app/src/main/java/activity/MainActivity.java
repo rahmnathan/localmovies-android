@@ -127,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
 
                 ad.getFilter().filter(cs);
             }
-
             @Override
             public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
             }

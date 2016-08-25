@@ -40,7 +40,6 @@ public class Remote extends Activity {
         seekBack.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-
                 switch (motionEvent.getAction()){
                     case MotionEvent.ACTION_DOWN:
                         repeat = true;
@@ -57,7 +56,6 @@ public class Remote extends Activity {
         seekForward.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-
                 switch (motionEvent.getAction()){
                     case MotionEvent.ACTION_DOWN:
                         repeat = true;

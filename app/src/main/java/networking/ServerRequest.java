@@ -16,9 +16,7 @@ public class ServerRequest {
 
         try {
             URL url = new URL(restRequest);
-
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
             List<String> list = Arrays.asList(br.readLine()
@@ -46,13 +44,9 @@ public class ServerRequest {
 
         try {
             URL url = new URL(restRequest);
-
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
             connection.getResponseCode();
-
             connection.disconnect();
-
         } catch(Exception e){
             e.printStackTrace();
         }
