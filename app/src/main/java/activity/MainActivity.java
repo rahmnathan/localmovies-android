@@ -157,4 +157,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public void onBackPressed(){
+        String currentPath = myPhone.getPath();
+        if(currentPath.endsWith("Series/") | currentPath.endsWith("Movies/")){
+            System.exit(0);
+        } else{
+            String newPath = "/";
+            String[] pathSplit = currentPath.split("/");
+            for(int x = 0; x<pathSplit.length - 1; x++){
+                newPath = newPath + pathSplit[x] + "/";
+            }
+            myPhone.setPath(newPath);
+            new ThreadManager("GetTitles").start();
+        }
+    }
+
 }
