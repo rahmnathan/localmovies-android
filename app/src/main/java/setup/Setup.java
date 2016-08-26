@@ -2,6 +2,7 @@ package setup;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -14,6 +15,7 @@ import activity.ThreadManager;
 import networking.Phone;
 import activity.MainActivity;
 import rahmnathan.localmovies.R;
+import remote.Remote;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -67,6 +69,9 @@ public class Setup extends Activity {
             public void onClick(View v) {
                 saveData(chrome.getText().toString(), name.getText().toString(),
                         server.getText().toString(), path.getText().toString());
+
+                startActivity(new Intent(Setup.this, MainActivity.class));
+
             }
         });
 
