@@ -15,7 +15,6 @@ import activity.ThreadManager;
 import networking.Phone;
 import activity.MainActivity;
 import rahmnathan.localmovies.R;
-import remote.Remote;
 
 import java.io.File;
 import java.io.FileInputStream;

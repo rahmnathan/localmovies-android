@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static ArrayAdapter ad;
     public static Phone myPhone;
-    public static final ServerRequest serverRequest = new ServerRequest();
+    private static final ServerRequest serverRequest = new ServerRequest();
 
     public static final LoadingCache<String, List<String>> titles =
             CacheBuilder.newBuilder()

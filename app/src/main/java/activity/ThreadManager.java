@@ -12,7 +12,7 @@ public class ThreadManager extends Thread {
 
     private final String request;
     private static final Handler UIHandler = new Handler(Looper.getMainLooper());
-    public static final ServerRequest serverRequest = new ServerRequest();
+    private static final ServerRequest serverRequest = new ServerRequest();
 
     public ThreadManager(String request){
         this.request = request;
