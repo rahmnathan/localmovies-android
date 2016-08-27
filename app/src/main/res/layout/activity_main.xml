@@ -68,7 +68,7 @@
         android:textColor="@color/abc_primary_text_disable_only_material_light"
         android:padding="3dp"
         android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@+id/movies" />
+        android:layout_alignParentEnd="true" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -79,6 +79,14 @@
         android:width="85dp"
         android:padding="3dp"
         android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@+id/controls" />
+        android:layout_toStartOf="@+id/series" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

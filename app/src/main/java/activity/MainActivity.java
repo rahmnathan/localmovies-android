@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.common.cache.CacheBuilder;
@@ -40,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
                     .maximumSize(100)
                     .build(
                             new CacheLoader<String, List<String>>() {
-
                                 @Override
                                 public List<String> load(String currentPath) {
                                     return serverRequest.requestTitles(MainActivity.myPhone);
@@ -59,9 +59,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Getting phone info and Triggering initial requestTitles of titles from server
 
+        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
+
         try {
             myPhone = new Setup().getPhoneInfo();
-            new ServerDiscoverer(myPhone, this).start();
+            new ServerDiscoverer(myPhone, this, progressBar).start();
 
         } catch(NullPointerException e){
             startActivity(new Intent(MainActivity.this, Setup.class));

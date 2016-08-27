@@ -83,4 +83,5 @@
         android:text="Refresh Title List"
         android:id="@+id/refresh"
         android:layout_gravity="center_horizontal" />
+
 </LinearLayout>

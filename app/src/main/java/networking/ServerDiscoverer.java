@@ -1,6 +1,8 @@
 package networking;
 
 import android.content.Context;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.net.InetSocketAddress;
@@ -13,16 +15,25 @@ public class ServerDiscoverer extends Thread {
 
     private final Context context;
     private final Phone myPhone;
+    private final ProgressBar progressBar;
 
-    public ServerDiscoverer(Phone myPhone, Context context){
+    public ServerDiscoverer(Phone myPhone, Context context, ProgressBar progressBar){
         this.myPhone = myPhone;
         this.context = context;
+        this.progressBar = progressBar;
     }
 
     public void run(){
 
-        if(myPhone.getComputerIP().equals(""))
+        if(myPhone.getComputerIP().equals("")) {
             MainActivity.myPhone.setComputerIP(getServerIP());
+            ThreadManager.runOnUI(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.GONE);
+                }
+            });
+        }
 
         new ThreadManager("GetTitles").start();
     }
@@ -33,6 +44,7 @@ public class ServerDiscoverer extends Thread {
             @Override
             public void run() {
                 Toast.makeText(context, "Scanning for server", Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.VISIBLE);
             }
         });
 
@@ -46,7 +58,9 @@ public class ServerDiscoverer extends Thread {
                 if(i == 256){
                     ThreadManager.runOnUI(new Runnable() {
                         @Override
-                        public void run() {Toast.makeText(context, "Unable to find server", Toast.LENGTH_LONG).show();
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                            Toast.makeText(context, "Unable to find server", Toast.LENGTH_LONG).show();
                         }
                     });
                     break;
