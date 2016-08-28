@@ -1,6 +1,7 @@
 package activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -21,8 +22,12 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import movieinfo.ImageDownloader;
 import networking.Phone;
 import networking.ServerDiscoverer;
 import networking.ServerRequest;
@@ -32,9 +37,11 @@ import setup.Setup;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static ArrayAdapter ad;
+    public static CustomListAdapter myAdapter;
     public static Phone myPhone;
     private static final ServerRequest serverRequest = new ServerRequest();
+    public static Map<String, Bitmap> images = new HashMap<>();
+    public static List<String> titleList = new ArrayList<>();
 
     public static final LoadingCache<String, List<String>> titles =
             CacheBuilder.newBuilder()
@@ -43,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                             new CacheLoader<String, List<String>>() {
                                 @Override
                                 public List<String> load(String currentPath) {
-                                    return serverRequest.requestTitles(MainActivity.myPhone);
+                                    return serverRequest.requestTitles(myPhone);
                                 }
                             });
 
@@ -116,9 +123,19 @@ public class MainActivity extends AppCompatActivity {
 
         // Creating ListAdapter and listView to display titles
 
-        ad = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+        try {
+            titleList = MainActivity.titles.get(myPhone.getPath());
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+
+        images = new ImageDownloader().getImages(titleList);
+
+        myAdapter = new CustomListAdapter(this, images, titleList);
+
+
         final ListView movieList = (ListView) findViewById(R.id.listView);
-        movieList.setAdapter(ad);
+        movieList.setAdapter(myAdapter);
 
         // Setting up our search box with a text change listener
 
@@ -128,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Filtering list with user input
 
-                ad.getFilter().filter(cs);
+                myAdapter.getFilter().filter(cs);
             }
             @Override
             public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {

@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ServerRequest {
@@ -14,16 +16,18 @@ public class ServerRequest {
         String restRequest = "http://" + myPhone.getComputerIP() + ":3999/titlerequest?path=" +
                 myPhone.getPath().replace(" ", "%20");
 
+//        System.out.println(restRequest);
+
         try {
             URL url = new URL(restRequest);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-            List<String> list = Arrays.asList(br.readLine()
+            List<String> list = new ArrayList<String>(Arrays.asList(br.readLine()
                     .replace("\"", "")
                     .replace("[", "")
                     .replace("]", "")
-                    .split(","));
+                    .split(",")));
 
             connection.disconnect();
 
