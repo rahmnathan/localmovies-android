@@ -1,7 +1,6 @@
 package activity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -10,7 +9,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -23,12 +21,10 @@ import com.google.common.cache.LoadingCache;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import movieinfo.ImageDownloader;
+import movieinfo.MovieInfoRetriever;
 import movieinfo.MovieData;
 import networking.Phone;
 import networking.ServerDiscoverer;
@@ -43,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     public static Phone myPhone;
     private static final ServerRequest serverRequest = new ServerRequest();
     public static List<MovieData> movieList = new ArrayList<>();
-    public static ImageDownloader imageDownloader = new ImageDownloader();
+    public static MovieInfoRetriever movieInfoRetriever = new MovieInfoRetriever();
 
     public static final LoadingCache<String, List<String>> titles =
             CacheBuilder.newBuilder()
@@ -65,9 +61,7 @@ public class MainActivity extends AppCompatActivity {
                                 public List<MovieData> load(String currentPath) {
                                     List<MovieData> movies = new ArrayList<MovieData>();
                                     try {
-                                        for (String x : titles.get(myPhone.getPath())){
-                                            movies.add(new ImageDownloader().getMovieData(x));
-                                        }
+                                        movies.addAll(new MovieInfoRetriever().getMovieData(titles.get(currentPath)));
 
                                         return movies;
                                     } catch (ExecutionException e){
@@ -173,18 +167,22 @@ public class MainActivity extends AppCompatActivity {
         movieList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                MovieData movieData = (MovieData) movieList.getItemAtPosition(position);
+
                 if (myPhone.getPath().toLowerCase().contains("season") ||
                         myPhone.getPath().toLowerCase().contains("movies")) {
                     /*
                      If we're viewing movies or episodes we
                      play the movie and start our Remote activity
                    */
-                    myPhone.setPath(myPhone.getPath() + movieList.getItemAtPosition(position));
+                    myPhone.setPath(myPhone.getPath() + movieData.getTitle());
                     new ThreadManager("PlayMovie").start();
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this, Remote.class));
                 } else {
-                    myPhone.setPath(myPhone.getPath() + movieList.getItemAtPosition(position) + File.separator);
+                    myPhone.setPath(myPhone.getPath() + movieData.getTitle() + File.separator);
+                    System.out.println(movieList.getItemAtPosition(position).toString());
 
                     new ThreadManager("GetTitles").start();
                 }

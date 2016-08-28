@@ -6,7 +6,6 @@ import android.os.Looper;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import movieinfo.ImageDownloader;
 import networking.ServerRequest;
 
 public class ThreadManager extends Thread {

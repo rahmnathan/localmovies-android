@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 
 import java.io.Serializable;
 
-public class MovieData implements Serializable{
+public class MovieData implements Serializable {
 
     private String title;
     private String IMDBRating;

@@ -10,9 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
-import java.util.Map;
 
-import movieinfo.ImageDownloader;
 import movieinfo.MovieData;
 import rahmnathan.localmovies.R;
 
@@ -34,14 +32,31 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> {
 
         TextView txtTitle = (TextView) rowView.findViewById(R.id.textView);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
+        TextView year = (TextView) rowView.findViewById(R.id.year);
+        TextView ratings = (TextView) rowView.findViewById(R.id.rating);
 
         MovieData movie = movies.get(position);
 
         String currentTitle = movie.getTitle();
 
+        String currentPath = MainActivity.myPhone.getPath().toLowerCase();
+
+        int mainPathLength = MainActivity.myPhone.getMainPath().split("/").length;
+        int currentPathLength = MainActivity.myPhone.getPath().split("/").length;
+        int level = currentPathLength - mainPathLength;
+
+        if(currentPath.contains("movies") || currentPath.contains("season")){
+            currentTitle = currentTitle.substring(0, currentTitle.length()-4);
+        }
         txtTitle.setText(currentTitle);
 
-        if(!(movie.getImage() == null)) {
+        year.setText("Release Year: " + movie.getReleaseYear());
+
+        ratings.setText("IMDB: " + movie.getIMDBRating() + " Meta: " + movie.getMetaRating() + "  ");
+
+        Bitmap bitmap = movie.getImage();
+
+        if(!(bitmap == null) && level == 1) {
             imageView.setImageBitmap(movie.getImage());
         } else{
             imageView.setImageResource(R.drawable.movie_icon);
