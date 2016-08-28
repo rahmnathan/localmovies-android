@@ -12,19 +12,20 @@ import android.widget.TextView;
 import java.util.List;
 import java.util.Map;
 
+import movieinfo.ImageDownloader;
+import movieinfo.MovieData;
 import rahmnathan.localmovies.R;
 
-public class CustomListAdapter extends ArrayAdapter<String> {
+public class CustomListAdapter extends ArrayAdapter<MovieData> {
 
     private final Activity context;
-    private final Map<String, Bitmap> data;
-    private final List<String> titles;
+    private final List<MovieData> movies;
 
-    public CustomListAdapter(Activity context, Map<String, Bitmap> data, List<String> titles) {
-        super(context, R.layout.my_adapter, titles);
+    public CustomListAdapter(Activity context, List<MovieData> movies) {
+        super(context, R.layout.my_adapter, movies);
         this.context=context;
-        this.data = data;
-        this.titles = titles;
+        this.movies = movies;
+
     }
 
     public View getView(int position,View view,ViewGroup parent) {
@@ -34,12 +35,14 @@ public class CustomListAdapter extends ArrayAdapter<String> {
         TextView txtTitle = (TextView) rowView.findViewById(R.id.textView);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
 
-        String currentTitle = titles.get(position);
+        MovieData movie = movies.get(position);
+
+        String currentTitle = movie.getTitle();
 
         txtTitle.setText(currentTitle);
 
-        if(data.containsKey(currentTitle)) {
-            imageView.setImageBitmap(data.get(currentTitle));
+        if(!(movie.getImage() == null)) {
+            imageView.setImageBitmap(movie.getImage());
         } else{
             imageView.setImageResource(R.drawable.movie_icon);
         }

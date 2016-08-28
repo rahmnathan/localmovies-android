@@ -26,8 +26,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import movieinfo.ImageDownloader;
+import movieinfo.MovieData;
 import networking.Phone;
 import networking.ServerDiscoverer;
 import networking.ServerRequest;
@@ -40,8 +42,8 @@ public class MainActivity extends AppCompatActivity {
     public static CustomListAdapter myAdapter;
     public static Phone myPhone;
     private static final ServerRequest serverRequest = new ServerRequest();
-    public static Map<String, Bitmap> images = new HashMap<>();
-    public static List<String> titleList = new ArrayList<>();
+    public static List<MovieData> movieList = new ArrayList<>();
+    public static ImageDownloader imageDownloader = new ImageDownloader();
 
     public static final LoadingCache<String, List<String>> titles =
             CacheBuilder.newBuilder()
@@ -51,6 +53,27 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public List<String> load(String currentPath) {
                                     return serverRequest.requestTitles(myPhone);
+                                }
+                            });
+
+    public static final LoadingCache<String, List<MovieData>> movieInfo =
+            CacheBuilder.newBuilder()
+                    .maximumSize(100)
+                    .build(
+                            new CacheLoader<String, List<MovieData>>() {
+                                @Override
+                                public List<MovieData> load(String currentPath) {
+                                    List<MovieData> movies = new ArrayList<MovieData>();
+                                    try {
+                                        for (String x : titles.get(myPhone.getPath())){
+                                            movies.add(new ImageDownloader().getMovieData(x));
+                                        }
+
+                                        return movies;
+                                    } catch (ExecutionException e){
+                                        e.printStackTrace();
+                                    }
+                                    return null;
                                 }
                             });
 
@@ -123,15 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Creating ListAdapter and listView to display titles
 
-        try {
-            titleList = MainActivity.titles.get(myPhone.getPath());
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-
-        images = new ImageDownloader().getImages(titleList);
-
-        myAdapter = new CustomListAdapter(this, images, titleList);
+        myAdapter = new CustomListAdapter(this, movieList);
 
 
         final ListView movieList = (ListView) findViewById(R.id.listView);
