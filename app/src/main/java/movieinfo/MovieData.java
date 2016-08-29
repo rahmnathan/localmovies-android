@@ -40,7 +40,6 @@ public class MovieData implements Serializable {
 
     public void setImage(Bitmap image){
         if(image != null) {
-            System.out.println("not null going in");
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             image.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
 
@@ -81,7 +80,6 @@ public class MovieData implements Serializable {
     public Bitmap getImage() {
 
         if(image != null) {
-            System.out.println("not null going out");
             return BitmapFactory.decodeByteArray(image, 0, image.length);
         } else {
             return null;

@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                      play the movie and start our Remote activity
                    */
                     myPhone.setPath(myPhone.getPath() + movieData.getTitle());
-                    new ThreadManager("PlayMovie").start();
+                            new ThreadManager("PlayMovie").start();
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this, Remote.class));
                 } else {

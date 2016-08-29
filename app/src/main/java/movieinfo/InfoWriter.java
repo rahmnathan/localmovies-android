@@ -18,7 +18,6 @@ public class InfoWriter {
         String view = viewGetter[viewGetter.length - 1] + ".txt";
 
         try{
-
         File file = new File(Environment.getExternalStorageDirectory(), view);
 
             if (!file.exists()) {
@@ -30,7 +29,6 @@ public class InfoWriter {
             outputStream.writeObject(movieInfo);
 
             outputStream.close();
-
         } catch (IOException e){
             e.printStackTrace();
         }
