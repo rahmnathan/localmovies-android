@@ -27,8 +27,8 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> {
     }
 
     public View getView(int position,View view,ViewGroup parent) {
-        LayoutInflater inflater=context.getLayoutInflater();
-        View rowView=inflater.inflate(R.layout.my_adapter, null,true);
+        LayoutInflater inflater = context.getLayoutInflater();
+        View rowView = inflater.inflate(R.layout.my_adapter, null, true);
 
         TextView txtTitle = (TextView) rowView.findViewById(R.id.textView);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
@@ -45,8 +45,8 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> {
         int currentPathLength = MainActivity.myPhone.getPath().split("/").length;
         int level = currentPathLength - mainPathLength;
 
-        if(currentPath.contains("movies") || currentPath.contains("season")){
-            currentTitle = currentTitle.substring(0, currentTitle.length()-4);
+        if (currentPath.contains("movies") || currentPath.contains("season")) {
+            currentTitle = currentTitle.substring(0, currentTitle.length() - 4);
         }
         txtTitle.setText(currentTitle);
 
@@ -56,9 +56,9 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> {
 
         Bitmap bitmap = movie.getImage();
 
-        if(!(bitmap == null) && level == 1) {
-            imageView.setImageBitmap(movie.getImage());
-        } else{
+        if (bitmap != null && level == 1) {
+            imageView.setImageBitmap(bitmap);
+        } else {
             imageView.setImageResource(R.drawable.movie_icon);
         }
 

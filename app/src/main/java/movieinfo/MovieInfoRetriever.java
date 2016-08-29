@@ -2,12 +2,19 @@ package movieinfo;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
+import android.support.v4.os.EnvironmentCompat;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -19,9 +26,44 @@ public class MovieInfoRetriever {
 
     JSONObject jsonObject;
     String originalTitle;
-    List<MovieData> movieList = new ArrayList<>();
 
-    public List<MovieData> getMovieData(List<String> titleList){
+    public List<MovieData> getMovieData(List<String> titleList, String currentPath){
+
+        try{
+            return getInfoFromFile(currentPath);
+        } catch (Exception e){
+
+            System.out.println("searching OMDB");
+
+            List<MovieData> movieList = getInfoFromOMDB(titleList);
+
+            new InfoWriter().writeInfo(movieList, currentPath);
+
+            return movieList;
+
+        }
+    }
+
+    public List<MovieData> getInfoFromFile(String currentPath) throws Exception {
+
+        String[] viewGetter = currentPath.split("/");
+
+        String view = viewGetter[viewGetter.length - 1] + ".txt";
+
+        File file = new File(Environment.getExternalStorageDirectory(), view);
+
+        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
+
+        List<MovieData> movieData = (List<MovieData>) inputStream.readObject();
+
+        inputStream.close();
+
+        return movieData;
+    }
+
+    public List<MovieData> getInfoFromOMDB(List<String> titleList){
+
+        List<MovieData> movieDataList = new ArrayList<>();
 
         for(String x : titleList) {
 
@@ -31,6 +73,7 @@ public class MovieInfoRetriever {
             getData(x);
 
             movieData.setImage(getImage());
+
             try {
                 movieData.setActors(jsonObject.getString("Actors"));
             } catch (JSONException e) {
@@ -57,13 +100,9 @@ public class MovieInfoRetriever {
                 movieData.setReleaseYear("N/A");
             }
 
-            movieList.add(movieData);
+            movieDataList.add(movieData);
         }
-
-
-
-        return movieList;
-
+        return movieDataList;
     }
 
     public void getData(String title) {

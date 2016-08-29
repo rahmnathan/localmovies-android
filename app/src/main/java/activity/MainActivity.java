@@ -59,11 +59,8 @@ public class MainActivity extends AppCompatActivity {
                             new CacheLoader<String, List<MovieData>>() {
                                 @Override
                                 public List<MovieData> load(String currentPath) {
-                                    List<MovieData> movies = new ArrayList<MovieData>();
                                     try {
-                                        movies.addAll(new MovieInfoRetriever().getMovieData(titles.get(currentPath)));
-
-                                        return movies;
+                                        return movieInfoRetriever.getMovieData(titles.get(currentPath), currentPath);
                                     } catch (ExecutionException e){
                                         e.printStackTrace();
                                     }

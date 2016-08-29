@@ -1,15 +1,19 @@
 package movieinfo;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 
 public class MovieData implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private String title;
     private String IMDBRating;
     private String MetaRating;
-    private Bitmap image;
+    private byte[] image;
     private String releaseYear;
     private String rating;
     private String actors;
@@ -34,8 +38,16 @@ public class MovieData implements Serializable {
         this.IMDBRating = IMDBRating;
     }
 
-    public void setImage(Bitmap image) {
-        this.image = image;
+    public void setImage(Bitmap image){
+        if(image != null) {
+            System.out.println("not null going in");
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            image.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+
+            this.image = outputStream.toByteArray();
+        } else{
+            this.image = null;
+        }
     }
 
     public void setMetaRating(String metaRating) {
@@ -66,7 +78,13 @@ public class MovieData implements Serializable {
         return MetaRating;
     }
 
-    public Bitmap getImage(){
-        return image;
+    public Bitmap getImage() {
+
+        if(image != null) {
+            System.out.println("not null going out");
+            return BitmapFactory.decodeByteArray(image, 0, image.length);
+        } else {
+            return null;
+        }
     }
 }
