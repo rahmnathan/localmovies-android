@@ -47,5 +47,6 @@
         android:id="@+id/rating"
         android:layout_alignBottom="@+id/year"
         android:layout_alignParentEnd="true"
+        android:gravity="bottom"
         android:layout_marginTop="5dp"/>
 </RelativeLayout>

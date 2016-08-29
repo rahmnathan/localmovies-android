@@ -23,7 +23,6 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> {
         super(context, R.layout.my_adapter, movies);
         this.context=context;
         this.movies = movies;
-
     }
 
     public View getView(int position,View view,ViewGroup parent) {
@@ -50,16 +49,17 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> {
         }
         txtTitle.setText(currentTitle);
 
-        year.setText("Release Year: " + movie.getReleaseYear());
-
-        ratings.setText("IMDB: " + movie.getIMDBRating() + " Meta: " + movie.getMetaRating() + "  ");
-
         Bitmap bitmap = movie.getImage();
 
         if (bitmap != null && level == 1) {
+
+            year.setText("Release Year: " + movie.getReleaseYear());
+            ratings.setText("IMDB: " + movie.getIMDBRating() + " Meta: " + movie.getMetaRating() + "  ");
             imageView.setImageBitmap(bitmap);
         } else {
             imageView.setImageResource(R.drawable.movie_icon);
+            ratings.setText("N/A");
+            year.setText("N/A");
         }
 
         return rowView;

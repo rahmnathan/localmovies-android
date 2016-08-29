@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private static final ServerRequest serverRequest = new ServerRequest();
     public static List<MovieData> movieList = new ArrayList<>();
     public static MovieInfoRetriever movieInfoRetriever = new MovieInfoRetriever();
+    public static ProgressBar progressBar;
 
     public static final LoadingCache<String, List<String>> titles =
             CacheBuilder.newBuilder()
@@ -80,12 +81,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Getting phone info and Triggering initial requestTitles of titles from server
 
-        ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
         try {
             myPhone = new Setup().getPhoneInfo();
-            new ServerDiscoverer(myPhone, this, progressBar).start();
+            new ServerDiscoverer(myPhone, this).start();
 
         } catch(NullPointerException e){
             startActivity(new Intent(MainActivity.this, Setup.class));
@@ -174,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                      play the movie and start our Remote activity
                    */
                     myPhone.setPath(myPhone.getPath() + movieData.getTitle());
-                            new ThreadManager("PlayMovie").start();
+                    new ThreadManager("PlayMovie").start();
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this, Remote.class));
                 } else {

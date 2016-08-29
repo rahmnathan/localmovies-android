@@ -17,8 +17,12 @@ public class InfoWriter {
 
         String view = viewGetter[viewGetter.length - 1] + ".txt";
 
+        File setupFolder = new File(Environment.getExternalStorageDirectory().toString() + "/LocalMovies/");
+
+        setupFolder.mkdir();
+
         try{
-        File file = new File(Environment.getExternalStorageDirectory(), view);
+        File file = new File(setupFolder, view);
 
             if (!file.exists()) {
                 file.createNewFile();

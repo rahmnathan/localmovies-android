@@ -3,9 +3,6 @@ package activity;
 import android.os.Handler;
 import android.os.Looper;
 
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 import networking.ServerRequest;
 
 public class ThreadManager extends Thread {
@@ -21,11 +18,7 @@ public class ThreadManager extends Thread {
     public void run(){
         switch(request){
             case "GetTitles":
-                try {
-                    updateListView(MainActivity.titles.get(MainActivity.myPhone.getPath()));
-                } catch (ExecutionException e){
-                    e.printStackTrace();
-                }
+                updateListView();
                 break;
             case "PlayMovie":
                 serverRequest.playMovie(MainActivity.myPhone);
@@ -34,7 +27,7 @@ public class ThreadManager extends Thread {
                 MainActivity.titles.invalidateAll();
                 serverRequest.refresh(MainActivity.myPhone);
                 MainActivity.myPhone.setPath(MainActivity.myPhone.getMainPath() + "Movies/");
-                updateListView(serverRequest.requestTitles(MainActivity.myPhone));
+                updateListView();
                 break;
         }
     }
@@ -43,7 +36,7 @@ public class ThreadManager extends Thread {
         UIHandler.post(runnable);
     }
 
-    private void updateListView(final List<String> titleList1){
+    private void updateListView(){
         runOnUI(new Runnable() {
             @Override
             public void run() {

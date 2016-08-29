@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.support.v4.os.EnvironmentCompat;
+import android.view.View;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,7 +41,6 @@ public class MovieInfoRetriever {
             new InfoWriter().writeInfo(movieList, currentPath);
 
             return movieList;
-
         }
     }
 
@@ -50,9 +50,13 @@ public class MovieInfoRetriever {
 
         String view = viewGetter[viewGetter.length - 1] + ".txt";
 
-        File file = new File(Environment.getExternalStorageDirectory(), view);
+        File setupFolder = new File(Environment.getExternalStorageDirectory().toString() + "/LocalMovies/");
 
-        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
+        setupFolder.mkdir();
+
+
+
+        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(new File(setupFolder, view)));
 
         List<MovieData> movieData = (List<MovieData>) inputStream.readObject();
 

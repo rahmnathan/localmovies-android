@@ -16,8 +16,6 @@ public class ServerRequest {
         String restRequest = "http://" + myPhone.getComputerIP() + ":3999/titlerequest?path=" +
                 myPhone.getPath().replace(" ", "%20");
 
-//        System.out.println(restRequest);
-
         try {
             URL url = new URL(restRequest);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -36,7 +34,6 @@ public class ServerRequest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
