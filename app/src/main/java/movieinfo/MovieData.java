@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 
 public class MovieData implements Serializable {
 

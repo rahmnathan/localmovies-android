@@ -1,7 +1,13 @@
 package activity;
 
+import android.content.Context;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
+import android.widget.Toast;
+
+import java.io.File;
 
 import networking.ServerRequest;
 
@@ -27,6 +33,14 @@ public class ThreadManager extends Thread {
                 MainActivity.titles.invalidateAll();
                 serverRequest.refresh(MainActivity.myPhone);
                 MainActivity.myPhone.setPath(MainActivity.myPhone.getMainPath() + "Movies/");
+
+                File file = new File(Environment.getExternalStorageDirectory().toString() + "/LocalMovies/");
+
+                for(File x : file.listFiles()){
+                    x.delete();
+                }
+
+
                 updateListView();
                 break;
         }
@@ -36,16 +50,25 @@ public class ThreadManager extends Thread {
         UIHandler.post(runnable);
     }
 
-    private void updateListView(){
+    private void updateListView() {
+
         runOnUI(new Runnable() {
             @Override
             public void run() {
-                MainActivity.movieList.clear();
-                try {
-                    MainActivity.movieList.addAll(MainActivity.movieInfo.get(MainActivity.myPhone.getPath()));
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
+                MainActivity.progressBar.setVisibility(View.VISIBLE);
+            }
+        });
+
+        MainActivity.movieList.clear();
+        try {
+            MainActivity.movieList.addAll(MainActivity.movieInfo.get(MainActivity.myPhone.getPath()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        runOnUI(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.progressBar.setVisibility(View.GONE);
                 MainActivity.myAdapter.notifyDataSetChanged();
             }
         });

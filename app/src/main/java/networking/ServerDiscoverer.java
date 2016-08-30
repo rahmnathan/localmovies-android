@@ -24,7 +24,12 @@ public class ServerDiscoverer extends Thread {
 
         if(myPhone.getComputerIP().equals("")) {
             MainActivity.myPhone.setComputerIP(getServerIP());
-            MainActivity.progressBar.setVisibility(View.GONE);
+            ThreadManager.runOnUI(new Runnable() {
+                @Override
+                public void run() {
+                    MainActivity.progressBar.setVisibility(View.GONE);
+                }
+            });
         }
 
         new ThreadManager("GetTitles").start();
@@ -36,7 +41,12 @@ public class ServerDiscoverer extends Thread {
             @Override
             public void run() {
                 Toast.makeText(context, "Scanning for server", Toast.LENGTH_SHORT).show();
-                MainActivity.progressBar.setVisibility(View.VISIBLE);
+                ThreadManager.runOnUI(new Runnable() {
+                    @Override
+                    public void run() {
+                        MainActivity.progressBar.setVisibility(View.VISIBLE);
+                    }
+                });
             }
         });
 
@@ -51,7 +61,12 @@ public class ServerDiscoverer extends Thread {
                     ThreadManager.runOnUI(new Runnable() {
                         @Override
                         public void run() {
-                            MainActivity.progressBar.setVisibility(View.GONE);
+                            ThreadManager.runOnUI(new Runnable() {
+                                @Override
+                                public void run() {
+                                    MainActivity.progressBar.setVisibility(View.GONE);
+                                }
+                            });
                             Toast.makeText(context, "Unable to find server", Toast.LENGTH_LONG).show();
                         }
                     });

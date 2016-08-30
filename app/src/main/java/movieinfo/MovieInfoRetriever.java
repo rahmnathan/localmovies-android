@@ -34,8 +34,6 @@ public class MovieInfoRetriever {
             return getInfoFromFile(currentPath);
         } catch (Exception e){
 
-            System.out.println("searching OMDB");
-
             List<MovieData> movieList = getInfoFromOMDB(titleList);
 
             new InfoWriter().writeInfo(movieList, currentPath);
@@ -53,8 +51,6 @@ public class MovieInfoRetriever {
         File setupFolder = new File(Environment.getExternalStorageDirectory().toString() + "/LocalMovies/");
 
         setupFolder.mkdir();
-
-
 
         ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(new File(setupFolder, view)));
 

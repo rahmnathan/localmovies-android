@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-
 public class InfoWriter {
 
     public void writeInfo(List<MovieData> movieInfo, String currentPath){
