@@ -6,18 +6,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import movieinfo.MovieData;
 import rahmnathan.localmovies.R;
 
-public class CustomListAdapter extends ArrayAdapter<MovieData> {
+public class CustomListAdapter extends ArrayAdapter<MovieData> implements Filterable {
 
     private final Activity context;
-    private final List<MovieData> movies;
+    private List<MovieData> movies;
+    public AdapterFilter adapterFilter;
 
     public CustomListAdapter(Activity context, List<MovieData> movies) {
         super(context, R.layout.my_adapter, movies);
@@ -64,4 +69,50 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> {
 
         return rowView;
     }
+
+    @Override
+    public Filter getFilter(){
+        if(adapterFilter == null){
+            adapterFilter = new AdapterFilter();
+            return adapterFilter;
+        } else {
+            return adapterFilter;
+        }
+    }
+
+    public class AdapterFilter extends Filter {
+
+        @Override
+        protected FilterResults performFiltering(CharSequence charSequence){
+            FilterResults filterResults = new FilterResults();
+            if(charSequence == null || charSequence.length() == 0){
+                filterResults.values = movies;
+            } else{
+                List<MovieData> movieDataList = new ArrayList<>();
+
+                for(MovieData movie : movies){
+                    if(movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase())){
+                        movieDataList.add(movie);
+                    }
+                }
+                filterResults.values = movieDataList;
+                filterResults.count = movieDataList.size();
+            }
+            return filterResults;
+        }
+
+        @Override
+        protected void publishResults(CharSequence charSequence, FilterResults filterResults){
+
+            if(filterResults.count == 0){
+                notifyDataSetInvalidated();
+            } else{
+                movies = (List<MovieData>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        }
+
+
+    }
+
 }
