@@ -23,7 +23,7 @@ class ViewPressRepeater extends Thread {
 
     private void sendControl(String command) {
 
-        String uri = "http://" + MainActivity.myPhone.getComputerIP() + ":3999/control?control=" +
+        String uri = "http://" + MainActivity.myPhone.getComputerIP() + ":3990/control?control=" +
                 command + "&name=" + MainActivity.myPhone.getPhoneName();
 
         try {

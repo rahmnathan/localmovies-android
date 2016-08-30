@@ -13,7 +13,7 @@ public class ServerRequest {
 
     public List<String> requestTitles(Phone myPhone) {
 
-        String restRequest = "http://" + myPhone.getComputerIP() + ":3999/titlerequest?path=" +
+        String restRequest = "http://" + myPhone.getComputerIP() + ":3990/titlerequest?path=" +
                 myPhone.getPath().replace(" ", "%20");
 
         try {
@@ -39,7 +39,7 @@ public class ServerRequest {
 
     public void playMovie(Phone myPhone){
 
-        String restRequest = "http://" + myPhone.getComputerIP() + ":3999/playmovie?path=" +
+        String restRequest = "http://" + myPhone.getComputerIP() + ":3990/playmovie?path=" +
                 myPhone.getPath().replace(" ", "%20") + "&phoneName=" + myPhone.getPhoneName() +
                 "&computerIP=" + myPhone.getComputerIP() + "&chromeIP=" + myPhone.getCastIP();
 
@@ -56,7 +56,7 @@ public class ServerRequest {
     }
 
     public void refresh(Phone myPhone){
-        String restRequest = "http://" + myPhone.getComputerIP() + ":3999/refresh";
+        String restRequest = "http://" + myPhone.getComputerIP() + ":3990/refresh";
 
         try{
             URL url = new URL(restRequest);

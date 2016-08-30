@@ -1,11 +1,9 @@
 package activity;
 
-import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
-import android.widget.Toast;
 
 import java.io.File;
 
@@ -31,15 +29,14 @@ public class ThreadManager extends Thread {
                 break;
             case "Refresh":
                 MainActivity.titles.invalidateAll();
+                MainActivity.movieInfo.invalidateAll();
                 serverRequest.refresh(MainActivity.myPhone);
                 MainActivity.myPhone.setPath(MainActivity.myPhone.getMainPath() + "Movies/");
 
                 File file = new File(Environment.getExternalStorageDirectory().toString() + "/LocalMovies/");
-
                 for(File x : file.listFiles()){
                     x.delete();
                 }
-
 
                 updateListView();
                 break;

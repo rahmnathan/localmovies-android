@@ -3,8 +3,6 @@ package movieinfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.support.v4.os.EnvironmentCompat;
-import android.view.View;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,8 +10,6 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.net.HttpURLConnection;

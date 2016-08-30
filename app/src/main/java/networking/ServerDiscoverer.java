@@ -73,7 +73,7 @@ public class ServerDiscoverer extends Thread {
                     break;
                 }
                 Socket socket = new Socket();
-                socket.connect(new InetSocketAddress(IPRange + i, 3999), 250);
+                socket.connect(new InetSocketAddress(IPRange + i, 3990), 250);
                 socket.close();
                 address = IPRange + i;
                 break;
