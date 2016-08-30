@@ -22,12 +22,14 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> implements Filter
 
     private final Activity context;
     private List<MovieData> movies;
+    private List<MovieData> originalMovieList;
     public AdapterFilter adapterFilter;
 
     public CustomListAdapter(Activity context, List<MovieData> movies) {
         super(context, R.layout.my_adapter, movies);
         this.context=context;
         this.movies = movies;
+        this.originalMovieList = movies;
     }
 
     public View getView(int position,View view,ViewGroup parent) {
@@ -90,11 +92,12 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> implements Filter
         protected FilterResults performFiltering(CharSequence charSequence){
             FilterResults filterResults = new FilterResults();
             if(charSequence == null || charSequence.length() == 0){
-                filterResults.values = movies;
+                filterResults.values = originalMovieList;
+                filterResults.count = originalMovieList.size();
             } else{
                 List<MovieData> movieDataList = new ArrayList<>();
 
-                for(MovieData movie : movies){
+                for(MovieData movie : originalMovieList){
                     if(movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase())){
                         movieDataList.add(movie);
                     }
@@ -107,16 +110,9 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> implements Filter
 
         @Override
         protected void publishResults(CharSequence charSequence, FilterResults filterResults){
-
-            if(filterResults.count == 0){
-                notifyDataSetInvalidated();
-            } else{
                 movies = (List<MovieData>) filterResults.values;
                 notifyDataSetChanged();
-            }
         }
-
-
     }
 
 }
