@@ -79,6 +79,10 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> implements Filter
             return adapterFilter;
         }
     }
+    @Override
+    public int getCount() {
+        return movies.size();
+    }
 
     public class AdapterFilter extends Filter {
 
