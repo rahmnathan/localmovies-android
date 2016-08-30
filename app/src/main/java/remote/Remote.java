@@ -1,7 +1,9 @@
 package remote;
 
 import android.app.Activity;
+import android.media.AudioManager;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -88,5 +90,19 @@ public class Remote extends Activity {
                 new ViewPressRepeater(controls.STOP.name()).start();
             }
         });
+
     }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            event.startTracking();
+            new ViewPressRepeater(controls.VOLUME_DOWN.name()).start();
+            return true;
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP){
+            new ViewPressRepeater(controls.VOLUME_UP.name()).start();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 }
