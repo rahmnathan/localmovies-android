@@ -1,12 +1,6 @@
 package com.rahmnathan;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.Serializable;
-
-import javax.imageio.ImageIO;
 
 public class MovieInfo implements Serializable {
 

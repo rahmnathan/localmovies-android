@@ -5,7 +5,6 @@ import com.google.common.io.ByteStreams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,14 +16,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-
 public class MovieInfoProvider {
 
-    JSONObject jsonObject;
-    String originalTitle;
-    String currentPath;
-    String dataDirectory;
+    private JSONObject jsonObject;
+    private String currentPath;
+    private String dataDirectory;
 
     public List<MovieInfo> getMovieData(List<String> titleList, String currentPath, String dataDirectory){
 
@@ -43,7 +39,7 @@ public class MovieInfoProvider {
         }
     }
 
-    public List<MovieInfo> getInfoFromFile(String currentPath) throws Exception {
+    private List<MovieInfo> getInfoFromFile(String currentPath) throws Exception {
 
         String[] viewGetter = currentPath.split("/");
 
@@ -62,7 +58,7 @@ public class MovieInfoProvider {
         return movieData;
     }
 
-    public List<MovieInfo> getInfoFromOMDB(List<String> titleList){
+    private List<MovieInfo> getInfoFromOMDB(List<String> titleList){
 
         List<MovieInfo> movieDataList = new ArrayList<>();
 
@@ -106,10 +102,9 @@ public class MovieInfoProvider {
         return movieDataList;
     }
 
-    public void getData(String title) {
+    private void getData(String title) {
 
         String uri = "http://www.omdbapi.com/?t=";
-        originalTitle = title;
         String currentPathLowerCase = currentPath.toLowerCase();
 
         if(currentPathLowerCase.contains("season") || currentPathLowerCase.contains("movies")) {
@@ -141,7 +136,7 @@ public class MovieInfoProvider {
         }
     }
 
-    public byte[] getImage() {
+    private byte[] getImage() {
         try {
             URL imageURL = new URL(jsonObject.get("Poster").toString());
             InputStream is = imageURL.openConnection().getInputStream();

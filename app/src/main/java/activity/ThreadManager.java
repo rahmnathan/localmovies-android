@@ -14,7 +14,7 @@ public class ThreadManager extends Thread {
 
     private final String request;
     private final String title;
-    private Phone phone;
+    private final Phone phone;
     private static final Handler UIHandler = new Handler(Looper.getMainLooper());
     private static final ServerRequest serverRequest = new ServerRequest();
 

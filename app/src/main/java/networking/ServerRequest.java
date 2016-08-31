@@ -20,7 +20,7 @@ public class ServerRequest {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-            List<String> list = new ArrayList<String>(Arrays.asList(br.readLine()
+            List<String> list = new ArrayList<>(Arrays.asList(br.readLine()
                     .replace("\"", "")
                     .replace("[", "")
                     .replace("]", "")

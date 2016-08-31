@@ -23,8 +23,8 @@ public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filtera
 
     private final Activity context;
     public static List<MovieInfo> movies;
-    private List<MovieInfo> originalMovieList;
-    public AdapterFilter adapterFilter;
+    private final List<MovieInfo> originalMovieList;
+    private AdapterFilter adapterFilter;
 
     public MovieListAdapter(Activity context, List<MovieInfo> movies) {
         super(context, R.layout.my_adapter, movies);

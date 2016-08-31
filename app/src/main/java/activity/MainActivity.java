@@ -38,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
     public static MovieListAdapter myAdapter;
     public static Phone myPhone;
     private static final ServerRequest serverRequest = new ServerRequest();
-    public static List<MovieInfo> movieList = new ArrayList<>();
-    public static MovieInfoProvider movieInfoRetriever = new MovieInfoProvider();
+    public static final List<MovieInfo> movieList = new ArrayList<>();
+    private static final MovieInfoProvider movieInfoRetriever = new MovieInfoProvider();
     public static ProgressBar progressBar;
 
     public static final LoadingCache<String, List<String>> titles =

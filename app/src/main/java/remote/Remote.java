@@ -1,7 +1,6 @@
 package remote;
 
 import android.app.Activity;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;

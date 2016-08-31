@@ -1,14 +1,12 @@
 package com.rahmnathan;
 
-import org.omg.CORBA.Environment;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-public class InfoWriter {
+class InfoWriter {
 
     public void writeInfo(List<MovieInfo> movieInfo, String currentPath, String dataDirectory){
 
