@@ -34,11 +34,7 @@ public class MovieInfo implements Serializable {
     }
 
     public void setImage(byte[] image){
-        if(image != null) {
-            this.image = image;
-        } else{
-            this.image = null;
-        }
+        this.image = image;
     }
 
     public void setMetaRating(String metaRating) {
@@ -70,12 +66,7 @@ public class MovieInfo implements Serializable {
     }
 
     public byte[] getImage() {
-
-        if(image != null) {
-            return image;
-        } else {
-            return null;
-        }
+        return image;
     }
 
     @Override
