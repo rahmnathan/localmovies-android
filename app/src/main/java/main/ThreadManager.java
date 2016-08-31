@@ -16,7 +16,7 @@ public class ThreadManager extends Thread {
     private final String title;
     private final Phone phone;
     private static final Handler UIHandler = new Handler(Looper.getMainLooper());
-    private static final RestClient serverRequest = new RestClient();
+    private static final RestClient REST_CLIENT = new RestClient();
 
     public ThreadManager(String request, String title){
         this.request = request;
@@ -28,17 +28,17 @@ public class ThreadManager extends Thread {
         switch(request){
             case "GetTitles":
                 MainActivity.myPhone.setPath(phone.getPath() + title + "/");
-                System.out.println(MainActivity.myPhone.getPath());
+                System.out.println(phone.getPath());
                 updateListView();
                 break;
             case "PlayMovie":
                 phone.setPath(phone.getPath() + title);
-                serverRequest.playMovie(phone);
+                REST_CLIENT.playMovie(phone);
                 break;
             case "Refresh":
                 MainActivity.titles.invalidateAll();
                 MainActivity.movieInfo.invalidateAll();
-                serverRequest.refresh(MainActivity.myPhone);
+                REST_CLIENT.refresh(phone);
                 MainActivity.myPhone.setPath(MainActivity.myPhone.getMainPath() + "Movies/");
 
                 File file = new File(Environment.getExternalStorageDirectory().toString() + "/LocalMovies/");
