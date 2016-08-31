@@ -7,25 +7,33 @@ import android.view.View;
 
 import java.io.File;
 
+import networking.Phone;
 import networking.ServerRequest;
 
 public class ThreadManager extends Thread {
 
     private final String request;
+    private final String title;
+    private Phone phone;
     private static final Handler UIHandler = new Handler(Looper.getMainLooper());
     private static final ServerRequest serverRequest = new ServerRequest();
 
-    public ThreadManager(String request){
+    public ThreadManager(String request, String title){
         this.request = request;
+        this.title = title;
+        this.phone = MainActivity.myPhone;
     }
 
     public void run(){
         switch(request){
             case "GetTitles":
+                MainActivity.myPhone.setPath(phone.getPath() + title + "/");
+                System.out.println(MainActivity.myPhone.getPath());
                 updateListView();
                 break;
             case "PlayMovie":
-                serverRequest.playMovie(MainActivity.myPhone);
+                phone.setPath(phone.getPath() + title);
+                serverRequest.playMovie(phone);
                 break;
             case "Refresh":
                 MainActivity.titles.invalidateAll();

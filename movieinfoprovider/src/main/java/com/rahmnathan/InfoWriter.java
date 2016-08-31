@@ -1,6 +1,6 @@
-package movieinfo;
+package com.rahmnathan;
 
-import android.os.Environment;
+import org.omg.CORBA.Environment;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,13 +10,13 @@ import java.util.List;
 
 public class InfoWriter {
 
-    public void writeInfo(List<MovieData> movieInfo, String currentPath){
+    public void writeInfo(List<MovieInfo> movieInfo, String currentPath, String dataDirectory){
 
         String[] viewGetter = currentPath.split("/");
 
         String view = viewGetter[viewGetter.length - 1] + ".txt";
 
-        File setupFolder = new File(Environment.getExternalStorageDirectory().toString() + "/LocalMovies/");
+        File setupFolder = new File(dataDirectory +"/LocalMovies/");
 
         setupFolder.mkdir();
 

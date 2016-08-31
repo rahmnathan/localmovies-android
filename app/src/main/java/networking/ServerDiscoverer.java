@@ -32,7 +32,7 @@ public class ServerDiscoverer extends Thread {
             });
         }
 
-        new ThreadManager("GetTitles").start();
+        new ThreadManager("GetTitles", "Movies").start();
     }
 
     private String getServerIP() {

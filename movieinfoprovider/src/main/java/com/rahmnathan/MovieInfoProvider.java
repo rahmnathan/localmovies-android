@@ -1,15 +1,15 @@
-package movieinfo;
+package com.rahmnathan;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Environment;
+import com.google.common.io.ByteStreams;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.net.HttpURLConnection;
@@ -17,53 +17,58 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import activity.MainActivity;
+import javax.imageio.ImageIO;
 
-public class MovieInfoRetriever {
+public class MovieInfoProvider {
 
     JSONObject jsonObject;
     String originalTitle;
+    String currentPath;
+    String dataDirectory;
 
-    public List<MovieData> getMovieData(List<String> titleList, String currentPath){
+    public List<MovieInfo> getMovieData(List<String> titleList, String currentPath, String dataDirectory){
+
+        this.currentPath = currentPath;
+        this.dataDirectory = dataDirectory;
 
         try{
             return getInfoFromFile(currentPath);
         } catch (Exception e){
 
-            List<MovieData> movieList = getInfoFromOMDB(titleList);
+            List<MovieInfo> movieList = getInfoFromOMDB(titleList);
 
-            new InfoWriter().writeInfo(movieList, currentPath);
+            new InfoWriter().writeInfo(movieList, currentPath, dataDirectory);
 
             return movieList;
         }
     }
 
-    public List<MovieData> getInfoFromFile(String currentPath) throws Exception {
+    public List<MovieInfo> getInfoFromFile(String currentPath) throws Exception {
 
         String[] viewGetter = currentPath.split("/");
 
         String view = viewGetter[viewGetter.length - 1] + ".txt";
 
-        File setupFolder = new File(Environment.getExternalStorageDirectory().toString() + "/LocalMovies/");
+        File setupFolder = new File(dataDirectory + "/LocalMovies/");
 
         setupFolder.mkdir();
 
         ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(new File(setupFolder, view)));
 
-        List<MovieData> movieData = (List<MovieData>) inputStream.readObject();
+        List<MovieInfo> movieData = (List<MovieInfo>) inputStream.readObject();
 
         inputStream.close();
 
         return movieData;
     }
 
-    public List<MovieData> getInfoFromOMDB(List<String> titleList){
+    public List<MovieInfo> getInfoFromOMDB(List<String> titleList){
 
-        List<MovieData> movieDataList = new ArrayList<>();
+        List<MovieInfo> movieDataList = new ArrayList<>();
 
         for(String x : titleList) {
 
-            MovieData movieData = new MovieData();
+            MovieInfo movieData = new MovieInfo();
             movieData.setTitle(x);
 
             getData(x);
@@ -105,9 +110,9 @@ public class MovieInfoRetriever {
 
         String uri = "http://www.omdbapi.com/?t=";
         originalTitle = title;
-        String currentPath = MainActivity.myPhone.getPath().toLowerCase();
+        String currentPathLowerCase = currentPath.toLowerCase();
 
-        if(currentPath.contains("season") || currentPath.contains("movies")) {
+        if(currentPathLowerCase.contains("season") || currentPathLowerCase.contains("movies")) {
             title = title.substring(0, title.length() - 4);
         }
 
@@ -136,12 +141,11 @@ public class MovieInfoRetriever {
         }
     }
 
-    public Bitmap getImage() {
+    public byte[] getImage() {
         try {
             URL imageURL = new URL(jsonObject.get("Poster").toString());
-            Bitmap bitmap = BitmapFactory.decodeStream(imageURL.openConnection().getInputStream());
-            return bitmap;
-
+            InputStream is = imageURL.openConnection().getInputStream();
+            return ByteStreams.toByteArray(is);
         } catch (Exception e) {}
         return null;
     }

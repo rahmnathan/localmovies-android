@@ -2,6 +2,7 @@ package activity;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,20 +12,21 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.rahmnathan.MovieInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import movieinfo.MovieData;
 import rahmnathan.localmovies.R;
 
-public class CustomListAdapter extends ArrayAdapter<MovieData> implements Filterable {
+public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
 
     private final Activity context;
-    private List<MovieData> movies;
-    private List<MovieData> originalMovieList;
+    public static List<MovieInfo> movies;
+    private List<MovieInfo> originalMovieList;
     public AdapterFilter adapterFilter;
 
-    public CustomListAdapter(Activity context, List<MovieData> movies) {
+    public MovieListAdapter(Activity context, List<MovieInfo> movies) {
         super(context, R.layout.my_adapter, movies);
         this.context=context;
         this.movies = movies;
@@ -40,11 +42,13 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> implements Filter
         TextView year = (TextView) rowView.findViewById(R.id.year);
         TextView ratings = (TextView) rowView.findViewById(R.id.rating);
 
-        MovieData movie = movies.get(position);
-
+        MovieInfo movie = movies.get(position);
         String currentTitle = movie.getTitle();
-
         String currentPath = MainActivity.myPhone.getPath().toLowerCase();
+
+        if(view != null) {
+            view.setTag(currentTitle);
+        }
 
         int mainPathLength = MainActivity.myPhone.getMainPath().split("/").length;
         int currentPathLength = MainActivity.myPhone.getPath().split("/").length;
@@ -55,7 +59,13 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> implements Filter
         }
         txtTitle.setText(currentTitle);
 
-        Bitmap bitmap = movie.getImage();
+        byte[] image = movie.getImage();
+
+        Bitmap bitmap = null;
+
+        if(!(image == null)) {
+            bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
+        }
 
         if (bitmap != null && level == 1) {
 
@@ -93,14 +103,16 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> implements Filter
             if(charSequence == null || charSequence.length() == 0){
                 filterResults.values = originalMovieList;
                 filterResults.count = originalMovieList.size();
+                movies = originalMovieList;
             } else{
-                List<MovieData> movieDataList = new ArrayList<>();
+                List<MovieInfo> movieDataList = new ArrayList<>();
 
-                for(MovieData movie : originalMovieList){
+                for(MovieInfo movie : originalMovieList){
                     if(movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase())){
                         movieDataList.add(movie);
                     }
                 }
+                movies = movieDataList;
                 filterResults.values = movieDataList;
                 filterResults.count = movieDataList.size();
             }
@@ -109,7 +121,7 @@ public class CustomListAdapter extends ArrayAdapter<MovieData> implements Filter
 
         @Override
         protected void publishResults(CharSequence charSequence, FilterResults filterResults){
-            movies = (List<MovieData>) filterResults.values;
+            movies = (List<MovieInfo>) filterResults.values;
             notifyDataSetChanged();
         }
     }

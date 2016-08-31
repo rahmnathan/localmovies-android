@@ -1,12 +1,14 @@
-package movieinfo;
+package com.rahmnathan;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 
-public class MovieData implements Serializable {
+import javax.imageio.ImageIO;
+
+public class MovieInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private String title;
@@ -37,12 +39,9 @@ public class MovieData implements Serializable {
         this.IMDBRating = IMDBRating;
     }
 
-    public void setImage(Bitmap image){
+    public void setImage(byte[] image){
         if(image != null) {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            image.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
-
-            this.image = outputStream.toByteArray();
+            this.image = image;
         } else{
             this.image = null;
         }
@@ -76,12 +75,17 @@ public class MovieData implements Serializable {
         return MetaRating;
     }
 
-    public Bitmap getImage() {
+    public byte[] getImage() {
 
         if(image != null) {
-            return BitmapFactory.decodeByteArray(image, 0, image.length);
+            return image;
         } else {
             return null;
         }
+    }
+
+    @Override
+    public String toString(){
+        return title;
     }
 }

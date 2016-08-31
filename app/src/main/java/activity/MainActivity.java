@@ -3,6 +3,7 @@ package activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -18,28 +19,27 @@ import android.widget.Toast;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.rahmnathan.MovieInfo;
+import com.rahmnathan.MovieInfoProvider;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import movieinfo.MovieInfoRetriever;
-import movieinfo.MovieData;
-import networking.Phone;
 import networking.ServerDiscoverer;
 import networking.ServerRequest;
+import networking.Phone;
 import rahmnathan.localmovies.R;
 import remote.Remote;
 import setup.Setup;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static CustomListAdapter myAdapter;
+    public static MovieListAdapter myAdapter;
     public static Phone myPhone;
     private static final ServerRequest serverRequest = new ServerRequest();
-    public static List<MovieData> movieList = new ArrayList<>();
-    public static MovieInfoRetriever movieInfoRetriever = new MovieInfoRetriever();
+    public static List<MovieInfo> movieList = new ArrayList<>();
+    public static MovieInfoProvider movieInfoRetriever = new MovieInfoProvider();
     public static ProgressBar progressBar;
 
     public static final LoadingCache<String, List<String>> titles =
@@ -53,15 +53,15 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
 
-    public static final LoadingCache<String, List<MovieData>> movieInfo =
+    public static final LoadingCache<String, List<MovieInfo>> movieInfo =
             CacheBuilder.newBuilder()
                     .maximumSize(100)
                     .build(
-                            new CacheLoader<String, List<MovieData>>() {
+                            new CacheLoader<String, List<MovieInfo>>() {
                                 @Override
-                                public List<MovieData> load(String currentPath) {
+                                public List<MovieInfo> load(String currentPath) {
                                     try {
-                                        return movieInfoRetriever.getMovieData(titles.get(currentPath), currentPath);
+                                        return movieInfoRetriever.getMovieData(titles.get(currentPath), currentPath, Environment.getExternalStorageDirectory().toString());
                                     } catch (ExecutionException e){
                                         e.printStackTrace();
                                     }
@@ -115,11 +115,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                myPhone.setPath(myPhone.getMainPath() + "Series" + File.separator);
+                myPhone.setPath(myPhone.getMainPath());
 
                 // Requesting series list and updating listview
 
-                new ThreadManager("GetTitles").start();
+                new ThreadManager("GetTitles", "Series").start();
             }
         });
 
@@ -128,18 +128,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                myPhone.setPath(myPhone.getMainPath() + "Movies" + File.separator);
+                myPhone.setPath(myPhone.getMainPath());
 
                 // Requesting movie list and updating listview
 
-                new ThreadManager("GetTitles").start();
+                new ThreadManager("GetTitles", "Movies").start();
             }
         });
 
         // Creating ListAdapter and listView to display titles
 
-        myAdapter = new CustomListAdapter(this, movieList);
-
+        myAdapter = new MovieListAdapter(this, movieList);
 
         final ListView movieList = (ListView) findViewById(R.id.listView);
         movieList.setAdapter(myAdapter);
@@ -166,7 +165,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                MovieData movieData = (MovieData) movieList.getItemAtPosition(position);
+                String title = MovieListAdapter.movies.get(position).toString();
+                System.out.println(title);
 
                 if (myPhone.getPath().toLowerCase().contains("season") ||
                         myPhone.getPath().toLowerCase().contains("movies")) {
@@ -174,15 +174,12 @@ public class MainActivity extends AppCompatActivity {
                      If we're viewing movies or episodes we
                      play the movie and start our Remote activity
                    */
-                    myPhone.setPath(myPhone.getPath() + movieData.getTitle());
-                    new ThreadManager("PlayMovie").start();
+                    new ThreadManager("PlayMovie", title).start();
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this, Remote.class));
                 } else {
-                    myPhone.setPath(myPhone.getPath() + movieData.getTitle() + File.separator);
-                    System.out.println(movieList.getItemAtPosition(position).toString());
 
-                    new ThreadManager("GetTitles").start();
+                    new ThreadManager("GetTitles", title).start();
                 }
             }
         });
@@ -194,13 +191,14 @@ public class MainActivity extends AppCompatActivity {
         if(currentPath.endsWith("Series/") | currentPath.endsWith("Movies/")){
             System.exit(0);
         } else{
-            String newPath = "/";
+            String newPath = "";
             String[] pathSplit = currentPath.split("/");
-            for(int x = 0; x<pathSplit.length - 1; x++){
+            String title = pathSplit[pathSplit.length - 2];
+            for(int x = 0; x<pathSplit.length - 2; x++){
                 newPath = newPath + pathSplit[x] + "/";
             }
             myPhone.setPath(newPath);
-            new ThreadManager("GetTitles").start();
+            new ThreadManager("GetTitles", title).start();
         }
     }
 
