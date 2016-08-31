@@ -16,6 +16,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.Phone;
+import com.example.RestClient;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -27,8 +29,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import networking.ServerDiscoverer;
-import networking.ServerRequest;
-import networking.Phone;
 import rahmnathan.localmovies.R;
 import remote.Remote;
 import setup.Setup;
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static MovieListAdapter myAdapter;
     public static Phone myPhone;
-    private static final ServerRequest serverRequest = new ServerRequest();
+    private static final RestClient REST_CLIENT = new RestClient();
     public static final List<MovieInfo> movieList = new ArrayList<>();
     private static final MovieInfoProvider movieInfoRetriever = new MovieInfoProvider();
     public static ProgressBar progressBar;
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
                             new CacheLoader<String, List<String>>() {
                                 @Override
                                 public List<String> load(String currentPath) {
-                                    return serverRequest.requestTitles(myPhone);
+                                    return REST_CLIENT.requestTitles(myPhone);
                                 }
                             });
 

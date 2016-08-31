@@ -5,10 +5,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 
-import java.io.File;
+import com.example.Phone;
+import com.example.RestClient;
 
-import networking.Phone;
-import networking.ServerRequest;
+import java.io.File;
 
 public class ThreadManager extends Thread {
 
@@ -16,7 +16,7 @@ public class ThreadManager extends Thread {
     private final String title;
     private final Phone phone;
     private static final Handler UIHandler = new Handler(Looper.getMainLooper());
-    private static final ServerRequest serverRequest = new ServerRequest();
+    private static final RestClient serverRequest = new RestClient();
 
     public ThreadManager(String request, String title){
         this.request = request;

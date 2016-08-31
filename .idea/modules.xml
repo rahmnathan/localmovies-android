@@ -6,6 +6,8 @@
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/movieinfo/movieinfo.iml" filepath="$PROJECT_DIR$/movieinfo/movieinfo.iml" />
       <module fileurl="file://$PROJECT_DIR$/movieinfoprovider/movieinfoprovider.iml" filepath="$PROJECT_DIR$/movieinfoprovider/movieinfoprovider.iml" />
+      <module fileurl="file://$PROJECT_DIR$/phoneinfo/phoneinfo.iml" filepath="$PROJECT_DIR$/phoneinfo/phoneinfo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/restclient/restclient.iml" filepath="$PROJECT_DIR$/restclient/restclient.iml" />
     </modules>
   </component>
 </project>

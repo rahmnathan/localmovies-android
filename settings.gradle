@@ -1,1 +1,1 @@
-include ':app', ':movieinfo', ':movieinfoprovider'
+include ':app', ':movieinfo', ':movieinfoprovider', ':restclient', ':phoneinfo'

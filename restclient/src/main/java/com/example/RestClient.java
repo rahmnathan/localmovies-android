@@ -1,4 +1,4 @@
-package networking;
+package com.example;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ServerRequest {
+public class RestClient {
 
     public List<String> requestTitles(Phone myPhone) {
 

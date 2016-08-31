@@ -11,9 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.Phone;
+
 import activity.ThreadManager;
 import activity.MainActivity;
-import networking.Phone;
 import rahmnathan.localmovies.R;
 
 import java.io.File;

@@ -12,6 +12,8 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/movieinfo" />
             <option value="$PROJECT_DIR$/movieinfoprovider" />
+            <option value="$PROJECT_DIR$/phoneinfo" />
+            <option value="$PROJECT_DIR$/restclient" />
           </set>
         </option>
         <option name="myModules">
@@ -20,6 +22,8 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/movieinfo" />
             <option value="$PROJECT_DIR$/movieinfoprovider" />
+            <option value="$PROJECT_DIR$/phoneinfo" />
+            <option value="$PROJECT_DIR$/restclient" />
           </set>
         </option>
       </GradleProjectSettings>
