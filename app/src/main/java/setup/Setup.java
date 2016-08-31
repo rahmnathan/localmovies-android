@@ -13,8 +13,8 @@ import android.widget.Toast;
 
 import com.example.Phone;
 
-import activity.ThreadManager;
-import activity.MainActivity;
+import main.ThreadManager;
+import main.MainActivity;
 import rahmnathan.localmovies.R;
 
 import java.io.File;
@@ -106,20 +106,20 @@ public class Setup extends Activity {
         }
     }
 
-    public Phone getPhoneInfo() {
+    public Phone getPhoneInfo(Phone myPhone) {
 
         File setupFile = new File(Environment.getExternalStorageDirectory(), "setup.txt");
         try {
             ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(setupFile));
-            MainActivity.myPhone = (Phone) objectInputStream.readObject();
+            myPhone = (Phone) objectInputStream.readObject();
             objectInputStream.close();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        MainActivity.myPhone.setPath(MainActivity.myPhone.getMainPath());
+        myPhone.setPath(myPhone.getMainPath());
 
-        return MainActivity.myPhone;
+        return myPhone;
     }
 }
 

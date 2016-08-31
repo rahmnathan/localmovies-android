@@ -1,4 +1,4 @@
-package activity;
+package main;
 
 import android.content.Intent;
 import android.os.Build;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import networking.ServerDiscoverer;
+import setup.ServerDiscoverer;
 import rahmnathan.localmovies.R;
 import remote.Remote;
 import setup.Setup;
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
 
         try {
-            myPhone = new Setup().getPhoneInfo();
+            myPhone = new Setup().getPhoneInfo(myPhone);
             new ServerDiscoverer(myPhone, this).start();
 
         } catch(NullPointerException e){

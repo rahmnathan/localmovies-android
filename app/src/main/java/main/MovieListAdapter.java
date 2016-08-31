@@ -1,4 +1,4 @@
-package activity;
+package main;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -95,7 +95,7 @@ public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filtera
         return movies.size();
     }
 
-    public class AdapterFilter extends Filter {
+    private class AdapterFilter extends Filter {
 
         @Override
         protected FilterResults performFiltering(CharSequence charSequence){

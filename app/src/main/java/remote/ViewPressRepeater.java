@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import activity.MainActivity;
+import main.MainActivity;
 
 class ViewPressRepeater extends Thread {
 

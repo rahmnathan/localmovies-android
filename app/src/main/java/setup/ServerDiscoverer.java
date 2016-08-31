@@ -1,4 +1,4 @@
-package networking;
+package setup;
 
 import android.content.Context;
 import android.view.View;
@@ -9,8 +9,8 @@ import com.example.Phone;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import activity.MainActivity;
-import activity.ThreadManager;
+import main.MainActivity;
+import main.ThreadManager;
 
 public class ServerDiscoverer extends Thread {
 

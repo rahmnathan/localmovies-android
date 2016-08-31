@@ -1,4 +1,4 @@
-package activity;
+package main;
 
 import android.os.Environment;
 import android.os.Handler;
