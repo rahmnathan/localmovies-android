@@ -1,12 +1,14 @@
 package com.rahmnathan;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-class InfoWriter {
+class IOProvider {
 
     public void writeInfo(List<MovieInfo> movieInfo, String currentPath, String dataDirectory){
 
@@ -33,6 +35,21 @@ class InfoWriter {
         } catch (IOException e){
             e.printStackTrace();
         }
+    }
 
+    public List<MovieInfo> getInfoFromFile(String currentPath, String dataDirectory) throws Exception {
+
+        String[] viewGetter = currentPath.split("/");
+        String view = viewGetter[viewGetter.length - 1] + ".txt";
+
+        File setupFolder = new File(dataDirectory + "/LocalMovies/");
+        setupFolder.mkdir();
+
+        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(new File(setupFolder, view)));
+
+        List<MovieInfo> movieData = (List<MovieInfo>) inputStream.readObject();
+
+        inputStream.close();
+        return movieData;
     }
 }

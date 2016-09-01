@@ -6,11 +6,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -19,41 +16,21 @@ import java.util.List;
 public class MovieInfoProvider {
 
     private JSONObject jsonObject;
-    private String currentPath;
-    private String dataDirectory;
+    private IOProvider ioProvider = new IOProvider();
 
     public List<MovieInfo> getMovieData(List<String> titleList, String currentPath, String dataDirectory){
 
-        this.currentPath = currentPath;
-        this.dataDirectory = dataDirectory;
-
         try{
-            return getInfoFromFile(currentPath);
+            return ioProvider.getInfoFromFile(currentPath, dataDirectory);
         } catch (Exception e){
-            List<MovieInfo> movieList = getInfoFromOMDB(titleList);
-            new InfoWriter().writeInfo(movieList, currentPath, dataDirectory);
+            List<MovieInfo> movieList = getInfoFromOMDB(titleList, currentPath);
+            ioProvider.writeInfo(movieList, currentPath, dataDirectory);
 
             return movieList;
         }
     }
 
-    private List<MovieInfo> getInfoFromFile(String currentPath) throws Exception {
-
-        String[] viewGetter = currentPath.split("/");
-        String view = viewGetter[viewGetter.length - 1] + ".txt";
-
-        File setupFolder = new File(dataDirectory + "/LocalMovies/");
-        setupFolder.mkdir();
-
-        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(new File(setupFolder, view)));
-
-        List<MovieInfo> movieData = (List<MovieInfo>) inputStream.readObject();
-
-        inputStream.close();
-        return movieData;
-    }
-
-    private List<MovieInfo> getInfoFromOMDB(List<String> titleList){
+    private List<MovieInfo> getInfoFromOMDB(List<String> titleList, String currentPath){
 
         List<MovieInfo> movieDataList = new ArrayList<>();
 
@@ -62,7 +39,7 @@ public class MovieInfoProvider {
             MovieInfo movieData = new MovieInfo();
             movieData.setTitle(x);
 
-            getData(x);
+            getData(x, currentPath);
 
             movieData.setImage(getImage());
 
@@ -97,7 +74,7 @@ public class MovieInfoProvider {
         return movieDataList;
     }
 
-    private void getData(String title) {
+    private void getData(String title, String currentPath) {
 
         String uri = "http://www.omdbapi.com/?t=";
         String currentPathLowerCase = currentPath.toLowerCase();
