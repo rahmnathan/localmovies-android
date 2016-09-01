@@ -46,10 +46,6 @@ public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filtera
         String currentTitle = movie.getTitle();
         String currentPath = MainActivity.myPhone.getPath().toLowerCase();
 
-        if(view != null) {
-            view.setTag(currentTitle);
-        }
-
         int mainPathLength = MainActivity.myPhone.getMainPath().split("/").length;
         int currentPathLength = MainActivity.myPhone.getPath().split("/").length;
         int level = currentPathLength - mainPathLength;

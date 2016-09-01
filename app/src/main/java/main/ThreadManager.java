@@ -1,6 +1,6 @@
 package main;
 
-import android.os.Environment;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -15,20 +15,21 @@ public class ThreadManager extends Thread {
     private final String request;
     private final String title;
     private final Phone phone;
+    private final Context context;
     private static final Handler UIHandler = new Handler(Looper.getMainLooper());
     private static final RestClient REST_CLIENT = new RestClient();
 
-    public ThreadManager(String request, String title){
+    public ThreadManager(String request, String title, Context context){
         this.request = request;
         this.title = title;
         this.phone = MainActivity.myPhone;
+        this.context = context;
     }
 
     public void run(){
         switch(request){
             case "GetTitles":
                 MainActivity.myPhone.setPath(phone.getPath() + title + "/");
-                System.out.println(phone.getPath());
                 updateListView();
                 break;
             case "PlayMovie":
@@ -36,12 +37,11 @@ public class ThreadManager extends Thread {
                 REST_CLIENT.playMovie(phone);
                 break;
             case "Refresh":
-                MainActivity.titles.invalidateAll();
                 MainActivity.movieInfo.invalidateAll();
                 REST_CLIENT.refresh(phone);
                 MainActivity.myPhone.setPath(MainActivity.myPhone.getMainPath() + "Movies/");
 
-                File file = new File(Environment.getExternalStorageDirectory().toString() + "/LocalMovies/");
+                File file = new File(context.getFilesDir() + "/LocalMovies/");
                 for(File x : file.listFiles()){
                     x.delete();
                 }

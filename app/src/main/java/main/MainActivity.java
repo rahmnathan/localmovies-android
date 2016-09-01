@@ -3,7 +3,6 @@ package main;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -26,7 +25,6 @@ import com.rahmnathan.MovieInfoProvider;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import setup.ServerDiscoverer;
 import rahmnathan.localmovies.R;
@@ -39,35 +37,10 @@ public class MainActivity extends AppCompatActivity {
     public static Phone myPhone;
     private static final RestClient REST_CLIENT = new RestClient();
     public static final List<MovieInfo> movieList = new ArrayList<>();
-    private static final MovieInfoProvider movieInfoRetriever = new MovieInfoProvider();
+    private static final MovieInfoProvider MOVIE_INFO_PROVIDER = new MovieInfoProvider();
     public static ProgressBar progressBar;
 
-    public static final LoadingCache<String, List<String>> titles =
-            CacheBuilder.newBuilder()
-                    .maximumSize(100)
-                    .build(
-                            new CacheLoader<String, List<String>>() {
-                                @Override
-                                public List<String> load(String currentPath) {
-                                    return REST_CLIENT.requestTitles(myPhone);
-                                }
-                            });
-
-    public static final LoadingCache<String, List<MovieInfo>> movieInfo =
-            CacheBuilder.newBuilder()
-                    .maximumSize(100)
-                    .build(
-                            new CacheLoader<String, List<MovieInfo>>() {
-                                @Override
-                                public List<MovieInfo> load(String currentPath) {
-                                    try {
-                                        return movieInfoRetriever.getMovieData(titles.get(currentPath), currentPath, Environment.getExternalStorageDirectory().toString());
-                                    } catch (ExecutionException e){
-                                        e.printStackTrace();
-                                    }
-                                    return null;
-                                }
-                            });
+    public static LoadingCache<String, List<MovieInfo>> movieInfo = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,13 +52,27 @@ public class MainActivity extends AppCompatActivity {
             StrictMode.setThreadPolicy(policy);
         }
 
+        movieInfo =
+                CacheBuilder.newBuilder()
+                        .maximumSize(100)
+                        .build(
+                                new CacheLoader<String, List<MovieInfo>>() {
+                                    @Override
+                                    public List<MovieInfo> load(String currentPath) {
+                                        return MOVIE_INFO_PROVIDER.getMovieData(REST_CLIENT.requestTitles(myPhone),
+                                                currentPath, MainActivity.this.getFilesDir().toString());
+                                    }
+                                });
+
         // Getting phone info and Triggering initial requestTitles of titles from server
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
         try {
-            myPhone = new Setup().getPhoneInfo(myPhone);
+            if(myPhone == null) {
+                myPhone = new Setup().getPhoneInfo(myPhone, this);
+            }
             new ServerDiscoverer(myPhone, this).start();
 
         } catch(NullPointerException e){
@@ -119,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Requesting series list and updating listview
 
-                new ThreadManager("GetTitles", "Series").start();
+                new ThreadManager("GetTitles", "Series", MainActivity.this).start();
             }
         });
 
@@ -132,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Requesting movie list and updating listview
 
-                new ThreadManager("GetTitles", "Movies").start();
+                new ThreadManager("GetTitles", "Movies", MainActivity.this).start();
             }
         });
 
@@ -154,11 +141,9 @@ public class MainActivity extends AppCompatActivity {
                 myAdapter.getFilter().filter(cs);
             }
             @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-            }
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
             @Override
-            public void afterTextChanged(Editable arg0) {
-            }
+            public void afterTextChanged(Editable arg0) {}
         });
 
         movieList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -166,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 String title = MovieListAdapter.movies.get(position).toString();
-                System.out.println(title);
 
                 if (myPhone.getPath().toLowerCase().contains("season") ||
                         myPhone.getPath().toLowerCase().contains("movies")) {
@@ -174,12 +158,12 @@ public class MainActivity extends AppCompatActivity {
                      If we're viewing movies or episodes we
                      play the movie and start our Remote activity
                    */
-                    new ThreadManager("PlayMovie", title).start();
+                    new ThreadManager("PlayMovie", title, MainActivity.this).start();
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this, Remote.class));
                 } else {
 
-                    new ThreadManager("GetTitles", title).start();
+                    new ThreadManager("GetTitles", title, MainActivity.this).start();
                 }
             }
         });
@@ -198,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
                 newPath = newPath + pathSplit[x] + "/";
             }
             myPhone.setPath(newPath);
-            new ThreadManager("GetTitles", title).start();
+            new ThreadManager("GetTitles", title, this).start();
         }
     }
 

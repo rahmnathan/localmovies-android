@@ -30,9 +30,7 @@ public class MovieInfoProvider {
         try{
             return getInfoFromFile(currentPath);
         } catch (Exception e){
-
             List<MovieInfo> movieList = getInfoFromOMDB(titleList);
-
             new InfoWriter().writeInfo(movieList, currentPath, dataDirectory);
 
             return movieList;
@@ -42,11 +40,9 @@ public class MovieInfoProvider {
     private List<MovieInfo> getInfoFromFile(String currentPath) throws Exception {
 
         String[] viewGetter = currentPath.split("/");
-
         String view = viewGetter[viewGetter.length - 1] + ".txt";
 
         File setupFolder = new File(dataDirectory + "/LocalMovies/");
-
         setupFolder.mkdir();
 
         ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(new File(setupFolder, view)));
@@ -54,7 +50,6 @@ public class MovieInfoProvider {
         List<MovieInfo> movieData = (List<MovieInfo>) inputStream.readObject();
 
         inputStream.close();
-
         return movieData;
     }
 
@@ -113,9 +108,7 @@ public class MovieInfoProvider {
 
         try {
             URL url = new URL(uri + title.replace(" ", "%20"));
-
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
             BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
             String end = "";

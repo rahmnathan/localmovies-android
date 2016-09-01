@@ -42,8 +42,6 @@ public class RestClient {
                 myPhone.getPath().replace(" ", "%20") + "&phoneName=" + myPhone.getPhoneName() +
                 "&computerIP=" + myPhone.getComputerIP() + "&chromeIP=" + myPhone.getCastIP();
 
-        System.out.println(restRequest);
-
         try {
             URL url = new URL(restRequest);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();

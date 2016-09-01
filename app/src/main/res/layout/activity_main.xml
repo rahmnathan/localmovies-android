@@ -23,7 +23,6 @@
         android:layout_width="match_parent"
         android:layout_height="448dp"
         android:id="@+id/listView"
-        android:layout_weight="0.94"
         android:layout_below="@+id/searchText"
         android:layout_above="@+id/controls">
 

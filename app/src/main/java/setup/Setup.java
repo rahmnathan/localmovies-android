@@ -2,9 +2,9 @@ package setup;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.Button;
@@ -79,7 +79,7 @@ public class Setup extends Activity {
         refresh.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                new ThreadManager("Refresh", "Refresh").start();
+                new ThreadManager("Refresh", "Refresh", Setup.this).start();
             }
         });
     }
@@ -88,7 +88,7 @@ public class Setup extends Activity {
         try {
             // Navigating to setup file and writing data to it
 
-            File setupFile = new File(Environment.getExternalStorageDirectory(), "setup.txt");
+            File setupFile = new File(this.getFilesDir(), "setup.txt");
             if (!setupFile.exists()){
                 setupFile.createNewFile();
             }
@@ -106,9 +106,10 @@ public class Setup extends Activity {
         }
     }
 
-    public Phone getPhoneInfo(Phone myPhone) {
+    public Phone getPhoneInfo(Phone myPhone, Context context) {
 
-        File setupFile = new File(Environment.getExternalStorageDirectory(), "setup.txt");
+        File setupFile = new File(context.getFilesDir(), "setup.txt");
+        System.out.println(context.getFilesDir());
         try {
             ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(setupFile));
             myPhone = (Phone) objectInputStream.readObject();

@@ -26,15 +26,19 @@ public class ServerDiscoverer extends Thread {
 
         if(myPhone.getComputerIP().equals("")) {
             MainActivity.myPhone.setComputerIP(getServerIP());
-            ThreadManager.runOnUI(new Runnable() {
-                @Override
-                public void run() {
-                    MainActivity.progressBar.setVisibility(View.GONE);
-                }
-            });
         }
 
-        new ThreadManager("GetTitles", "Movies").start();
+        ThreadManager.runOnUI(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.progressBar.setVisibility(View.GONE);
+                Toast.makeText(context, "Downloading Movie Info", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        System.out.println(MainActivity.myPhone.getPath());
+
+        new ThreadManager("GetTitles", "Movies", context).start();
     }
 
     private String getServerIP() {
