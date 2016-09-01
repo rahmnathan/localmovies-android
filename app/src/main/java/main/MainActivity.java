@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed(){
         String currentPath = myPhone.getPath();
         if(currentPath.endsWith("Series/") | currentPath.endsWith("Movies/")){
-            System.exit(0);
+            System.exit(8);
         } else{
             String newPath = "";
             String[] pathSplit = currentPath.split("/");
