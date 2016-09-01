@@ -10,7 +10,7 @@ import java.util.List;
 
 class IOProvider {
 
-    public void writeInfo(List<MovieInfo> movieInfo, String currentPath, String dataDirectory){
+    public void writeInfoToFile(List<MovieInfo> movieInfo, String currentPath, String dataDirectory){
 
         String[] viewGetter = currentPath.split("/");
 

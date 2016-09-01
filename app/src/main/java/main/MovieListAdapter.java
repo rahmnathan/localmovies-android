@@ -57,10 +57,12 @@ public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filtera
 
         byte[] image = movie.getImage();
 
-        Bitmap bitmap = null;
+        Bitmap bitmap;
 
         if(!(image == null)) {
             bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
+        } else{
+            bitmap = null;
         }
 
         if (bitmap != null && level == 1) {

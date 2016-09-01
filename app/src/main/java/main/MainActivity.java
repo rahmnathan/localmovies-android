@@ -70,9 +70,7 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
 
         try {
-            if(myPhone == null) {
-                myPhone = new Setup().getPhoneInfo(myPhone, this);
-            }
+            myPhone = new Setup().getPhoneInfo(myPhone, this);
             new ServerDiscoverer(myPhone, this).start();
 
         } catch(NullPointerException e){
@@ -101,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
         series.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 myPhone.setPath(myPhone.getMainPath());
 
                 // Requesting series list and updating listview
@@ -114,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
         movies.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 myPhone.setPath(myPhone.getMainPath());
 
                 // Requesting movie list and updating listview
@@ -135,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
         EditText searchText = (EditText) findViewById(R.id.searchText);
         searchText.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-
                 // Filtering list with user input
 
                 myAdapter.getFilter().filter(cs);
@@ -149,7 +144,6 @@ public class MainActivity extends AppCompatActivity {
         movieList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
                 String title = MovieListAdapter.movies.get(position).toString();
 
                 if (myPhone.getPath().toLowerCase().contains("season") ||

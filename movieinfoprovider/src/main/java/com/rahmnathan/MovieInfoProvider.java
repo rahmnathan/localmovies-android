@@ -24,7 +24,7 @@ public class MovieInfoProvider {
             return ioProvider.getInfoFromFile(currentPath, dataDirectory);
         } catch (Exception e){
             List<MovieInfo> movieList = getInfoFromOMDB(titleList, currentPath);
-            ioProvider.writeInfo(movieList, currentPath, dataDirectory);
+            ioProvider.writeInfoToFile(movieList, currentPath, dataDirectory);
 
             return movieList;
         }
@@ -35,7 +35,6 @@ public class MovieInfoProvider {
         List<MovieInfo> movieDataList = new ArrayList<>();
 
         for(String x : titleList) {
-
             MovieInfo movieData = new MovieInfo();
             movieData.setTitle(x);
 
@@ -43,11 +42,6 @@ public class MovieInfoProvider {
 
             movieData.setImage(getImage());
 
-            try {
-                movieData.setActors(jsonObject.getString("Actors"));
-            } catch (JSONException e) {
-                movieData.setActors("N/A");
-            }
             try {
                 movieData.setIMDBRating(jsonObject.getString("imdbRating"));
             } catch (JSONException e) {
@@ -57,11 +51,6 @@ public class MovieInfoProvider {
                 movieData.setMetaRating(jsonObject.getString("Metascore"));
             } catch (JSONException e) {
                 movieData.setMetaRating("N/A");
-            }
-            try {
-                movieData.setRating(jsonObject.getString("Rated"));
-            } catch (JSONException e) {
-                movieData.setRating("N/A");
             }
             try {
                 movieData.setReleaseYear(jsonObject.getString("Year"));

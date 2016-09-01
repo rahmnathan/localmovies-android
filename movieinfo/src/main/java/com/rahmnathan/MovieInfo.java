@@ -10,16 +10,6 @@ public class MovieInfo implements Serializable {
     private String MetaRating;
     private byte[] image;
     private String releaseYear;
-    private String rating;
-    private String actors;
-
-    public void setActors(String actors) {
-        this.actors = actors;
-    }
-
-    public void setRating(String rating) {
-        this.rating = rating;
-    }
 
     public void setReleaseYear(String releaseYear){
         this.releaseYear = releaseYear;
@@ -39,14 +29,6 @@ public class MovieInfo implements Serializable {
 
     public void setMetaRating(String metaRating) {
         MetaRating = metaRating;
-    }
-
-    public String getActors() {
-        return actors;
-    }
-
-    public String getRating() {
-        return rating;
     }
 
     public String getReleaseYear(){

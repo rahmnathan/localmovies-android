@@ -36,8 +36,6 @@ public class ServerDiscoverer extends Thread {
             }
         });
 
-        System.out.println(MainActivity.myPhone.getPath());
-
         new ThreadManager("GetTitles", "Movies", context).start();
     }
 

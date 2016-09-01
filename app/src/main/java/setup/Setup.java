@@ -109,7 +109,7 @@ public class Setup extends Activity {
     public Phone getPhoneInfo(Phone myPhone, Context context) {
 
         File setupFile = new File(context.getFilesDir(), "setup.txt");
-        System.out.println(context.getFilesDir());
+
         try {
             ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(setupFile));
             myPhone = (Phone) objectInputStream.readObject();
