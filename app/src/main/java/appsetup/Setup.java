@@ -1,4 +1,4 @@
-package setup;
+package appsetup;
 
 import android.Manifest;
 import android.app.Activity;
@@ -11,10 +11,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.Phone;
+import com.phoneinfo.Phone;
 
-import main.ThreadManager;
-import main.MainActivity;
+import appmain.ThreadManager;
+import appmain.MainActivity;
 import rahmnathan.localmovies.R;
 
 import java.io.File;

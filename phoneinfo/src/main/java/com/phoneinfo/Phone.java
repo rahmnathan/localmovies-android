@@ -1,4 +1,4 @@
-package com.example;
+package com.phoneinfo;
 
 import java.io.Serializable;
 

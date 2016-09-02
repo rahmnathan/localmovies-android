@@ -1,12 +1,12 @@
-package main;
+package appmain;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 
-import com.example.Phone;
-import com.example.RestClient;
+import com.phoneinfo.Phone;
+import com.restclient.RestClient;
 
 import java.io.File;
 

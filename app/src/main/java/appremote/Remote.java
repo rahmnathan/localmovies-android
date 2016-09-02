@@ -1,4 +1,4 @@
-package remote;
+package appremote;
 
 import android.app.Activity;
 import android.os.Bundle;

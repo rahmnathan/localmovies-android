@@ -1,4 +1,4 @@
-package main;
+package appmain;
 
 import android.content.Intent;
 import android.os.Build;
@@ -15,21 +15,21 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.Phone;
-import com.example.RestClient;
+import com.phoneinfo.Phone;
+import com.restclient.RestClient;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.rahmnathan.MovieInfo;
-import com.rahmnathan.MovieInfoProvider;
+import com.movieinfoprovider.MovieInfoProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import setup.ServerDiscoverer;
+import appsetup.ServerDiscoverer;
 import rahmnathan.localmovies.R;
-import remote.Remote;
-import setup.Setup;
+import appremote.Remote;
+import appsetup.Setup;
 
 public class MainActivity extends AppCompatActivity {
 

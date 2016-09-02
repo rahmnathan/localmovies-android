@@ -1,4 +1,6 @@
-package com.rahmnathan;
+package com.movieinfoprovider;
+
+import com.rahmnathan.MovieInfo;
 
 import java.io.File;
 import java.io.FileInputStream;

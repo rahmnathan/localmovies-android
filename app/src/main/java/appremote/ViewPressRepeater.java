@@ -1,10 +1,10 @@
-package remote;
+package appremote;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import main.MainActivity;
+import appmain.MainActivity;
 
 class ViewPressRepeater extends Thread {
 

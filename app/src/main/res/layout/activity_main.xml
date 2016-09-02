@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:orientation="vertical"
-    tools:context="main.MainActivity"
+    tools:context="appmain.MainActivity"
     android:weightSum="1">
 
     <EditText

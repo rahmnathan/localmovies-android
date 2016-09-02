@@ -1,16 +1,16 @@
-package setup;
+package appsetup;
 
 import android.content.Context;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.Phone;
+import com.phoneinfo.Phone;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import main.MainActivity;
-import main.ThreadManager;
+import appmain.MainActivity;
+import appmain.ThreadManager;
 
 public class ServerDiscoverer extends Thread {
 

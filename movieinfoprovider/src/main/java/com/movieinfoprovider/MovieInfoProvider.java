@@ -1,6 +1,7 @@
-package com.rahmnathan;
+package com.movieinfoprovider;
 
 import com.google.common.io.ByteStreams;
+import com.rahmnathan.*;
 
 import org.json.JSONException;
 import org.json.JSONObject;

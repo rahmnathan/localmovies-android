@@ -1,4 +1,4 @@
-package com.example;
+package com.restclient;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -10,7 +10,7 @@ import java.util.List;
 
 public class RestClient {
 
-    public List<String> requestTitles(Phone myPhone) {
+    public List<String> requestTitles(com.phoneinfo.Phone myPhone) {
 
         String restRequest = "http://" + myPhone.getComputerIP() + ":3990/titlerequest?path=" +
                 myPhone.getPath().replace(" ", "%20");
@@ -36,7 +36,7 @@ public class RestClient {
         return null;
     }
 
-    public void playMovie(Phone myPhone){
+    public void playMovie(com.phoneinfo.Phone myPhone){
 
         String restRequest = "http://" + myPhone.getComputerIP() + ":3990/playmovie?path=" +
                 myPhone.getPath().replace(" ", "%20") + "&phoneName=" + myPhone.getPhoneName() +
@@ -52,7 +52,7 @@ public class RestClient {
         }
     }
 
-    public void refresh(Phone myPhone){
+    public void refresh(com.phoneinfo.Phone myPhone){
         String restRequest = "http://" + myPhone.getComputerIP() + ":3990/refresh";
 
         try{
