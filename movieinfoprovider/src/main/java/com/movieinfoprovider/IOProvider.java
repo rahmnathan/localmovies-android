@@ -14,9 +14,7 @@ class IOProvider {
 
     public void writeInfoToFile(List<MovieInfo> movieInfo, String currentPath, String dataDirectory){
 
-        String[] viewGetter = currentPath.split("/");
-
-        String view = viewGetter[viewGetter.length - 1] + ".txt";
+        String view = currentPath.replace("/", "") + ".txt";
 
         File setupFolder = new File(dataDirectory +"/LocalMovies/");
 
@@ -41,8 +39,7 @@ class IOProvider {
 
     public List<MovieInfo> getInfoFromFile(String currentPath, String dataDirectory) throws Exception {
 
-        String[] viewGetter = currentPath.split("/");
-        String view = viewGetter[viewGetter.length - 1] + ".txt";
+        String view = currentPath.replace("/", "") + ".txt";
 
         File setupFolder = new File(dataDirectory + "/LocalMovies/");
         setupFolder.mkdir();

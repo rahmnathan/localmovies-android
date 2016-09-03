@@ -33,9 +33,11 @@ public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filtera
         this.originalMovieList = movies;
     }
 
-    public View getView(int position,View view,ViewGroup parent) {
+    public View getView(int position,View rowView,ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
-        View rowView = inflater.inflate(R.layout.my_adapter, null, true);
+        if(rowView == null) {
+            rowView = inflater.inflate(R.layout.my_adapter, null, true);
+        }
 
         TextView txtTitle = (TextView) rowView.findViewById(R.id.textView);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
