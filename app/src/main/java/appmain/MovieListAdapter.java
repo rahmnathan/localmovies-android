@@ -36,7 +36,7 @@ public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filtera
     public View getView(int position,View rowView,ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
         if(rowView == null) {
-            rowView = inflater.inflate(R.layout.my_adapter, null, true);
+            rowView = inflater.inflate(R.layout.my_adapter, parent, false);
         }
 
         TextView txtTitle = (TextView) rowView.findViewById(R.id.textView);
