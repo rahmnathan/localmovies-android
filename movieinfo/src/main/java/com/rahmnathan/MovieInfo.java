@@ -7,7 +7,7 @@ public class MovieInfo implements Serializable {
     private static final long serialVersionUID = 1L;
     private String title;
     private String IMDBRating;
-    private String MetaRating;
+    private String metaRating;
     private byte[] image;
     private String releaseYear;
 
@@ -28,7 +28,7 @@ public class MovieInfo implements Serializable {
     }
 
     public void setMetaRating(String metaRating) {
-        MetaRating = metaRating;
+        this.metaRating = metaRating;
     }
 
     public String getReleaseYear(){
@@ -44,7 +44,7 @@ public class MovieInfo implements Serializable {
     }
 
     public String getMetaRating(){
-        return MetaRating;
+        return metaRating;
     }
 
     public byte[] getImage() {
