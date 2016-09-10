@@ -21,7 +21,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.rahmnathan.MovieInfo;
-import com.movieinfoprovider.MovieInfoProvider;
+import com.movieinfoprovider.OMDBMovieInfoProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     public static Phone myPhone;
     private static final RestClient REST_CLIENT = new RestClient();
     public static final List<MovieInfo> movieList = new ArrayList<>();
-    private static final MovieInfoProvider MOVIE_INFO_PROVIDER = new MovieInfoProvider();
+    private static final OMDBMovieInfoProvider MOVIE_INFO_PROVIDER = new OMDBMovieInfoProvider();
     public static ProgressBar progressBar;
 
     public static LoadingCache<String, List<MovieInfo>> movieInfo = null;
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                                 new CacheLoader<String, List<MovieInfo>>() {
                                     @Override
                                     public List<MovieInfo> load(String currentPath) {
-                                        return MOVIE_INFO_PROVIDER.getMovieData(REST_CLIENT.requestTitles(myPhone),
+                                        return MOVIE_INFO_PROVIDER.getMovieInfo(REST_CLIENT.requestTitles(myPhone),
                                                 currentPath, MainActivity.this.getFilesDir().toString());
                                     }
                                 });

@@ -14,12 +14,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieInfoProvider {
+public class OMDBMovieInfoProvider implements MovieInfoProviderInterface{
 
     private JSONObject jsonObject;
     private IOProvider ioProvider = new IOProvider();
 
-    public List<MovieInfo> getMovieData(List<String> titleList, String currentPath, String dataDirectory){
+    @Override
+    public List<MovieInfo> getMovieInfo(List<String> titleList, String currentPath, String dataDirectory){
 
         try{
             return ioProvider.getInfoFromFile(currentPath, dataDirectory);
@@ -101,7 +102,9 @@ public class MovieInfoProvider {
             URL imageURL = new URL(jsonObject.get("Poster").toString());
             InputStream is = imageURL.openConnection().getInputStream();
             return ByteStreams.toByteArray(is);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 }

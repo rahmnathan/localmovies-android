@@ -1,6 +1,4 @@
-package com.movieinfoprovider;
-
-import com.rahmnathan.MovieInfo;
+package com.rahmnathan;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,7 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-class IOProvider {
+public class IOProvider {
 
     public void writeInfoToFile(List<MovieInfo> movieInfo, String currentPath, String dataDirectory){
 
@@ -21,7 +19,7 @@ class IOProvider {
         setupFolder.mkdir();
 
         try{
-        File file = new File(setupFolder, view);
+            File file = new File(setupFolder, view);
 
             if (!file.exists()) {
                 file.createNewFile();
