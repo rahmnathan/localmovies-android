@@ -19,14 +19,14 @@ import java.util.List;
 
 import rahmnathan.localmovies.R;
 
-public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
+class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
 
     private final Activity context;
-    public static List<MovieInfo> movies;
+    List<MovieInfo> movies;
     private final List<MovieInfo> originalMovieList;
     private AdapterFilter adapterFilter;
 
-    public MovieListAdapter(Activity context, List<MovieInfo> movies) {
+    MovieListAdapter(Activity context, List<MovieInfo> movies) {
         super(context, R.layout.my_adapter, movies);
         this.context=context;
         this.movies = movies;
@@ -58,17 +58,11 @@ public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filtera
         txtTitle.setText(currentTitle);
 
         byte[] image = movie.getImage();
-
-        Bitmap bitmap;
-
-        if(!(image == null)) {
+        Bitmap bitmap = null;
+        if(image != null)
             bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
-        } else{
-            bitmap = null;
-        }
 
         if (bitmap != null && level == 1) {
-
             year.setText("Release Year: " + movie.getReleaseYear());
             ratings.setText("IMDB: " + movie.getIMDBRating() + " Meta: " + movie.getMetaRating() + "  ");
             imageView.setImageBitmap(bitmap);

@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         movieList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String title = MovieListAdapter.movies.get(position).toString();
+                String title = myAdapter.movies.get(position).toString();
 
                 if (myPhone.getPath().toLowerCase().contains("season") ||
                         myPhone.getPath().toLowerCase().contains("movies")) {
