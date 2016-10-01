@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.phoneinfo.Phone;
+import com.rahmnathan.MovieInfoProvider;
 import com.restclient.RestClient;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -36,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
     public static MovieListAdapter myAdapter;
     public static Phone myPhone;
     private static final RestClient REST_CLIENT = new RestClient();
-    public static final List<MovieInfo> movieList = new ArrayList<>();
-    private static final OMDBMovieInfoProvider MOVIE_INFO_PROVIDER = new OMDBMovieInfoProvider();
+    public static final List<MovieInfo> MOVIE_INFO_LIST = new ArrayList<>();
+    private static final MovieInfoProvider MOVIE_INFO_PROVIDER = new OMDBMovieInfoProvider();
     public static ProgressBar progressBar;
 
     public static LoadingCache<String, List<MovieInfo>> movieInfo = null;
@@ -121,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Creating ListAdapter and listView to display titles
 
-        myAdapter = new MovieListAdapter(this, movieList);
+        myAdapter = new MovieListAdapter(this, MOVIE_INFO_LIST);
 
         final ListView movieList = (ListView) findViewById(R.id.listView);
         movieList.setAdapter(myAdapter);

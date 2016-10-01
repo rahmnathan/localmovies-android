@@ -11,24 +11,12 @@ public class MovieInfo implements Serializable {
     private byte[] image;
     private String releaseYear;
 
-    public void setReleaseYear(String releaseYear){
-        this.releaseYear = releaseYear;
-    }
-
-    public void setTitle(String title){
+    private MovieInfo(String title, String IMDBRating, String metaRating, byte[] image, String releaseYear) {
         this.title = title;
-    }
-
-    public void setIMDBRating(String IMDBRating) {
         this.IMDBRating = IMDBRating;
-    }
-
-    public void setImage(byte[] image){
-        this.image = image;
-    }
-
-    public void setMetaRating(String metaRating) {
         this.metaRating = metaRating;
+        this.image = image;
+        this.releaseYear = releaseYear;
     }
 
     public String getReleaseYear(){
@@ -54,5 +42,46 @@ public class MovieInfo implements Serializable {
     @Override
     public String toString(){
         return title;
+    }
+
+    public static class Builder {
+
+        private String title;
+        private String IMDBRating;
+        private String metaRating;
+        private byte[] image;
+        private String releaseYear;
+
+        public static Builder newInstace(){
+            return new Builder();
+        }
+
+        public Builder setTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder setIMDBRating(String IMDBRating) {
+            this.IMDBRating = IMDBRating;
+            return this;
+        }
+
+        public Builder setMetaRating(String metaRating) {
+            this.metaRating = metaRating;
+            return this;
+        }
+
+        public Builder setImage(byte[] image) {
+            this.image = image;
+            return this;
+        }
+
+        public Builder setReleaseYear(String releaseYear) {
+            this.releaseYear = releaseYear;
+            return this;
+        }
+        public MovieInfo build(){
+            return new MovieInfo(title, IMDBRating, metaRating, image, releaseYear);
+        }
     }
 }

@@ -28,6 +28,6 @@ dependencies {
     compile 'com.google.guava:guava:19.0'
     compile project(path: ':MovieInfoAPI')
     compile project(path: ':OMDBMovieInfoProvider')
-    compile project(path: ':phoneinfo')
-    compile project(path: ':restclient')
+    compile project(path: ':PhoneInfo')
+    compile project(path: ':RestClient')
 }

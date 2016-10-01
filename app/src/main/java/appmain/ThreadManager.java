@@ -64,9 +64,9 @@ public class ThreadManager extends Thread {
             }
         });
 
-        MainActivity.movieList.clear();
+        MainActivity.MOVIE_INFO_LIST.clear();
         try {
-            MainActivity.movieList.addAll(MainActivity.movieInfo.get(MainActivity.myPhone.getPath()));
+            MainActivity.MOVIE_INFO_LIST.addAll(MainActivity.movieInfo.get(MainActivity.myPhone.getPath()));
         } catch (Exception e) {
             e.printStackTrace();
         }

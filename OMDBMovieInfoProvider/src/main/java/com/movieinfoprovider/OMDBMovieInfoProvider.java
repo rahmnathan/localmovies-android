@@ -2,6 +2,7 @@ package com.movieinfoprovider;
 
 import com.google.common.io.ByteStreams;
 import com.rahmnathan.*;
+import com.rahmnathan.MovieInfoProvider;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,7 +15,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OMDBMovieInfoProvider implements MovieInfoProviderInterface{
+public class OMDBMovieInfoProvider implements MovieInfoProvider {
 
     private JSONObject jsonObject;
     private IOProvider ioProvider = new IOProvider();
@@ -37,30 +38,30 @@ public class OMDBMovieInfoProvider implements MovieInfoProviderInterface{
         List<MovieInfo> movieDataList = new ArrayList<>();
 
         for(String x : titleList) {
-            MovieInfo movieData = new MovieInfo();
-            movieData.setTitle(x);
 
             getData(x, currentPath);
 
-            movieData.setImage(getImage());
+            MovieInfo.Builder movieInfoBuilder = MovieInfo.Builder.newInstace();
+            movieInfoBuilder.setTitle(x);
+            movieInfoBuilder.setImage(getImage());
 
             try {
-                movieData.setIMDBRating(jsonObject.getString("imdbRating"));
-            } catch (JSONException e) {
-                movieData.setIMDBRating("N/A");
+                movieInfoBuilder.setIMDBRating(jsonObject.getString("imdbRating"));
+            } catch(JSONException e){
+                movieInfoBuilder.setIMDBRating("N/A");
             }
             try {
-                movieData.setMetaRating(jsonObject.getString("Metascore"));
-            } catch (JSONException e) {
-                movieData.setMetaRating("N/A");
+                movieInfoBuilder.setMetaRating(jsonObject.getString("Metascore"));
+            } catch (JSONException e){
+                movieInfoBuilder.setMetaRating("N/A");
             }
             try {
-                movieData.setReleaseYear(jsonObject.getString("Year"));
-            } catch (JSONException e) {
-                movieData.setReleaseYear("N/A");
+                movieInfoBuilder.setReleaseYear(jsonObject.getString("Year"));
+            } catch (JSONException e){
+                movieInfoBuilder.setReleaseYear("N/A");
             }
 
-            movieDataList.add(movieData);
+            movieDataList.add(movieInfoBuilder.build());
         }
         return movieDataList;
     }
