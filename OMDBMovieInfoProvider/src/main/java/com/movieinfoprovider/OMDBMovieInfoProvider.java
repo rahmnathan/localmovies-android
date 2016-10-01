@@ -17,7 +17,6 @@ import java.util.List;
 
 public class OMDBMovieInfoProvider implements MovieInfoProvider {
 
-    private JSONObject jsonObject;
     private IOProvider ioProvider = new IOProvider();
 
     @Override
@@ -39,25 +38,25 @@ public class OMDBMovieInfoProvider implements MovieInfoProvider {
 
         for(String x : titleList) {
 
-            getData(x, currentPath);
+            JSONObject jsonObject = getData(x, currentPath);
 
             MovieInfo.Builder movieInfoBuilder = MovieInfo.Builder.newInstace();
             movieInfoBuilder.setTitle(x);
-            movieInfoBuilder.setImage(getImage());
+            movieInfoBuilder.setImage(getImage(jsonObject));
 
             try {
                 movieInfoBuilder.setIMDBRating(jsonObject.getString("imdbRating"));
-            } catch(JSONException e){
+            } catch(Exception e){
                 movieInfoBuilder.setIMDBRating("N/A");
             }
             try {
                 movieInfoBuilder.setMetaRating(jsonObject.getString("Metascore"));
-            } catch (JSONException e){
+            } catch (Exception e){
                 movieInfoBuilder.setMetaRating("N/A");
             }
             try {
                 movieInfoBuilder.setReleaseYear(jsonObject.getString("Year"));
-            } catch (JSONException e){
+            } catch (Exception e){
                 movieInfoBuilder.setReleaseYear("N/A");
             }
 
@@ -66,7 +65,7 @@ public class OMDBMovieInfoProvider implements MovieInfoProvider {
         return movieDataList;
     }
 
-    private void getData(String title, String currentPath) {
+    private JSONObject getData(String title, String currentPath) {
 
         String uri = "http://www.omdbapi.com/?t=";
         String currentPathLowerCase = currentPath.toLowerCase();
@@ -91,14 +90,15 @@ public class OMDBMovieInfoProvider implements MovieInfoProvider {
             br.close();
             urlConnection.disconnect();
 
-            jsonObject = new JSONObject(end);
+            return new JSONObject(end);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 
-    private byte[] getImage() {
+    private byte[] getImage(JSONObject jsonObject) {
         try {
             URL imageURL = new URL(jsonObject.get("Poster").toString());
             InputStream is = imageURL.openConnection().getInputStream();
