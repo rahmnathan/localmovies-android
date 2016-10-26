@@ -16,13 +16,11 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.phoneinfo.Phone;
-import com.rahmnathan.MovieInfoProvider;
 import com.restclient.RestClient;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.rahmnathan.MovieInfo;
-import com.movieinfoprovider.OMDBMovieInfoProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     public static Phone myPhone;
     private static final RestClient REST_CLIENT = new RestClient();
     public static final List<MovieInfo> MOVIE_INFO_LIST = new ArrayList<>();
-    private static final MovieInfoProvider MOVIE_INFO_PROVIDER = new OMDBMovieInfoProvider();
     public static ProgressBar progressBar;
 
     public static LoadingCache<String, List<MovieInfo>> movieInfo = null;
@@ -55,13 +52,12 @@ public class MainActivity extends AppCompatActivity {
 
         movieInfo =
                 CacheBuilder.newBuilder()
-                        .maximumSize(100)
+                        .maximumSize(250)
                         .build(
                                 new CacheLoader<String, List<MovieInfo>>() {
                                     @Override
                                     public List<MovieInfo> load(String currentPath) {
-                                        return MOVIE_INFO_PROVIDER.getMovieInfo(REST_CLIENT.requestTitles(myPhone),
-                                                currentPath, MainActivity.this.getFilesDir().toString());
+                                        return REST_CLIENT.requestTitles(myPhone);
                                     }
                                 });
 

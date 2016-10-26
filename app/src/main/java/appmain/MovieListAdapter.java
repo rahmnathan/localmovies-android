@@ -3,6 +3,7 @@ package appmain;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,17 +58,19 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         }
         txtTitle.setText(currentTitle);
 
-        byte[] image = movie.getImage();
+        byte[] image = Base64.decode(movie.getImage(), Base64.DEFAULT);
         Bitmap bitmap = null;
-        if(image != null)
+        if(image != null && level == 1) {
             bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
-
-        if (bitmap != null && level == 1) {
-            year.setText("Release Year: " + movie.getReleaseYear());
-            ratings.setText("IMDB: " + movie.getIMDBRating() + " Meta: " + movie.getMetaRating() + "  ");
             imageView.setImageBitmap(bitmap);
         } else {
             imageView.setImageResource(R.drawable.movie_icon);
+        }
+
+        if (level == 1) {
+            year.setText("Release Year: " + movie.getReleaseYear());
+            ratings.setText("IMDB: " + movie.getIMDBRating() + " Meta: " + movie.getMetaRating() + "  ");
+        } else {
             ratings.setText("N/A");
             year.setText("N/A");
         }

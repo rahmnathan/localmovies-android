@@ -1,1 +1,1 @@
-include ':app', ':MovieInfoAPI', ':OMDBMovieInfoProvider', ':RestClient', ':PhoneInfo'
+include ':app', ':MovieInfoAPI', ':RestClient', ':PhoneInfo'

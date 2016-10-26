@@ -1,16 +1,20 @@
 package com.restclient;
 
+import com.rahmnathan.MovieInfo;
+
+import org.json.JSONArray;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class RestClient {
 
-    public List<String> requestTitles(com.phoneinfo.Phone myPhone) {
+    private JSONtoMovieInfoMapper movieInfoMapper = new JSONtoMovieInfoMapper();
+
+    public List<MovieInfo> requestTitles(com.phoneinfo.Phone myPhone) {
 
         String restRequest = "http://" + myPhone.getComputerIP() + ":3990/titlerequest?path=" +
                 myPhone.getPath().replace(" ", "%20");
@@ -19,17 +23,18 @@ public class RestClient {
             URL url = new URL(restRequest);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-            List<String> list = new ArrayList<>(Arrays.asList(br.readLine()
-                    .replace("\"", "")
-                    .replace("[", "")
-                    .replace("]", "")
-                    .split(",")));
-
+            String response = br.readLine();
+            String result = "";
+            while(response != null){
+                result += response;
+                response = br.readLine();
+            }
+            br.close();
             connection.disconnect();
 
-            return list;
+            JSONArray array = new JSONArray(result);
 
+            return movieInfoMapper.jsonArrayToMovieInfoList(array);
         } catch (Exception e) {
             e.printStackTrace();
         }
