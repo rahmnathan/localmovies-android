@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AndroidApp.iml" filepath="$PROJECT_DIR$/AndroidApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LocalMovies---AndroidApp.iml" filepath="$PROJECT_DIR$/LocalMovies---AndroidApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/MovieInfoAPI/MovieInfoAPI.iml" filepath="$PROJECT_DIR$/MovieInfoAPI/MovieInfoAPI.iml" />
       <module fileurl="file://$PROJECT_DIR$/PhoneInfo/PhoneInfo.iml" filepath="$PROJECT_DIR$/PhoneInfo/PhoneInfo.iml" />
       <module fileurl="file://$PROJECT_DIR$/RestClient/RestClient.iml" filepath="$PROJECT_DIR$/RestClient/RestClient.iml" />
