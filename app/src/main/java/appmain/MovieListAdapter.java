@@ -61,13 +61,11 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         txtTitle.setGravity(Gravity.CENTER);
 
         byte[] image = Base64.decode(movie.getImage(), Base64.DEFAULT);
-        Bitmap bitmap;
-        if(image != null && level == 1) {
-            bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
+        if(bitmap != null)
             imageView.setImageBitmap(bitmap);
-        } else {
+        else
             imageView.setImageResource(R.drawable.movie_icon);
-        }
 
         year.setGravity(Gravity.CENTER);
         ratings.setGravity(Gravity.CENTER);
