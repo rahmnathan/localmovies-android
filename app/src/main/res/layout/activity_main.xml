@@ -19,15 +19,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="448dp"
-        android:id="@+id/listView"
-        android:layout_below="@+id/searchText"
-        android:layout_above="@+id/controls">
-
-    </ListView>
-
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
@@ -86,5 +77,20 @@
         android:id="@+id/progressBar"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
+
+    <GridView
+        android:id="@+id/gridView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:numColumns="2"
+        android:verticalSpacing="10dp"
+        android:horizontalSpacing="10dp"
+        android:scrollbarStyle="outsideOverlay"
+        android:verticalScrollbarPosition="right"
+        android:scrollbars="vertical"
+        android:layout_below="@+id/searchText"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/controls">
+    </GridView>
 
 </RelativeLayout>

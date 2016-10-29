@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
         myAdapter = new MovieListAdapter(this, MOVIE_INFO_LIST);
 
-        final ListView movieList = (ListView) findViewById(R.id.listView);
+        final GridView movieList = (GridView) findViewById(R.id.gridView);
         movieList.setAdapter(myAdapter);
 
         // Setting up our search box with a text change listener
