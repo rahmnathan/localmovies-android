@@ -50,10 +50,6 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         String currentTitle = movie.getTitle();
         String currentPath = MainActivity.myPhone.getPath().toLowerCase();
 
-        int mainPathLength = MainActivity.myPhone.getMainPath().split("/").length;
-        int currentPathLength = MainActivity.myPhone.getPath().split("/").length;
-        int level = currentPathLength - mainPathLength;
-
         if (currentPath.contains("movies") || currentPath.contains("season")) {
             currentTitle = currentTitle.substring(0, currentTitle.length() - 4);
         }
@@ -65,17 +61,12 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         if(bitmap != null)
             imageView.setImageBitmap(bitmap);
         else
-            imageView.setImageResource(R.drawable.movie_icon);
+            imageView.setImageResource(R.mipmap.no_poster);
 
         year.setGravity(Gravity.CENTER);
         ratings.setGravity(Gravity.CENTER);
-        if (level == 1) {
-            year.setText("Release Year: " + movie.getReleaseYear());
-            ratings.setText("IMDB: " + movie.getIMDBRating() + " Meta: " + movie.getMetaRating() + "  ");
-        } else {
-            ratings.setText("N/A");
-            year.setText("N/A");
-        }
+        year.setText("Release Year: " + movie.getReleaseYear());
+        ratings.setText("IMDB: " + movie.getIMDBRating() + " Meta: " + movie.getMetaRating() + "  ");
 
         return rowView;
     }
