@@ -3,6 +3,7 @@ package appmain;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.util.Base64;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -55,6 +56,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         }
         txtTitle.setText(currentTitle);
         txtTitle.setGravity(Gravity.CENTER);
+        txtTitle.setTextColor(Color.WHITE);
 
         byte[] image = Base64.decode(movie.getImage(), Base64.DEFAULT);
         Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
@@ -63,8 +65,10 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         else
             imageView.setImageResource(R.mipmap.no_poster);
 
+        year.setTextColor(Color.WHITE);
         year.setGravity(Gravity.CENTER);
         ratings.setGravity(Gravity.CENTER);
+        ratings.setTextColor(Color.WHITE);
         year.setText("Release Year: " + movie.getReleaseYear());
         ratings.setText("IMDB: " + movie.getIMDBRating() + " Meta: " + movie.getMetaRating() + "  ");
 
