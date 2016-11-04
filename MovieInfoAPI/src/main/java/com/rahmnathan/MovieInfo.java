@@ -4,11 +4,11 @@ import java.io.Serializable;
 
 public class MovieInfo implements Serializable {
 
-    private String title;
-    private String IMDBRating;
-    private String metaRating;
-    private String image;
-    private String releaseYear;
+    private final String title;
+    private final String IMDBRating;
+    private final String metaRating;
+    private final String image;
+    private final String releaseYear;
 
     private MovieInfo(String title, String IMDBRating, String metaRating, String image, String releaseYear) {
         this.title = title;
@@ -55,29 +55,24 @@ public class MovieInfo implements Serializable {
             return new Builder();
         }
 
-        public Builder setTitle(String title) {
+        public void setTitle(String title) {
             this.title = title;
-            return this;
         }
 
-        public Builder setIMDBRating(String IMDBRating) {
+        public void setIMDBRating(String IMDBRating) {
             this.IMDBRating = IMDBRating;
-            return this;
         }
 
-        public Builder setMetaRating(String metaRating) {
+        public void setMetaRating(String metaRating) {
             this.metaRating = metaRating;
-            return this;
         }
 
-        public Builder setImage(String image) {
+        public void setImage(String image) {
             this.image = image;
-            return this;
         }
 
-        public Builder setReleaseYear(String releaseYear) {
+        public void setReleaseYear(String releaseYear) {
             this.releaseYear = releaseYear;
-            return this;
         }
         public MovieInfo build(){
             return new MovieInfo(title, IMDBRating, metaRating, image, releaseYear);

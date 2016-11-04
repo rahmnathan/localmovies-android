@@ -12,12 +12,12 @@ import java.util.List;
 
 public class RestClient {
 
-    private JSONtoMovieInfoMapper movieInfoMapper = new JSONtoMovieInfoMapper();
+    private final JSONtoMovieInfoMapper movieInfoMapper = new JSONtoMovieInfoMapper();
 
     public List<MovieInfo> requestTitles(com.phoneinfo.Phone myPhone) {
 
         String restRequest = "http://" + myPhone.getComputerIP() + ":3990/titlerequest?path=" +
-                myPhone.getPath().replace(" ", "%20");
+                myPhone.getCurrentPath().replace(" ", "%20");
 
         try {
             URL url = new URL(restRequest);
@@ -44,7 +44,7 @@ public class RestClient {
     public void playMovie(com.phoneinfo.Phone myPhone){
 
         String restRequest = "http://" + myPhone.getComputerIP() + ":3990/playmovie?path=" +
-                myPhone.getPath().replace(" ", "%20") + "&phoneName=" + myPhone.getPhoneName() +
+                myPhone.getCurrentPath().replace(" ", "%20") + "&phoneName=" + myPhone.getPhoneName() +
                 "&computerIP=" + myPhone.getComputerIP() + "&chromeIP=" + myPhone.getCastIP();
 
         try {

@@ -8,7 +8,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class JSONtoMovieInfoMapper {
+class JSONtoMovieInfoMapper {
 
     List<MovieInfo> jsonArrayToMovieInfoList(JSONArray jsonList) {
         List<MovieInfo> movieInfoList = new ArrayList<>();

@@ -7,7 +7,8 @@ public class Phone implements Serializable {
     private final String castIP;
     private final String phoneName;
     private String computerIP;
-    private String path;
+    private String currentPath;
+    private String videoPath;
 
     public Phone(String castIP, String phoneName, String mainPath) {
         this.castIP = castIP;
@@ -27,19 +28,27 @@ public class Phone implements Serializable {
         this.computerIP = address;
     }
 
-    public void setPath(String path){
-        this.path = path;
+    public void setCurrentPath(String currentPath){
+        this.currentPath = currentPath;
     }
 
     public String getPhoneName() {
         return phoneName;
     }
 
-    public String getPath(){
-        return path;
+    public String getCurrentPath(){
+        return currentPath;
     }
 
     public String getMainPath(){
         return mainPath;
+    }
+
+    public String getVideoPath() {
+        return videoPath;
+    }
+
+    public void setVideoPath(String videoPath) {
+        this.videoPath = videoPath;
     }
 }

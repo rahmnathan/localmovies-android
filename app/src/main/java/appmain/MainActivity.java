@@ -1,8 +1,6 @@
 package appmain;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -98,11 +96,11 @@ public class MainActivity extends AppCompatActivity {
         series.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myPhone.setPath(myPhone.getMainPath());
+                myPhone.setCurrentPath(myPhone.getMainPath());
 
                 // Requesting series list and updating listview
 
-                new ThreadManager("GetTitles", "Series", MainActivity.this).start();
+                new ThreadManager("GetTitles", "Series").start();
             }
         });
 
@@ -110,11 +108,11 @@ public class MainActivity extends AppCompatActivity {
         movies.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myPhone.setPath(myPhone.getMainPath());
+                myPhone.setCurrentPath(myPhone.getMainPath());
 
                 // Requesting movie list and updating listview
 
-                new ThreadManager("GetTitles", "Movies", MainActivity.this).start();
+                new ThreadManager("GetTitles", "Movies").start();
             }
         });
 
@@ -145,18 +143,18 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String title = myAdapter.movies.get(position).toString();
 
-                if (myPhone.getPath().toLowerCase().contains("season") ||
-                        myPhone.getPath().toLowerCase().contains("movies")) {
+                if (myPhone.getCurrentPath().toLowerCase().contains("season") ||
+                        myPhone.getCurrentPath().toLowerCase().contains("movies")) {
                     /*
                      If we're viewing movies or episodes we
                      play the movie and start our Remote activity
                    */
-                    new ThreadManager("PlayMovie", title, MainActivity.this).start();
+                    new ThreadManager("PlayMovie", title).start();
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this, Remote.class));
                 } else {
 
-                    new ThreadManager("GetTitles", title, MainActivity.this).start();
+                    new ThreadManager("GetTitles", title).start();
                 }
             }
         });
@@ -164,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        String currentPath = myPhone.getPath();
+        String currentPath = myPhone.getCurrentPath();
         if(currentPath.endsWith("Series/") | currentPath.endsWith("Movies/")){
             System.exit(8);
         } else{
@@ -174,8 +172,8 @@ public class MainActivity extends AppCompatActivity {
             for(int x = 0; x<pathSplit.length - 2; x++){
                 newPath = newPath + pathSplit[x] + "/";
             }
-            myPhone.setPath(newPath);
-            new ThreadManager("GetTitles", title, this).start();
+            myPhone.setCurrentPath(newPath);
+            new ThreadManager("GetTitles", title).start();
         }
     }
 

@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
@@ -48,9 +50,14 @@ public class Setup extends Activity {
         );
 
         chrome = (EditText) findViewById(R.id.chrome);
+        chrome.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
         name = (EditText) findViewById(R.id.phoneName);
+        name.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
         server = (EditText) findViewById(R.id.ServerIP);
+        server.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
         path = (EditText) findViewById(R.id.inputPath);
+        path.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
+
 
         // Populating our textfields with our saved data if it exists
 
@@ -79,7 +86,10 @@ public class Setup extends Activity {
         refresh.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                new ThreadManager("Refresh", "Refresh", Setup.this).start();
+                new ThreadManager("Refresh", "Refresh").start();
+                Intent intent = new Intent(Setup.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
             }
         });
     }
@@ -118,7 +128,7 @@ public class Setup extends Activity {
             e.printStackTrace();
         }
 
-        myPhone.setPath(myPhone.getMainPath());
+        myPhone.setCurrentPath(myPhone.getMainPath());
 
         return myPhone;
     }

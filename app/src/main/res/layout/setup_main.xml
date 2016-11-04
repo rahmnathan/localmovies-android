@@ -2,13 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/background_dark">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Chromecast IP"
+        android:textColor="#ffff"
         android:id="@+id/textView"
         android:layout_gravity="center_horizontal" />
 
@@ -16,6 +18,7 @@
         android:layout_width="220dp"
         android:layout_height="wrap_content"
         android:id="@+id/chrome"
+        android:textColor="#ffff"
         android:layout_gravity="center_horizontal" />
 
     <TextView
@@ -24,6 +27,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Server IP"
         android:id="@+id/serverLabel"
+        android:textColor="#ffff"
         android:layout_gravity="center_horizontal" />
 
     <TextView
@@ -34,12 +38,14 @@
         android:id="@+id/textView2"
         android:layout_gravity="center_horizontal"
         android:textSize="9dp"
+        android:textColor="#ffff"
         android:textIsSelectable="true" />
 
     <EditText
         android:layout_width="235dp"
         android:layout_height="wrap_content"
         android:id="@+id/ServerIP"
+        android:textColor="#ffff"
         android:layout_gravity="center_horizontal" />
 
     <TextView
@@ -48,12 +54,14 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Name"
         android:id="@+id/textView4"
+        android:textColor="#ffff"
         android:layout_gravity="center_horizontal" />
 
     <EditText
         android:layout_width="220dp"
         android:layout_height="wrap_content"
         android:id="@+id/phoneName"
+        android:textColor="#ffff"
         android:layout_gravity="center_horizontal" />
 
     <TextView
@@ -62,6 +70,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="MainPath"
         android:id="@+id/textView5"
+        android:textColor="#ffff"
         android:layout_gravity="center_horizontal" />
 
     <EditText
@@ -69,6 +78,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/inputPath"
         android:layout_gravity="center_horizontal"
+        android:textColor="#ffff"
         android:text="/media/pi/MyPassport/LocalMedia/" />
 
     <Button
@@ -76,6 +86,7 @@
         android:layout_height="wrap_content"
         android:text="Set"
         android:id="@+id/set"
+        android:backgroundTint="#4c4c4c"
         android:layout_gravity="center_horizontal" />
 
     <Button
@@ -83,6 +94,7 @@
         android:layout_height="wrap_content"
         android:text="Refresh Title List"
         android:id="@+id/refresh"
+        android:backgroundTint="#4c4c4c"
         android:layout_gravity="center_horizontal" />
 
 </LinearLayout>

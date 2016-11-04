@@ -1,6 +1,5 @@
 package appmain;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -8,56 +7,41 @@ import android.view.View;
 import com.phoneinfo.Phone;
 import com.restclient.RestClient;
 
-import java.io.File;
-
 public class ThreadManager extends Thread {
 
     private final String request;
     private final String title;
     private final Phone phone;
-    private final Context context;
-    private static final Handler UIHandler = new Handler(Looper.getMainLooper());
+    public static final Handler UIHandler = new Handler(Looper.getMainLooper());
     private static final RestClient REST_CLIENT = new RestClient();
 
-    public ThreadManager(String request, String title, Context context){
+    public ThreadManager(String request, String title){
         this.request = request;
         this.title = title;
         this.phone = MainActivity.myPhone;
-        this.context = context;
     }
 
     public void run(){
         switch(request){
             case "GetTitles":
-                MainActivity.myPhone.setPath(phone.getPath() + title + "/");
+                MainActivity.myPhone.setCurrentPath(phone.getCurrentPath() + title + "/");
                 updateListView();
                 break;
             case "PlayMovie":
-                phone.setPath(phone.getPath() + title);
+                phone.setVideoPath(phone.getCurrentPath() + title);
                 REST_CLIENT.playMovie(phone);
                 break;
             case "Refresh":
                 MainActivity.movieInfo.invalidateAll();
                 REST_CLIENT.refresh(phone);
-                MainActivity.myPhone.setPath(MainActivity.myPhone.getMainPath() + "Movies/");
-
-                File file = new File(context.getFilesDir() + "/LocalMovies/");
-                for(File x : file.listFiles()){
-                    x.delete();
-                }
-
-                updateListView();
+                MainActivity.myPhone.setCurrentPath(MainActivity.myPhone.getMainPath() + "Movies/");
                 break;
         }
     }
 
-    public static void runOnUI(Runnable runnable) {
-        UIHandler.post(runnable);
-    }
-
     private void updateListView() {
 
-        runOnUI(new Runnable() {
+        UIHandler.post(new Runnable() {
             @Override
             public void run() {
                 MainActivity.progressBar.setVisibility(View.VISIBLE);
@@ -66,11 +50,11 @@ public class ThreadManager extends Thread {
 
         MainActivity.MOVIE_INFO_LIST.clear();
         try {
-            MainActivity.MOVIE_INFO_LIST.addAll(MainActivity.movieInfo.get(MainActivity.myPhone.getPath()));
+            MainActivity.MOVIE_INFO_LIST.addAll(MainActivity.movieInfo.get(MainActivity.myPhone.getCurrentPath()));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        runOnUI(new Runnable() {
+        UIHandler.post(new Runnable() {
             @Override
             public void run() {
                 MainActivity.progressBar.setVisibility(View.GONE);

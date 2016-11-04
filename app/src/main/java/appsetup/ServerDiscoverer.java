@@ -28,7 +28,7 @@ public class ServerDiscoverer extends Thread {
             MainActivity.myPhone.setComputerIP(getServerIP());
         }
 
-        ThreadManager.runOnUI(new Runnable() {
+        ThreadManager.UIHandler.post(new Runnable() {
             @Override
             public void run() {
                 MainActivity.progressBar.setVisibility(View.GONE);
@@ -36,16 +36,16 @@ public class ServerDiscoverer extends Thread {
             }
         });
 
-        new ThreadManager("GetTitles", "Movies", context).start();
+        new ThreadManager("GetTitles", "Movies").start();
     }
 
     private String getServerIP() {
 
-        ThreadManager.runOnUI(new Runnable() {
+        ThreadManager.UIHandler.post(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(context, "Scanning for server", Toast.LENGTH_SHORT).show();
-                ThreadManager.runOnUI(new Runnable() {
+                ThreadManager.UIHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         MainActivity.progressBar.setVisibility(View.VISIBLE);
@@ -62,10 +62,10 @@ public class ServerDiscoverer extends Thread {
         while (i < 257) {
             try {
                 if(i == 256){
-                    ThreadManager.runOnUI(new Runnable() {
+                    ThreadManager.UIHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            ThreadManager.runOnUI(new Runnable() {
+                            ThreadManager.UIHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     MainActivity.progressBar.setVisibility(View.GONE);
