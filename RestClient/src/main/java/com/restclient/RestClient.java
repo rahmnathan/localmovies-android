@@ -44,7 +44,7 @@ public class RestClient {
     public void playMovie(com.phoneinfo.Phone myPhone){
 
         String restRequest = "http://" + myPhone.getComputerIP() + ":3990/playmovie?path=" +
-                myPhone.getCurrentPath().replace(" ", "%20") + "&phoneName=" + myPhone.getPhoneName() +
+                myPhone.getVideoPath().replace(" ", "%20") + "&phoneName=" + myPhone.getPhoneName() +
                 "&computerIP=" + myPhone.getComputerIP() + "&chromeIP=" + myPhone.getCastIP();
 
         try {

@@ -176,5 +176,4 @@ public class MainActivity extends AppCompatActivity {
             new ThreadManager("GetTitles", title).start();
         }
     }
-
 }
