@@ -7,6 +7,7 @@ import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -15,6 +16,14 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.cast.MediaTrack;
+import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.cast.framework.CastSession;
+import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.google.android.gms.common.images.WebImage;
 import com.phoneinfo.Phone;
 import com.restclient.RestClient;
 import com.google.common.cache.CacheBuilder;
@@ -37,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private static final RestClient REST_CLIENT = new RestClient();
     public static final List<MovieInfo> MOVIE_INFO_LIST = new ArrayList<>();
     public static ProgressBar progressBar;
+    CastContext castContext;
 
     public static LoadingCache<String, List<MovieInfo>> movieInfo = null;
 
@@ -44,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        castContext = CastContext.getSharedInstance(this);
+
 
         if (Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -150,8 +164,20 @@ public class MainActivity extends AppCompatActivity {
                      play the movie and start our Remote activity
                    */
                     new ThreadManager("PlayMovie", title).start();
-                    Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(MainActivity.this, Remote.class));
+
+                    MediaMetadata metaData = new MediaMetadata();
+                    metaData.putString(MediaMetadata.KEY_TITLE, title);
+
+                    MediaInfo mediaInfo = new MediaInfo.Builder("http://" + myPhone.getComputerIP() + ":3990/video.mp4")
+                            .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+                            .setContentType("videos/mp4")
+                            .setMetadata(metaData)
+                            .build();
+                    CastSession session = castContext.getSessionManager().getCurrentCastSession();
+
+                    RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
+                    remoteMediaClient.load(mediaInfo, true, 0);
+
                 } else {
 
                     new ThreadManager("GetTitles", title).start();
@@ -175,5 +201,14 @@ public class MainActivity extends AppCompatActivity {
             myPhone.setCurrentPath(newPath);
             new ThreadManager("GetTitles", title).start();
         }
+    }
+
+    @Override public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        CastButtonFactory.setUpMediaRouteButton(getApplicationContext(),
+                menu,
+                R.id.media_route_menu_item);
+        return true;
     }
 }
