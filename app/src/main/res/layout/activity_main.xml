@@ -31,22 +31,7 @@
         android:width="100dp"
         android:padding="3dp"
         android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@+id/setup"
         android:backgroundTint="#4c4c4c"/>
-
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Setup"
-        android:id="@+id/setup"
-        android:backgroundTint="#4c4c4c"
-        android:layout_gravity="center_horizontal"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:width="90dp"
-        android:padding="3dp" />
 
     <Button
         style="?android:attr/buttonStyleSmall"

@@ -7,20 +7,22 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+
+import appmain.MainActivity;
+import appmain.ThreadManager;
 import rahmnathan.localmovies.R;
 
 public class Remote extends Activity {
 
-    private enum controls {
-        VOLUME_UP, VOLUME_DOWN, SEEK_FORWARD, SEEK_BACK, PLAY_PAUSE, STOP
-    }
-
     public static volatile boolean repeat = false;
+    public static RemoteMediaClient mediaClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
+        mediaClient = MainActivity.remoteMediaClient;
 
         // Setting up all of our buttons
 
@@ -34,74 +36,47 @@ public class Remote extends Activity {
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new ViewPressRepeater(controls.PLAY_PAUSE.name()).start();
+                if(mediaClient.isPlaying())
+                    mediaClient.pause();
+                else
+                    mediaClient.play();
             }
         });
 
         seekBack.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()){
-                    case MotionEvent.ACTION_DOWN:
-                        repeat = true;
-                        new ViewPressRepeater(controls.SEEK_BACK.name()).start();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        repeat = false;
-                        break;
-                }
+                // TODO - Implement seeking
                 return true;
             }
         });
 
-        seekForward.setOnTouchListener(new View.OnTouchListener() {
+        seekForward.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()){
-                    case MotionEvent.ACTION_DOWN:
-                        repeat = true;
-                        new ViewPressRepeater(controls.SEEK_FORWARD.name()).start();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        repeat = false;
-                        break;
-                }
-                return true;
+            public void onClick(View view){
+                // TODO - Implement seeking
             }
         });
 
         volumeUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new ViewPressRepeater(controls.VOLUME_UP.name()).start();
+                // TODO - Implement volume controls
             }
         });
 
         volumeDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new ViewPressRepeater(controls.VOLUME_DOWN.name()).start();
+                // TODO - Implement volume controls
             }
         });
 
         stop.setOnClickListener(new View.OnClickListener() {
             public void onClick(View View) {
-                new ViewPressRepeater(controls.STOP.name()).start();
+                mediaClient.stop();
             }
         });
 
     }
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            event.startTracking();
-            new ViewPressRepeater(controls.VOLUME_DOWN.name()).start();
-            return true;
-        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP){
-            new ViewPressRepeater(controls.VOLUME_UP.name()).start();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
 }

@@ -17,6 +17,7 @@ public class CastOptionsProvider implements OptionsProvider {
                 .build();
         return castOptions;
     }
+
     @Override
     public List<SessionProvider> getAdditionalSessionProviders(Context context) {
         return null;

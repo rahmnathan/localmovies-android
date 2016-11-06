@@ -8,22 +8,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
-import com.google.android.gms.cast.MediaTrack;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
-import com.google.android.gms.common.images.WebImage;
 import com.phoneinfo.Phone;
 import com.restclient.RestClient;
 import com.google.common.cache.CacheBuilder;
@@ -34,7 +32,6 @@ import com.rahmnathan.MovieInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import appsetup.ServerDiscoverer;
 import rahmnathan.localmovies.R;
 import appremote.Remote;
 import appsetup.Setup;
@@ -47,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     public static final List<MovieInfo> MOVIE_INFO_LIST = new ArrayList<>();
     public static ProgressBar progressBar;
     CastContext castContext;
+    public static RemoteMediaClient remoteMediaClient;
+    public static MediaInfo mediaInfo;
 
     public static LoadingCache<String, List<MovieInfo>> movieInfo = null;
 
@@ -54,8 +53,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
         castContext = CastContext.getSharedInstance(this);
 
 
@@ -82,8 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             myPhone = new Setup().getPhoneInfo(myPhone, this);
-            new ServerDiscoverer(myPhone, this).start();
-
+            new ThreadManager("GetTitles", "Movies").start();
         } catch(NullPointerException e){
             startActivity(new Intent(MainActivity.this, Setup.class));
         }
@@ -95,14 +91,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, Remote.class));
-            }
-        });
-
-        Button setup = (Button) findViewById(R.id.setup);
-        setup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, Setup.class));
             }
         });
 
@@ -168,15 +156,17 @@ public class MainActivity extends AppCompatActivity {
                     MediaMetadata metaData = new MediaMetadata();
                     metaData.putString(MediaMetadata.KEY_TITLE, title);
 
-                    MediaInfo mediaInfo = new MediaInfo.Builder("http://" + myPhone.getComputerIP() + ":3990/video.mp4")
+                    mediaInfo = new MediaInfo.Builder("http://" + myPhone.getComputerIP() + ":3990/video.mp4")
                             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                             .setContentType("videos/mp4")
                             .setMetadata(metaData)
                             .build();
                     CastSession session = castContext.getSessionManager().getCurrentCastSession();
 
-                    RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
+                    remoteMediaClient = session.getRemoteMediaClient();
                     remoteMediaClient.load(mediaInfo, true, 0);
+
+                    startActivity(new Intent(MainActivity.this, Remote.class));
 
                 } else {
 
@@ -203,12 +193,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override public boolean onCreateOptionsMenu(Menu menu) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_main, menu);
         CastButtonFactory.setUpMediaRouteButton(getApplicationContext(),
                 menu,
                 R.id.media_route_menu_item);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+            case R.id.action_settings:
+                startActivity(new Intent(MainActivity.this, Setup.class));
+                break;
+        }
         return true;
     }
 }

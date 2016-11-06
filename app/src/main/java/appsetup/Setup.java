@@ -28,7 +28,6 @@ import java.io.ObjectOutputStream;
 
 public class Setup extends Activity {
 
-    private EditText chrome;
     private EditText name;
     private EditText server;
     private EditText path;
@@ -49,8 +48,6 @@ public class Setup extends Activity {
                 REQUEST_EXTERNAL_STORAGE
         );
 
-        chrome = (EditText) findViewById(R.id.chrome);
-        chrome.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
         name = (EditText) findViewById(R.id.phoneName);
         name.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
         server = (EditText) findViewById(R.id.ServerIP);
@@ -62,7 +59,6 @@ public class Setup extends Activity {
         // Populating our textfields with our saved data if it exists
 
         try {
-            chrome.setText(MainActivity.myPhone.getCastIP());
             name.setText(MainActivity.myPhone.getPhoneName());
             server.setText(MainActivity.myPhone.getComputerIP());
             path.setText(MainActivity.myPhone.getMainPath());
@@ -74,8 +70,7 @@ public class Setup extends Activity {
         set.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveData(chrome.getText().toString(), name.getText().toString(),
-                        server.getText().toString(), path.getText().toString());
+                saveData(name.getText().toString(), server.getText().toString(), path.getText().toString());
 
                 startActivity(new Intent(Setup.this, MainActivity.class));
 
@@ -94,7 +89,7 @@ public class Setup extends Activity {
         });
     }
 
-    private void saveData(String chrome, String name, String server, String path){
+    private void saveData(String name, String server, String path){
         try {
             // Navigating to setup file and writing data to it
 
@@ -103,7 +98,7 @@ public class Setup extends Activity {
                 setupFile.createNewFile();
             }
 
-            Phone myPhone = new Phone(chrome, name, path);
+            Phone myPhone = new Phone(name, path);
             myPhone.setComputerIP(server);
 
             ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(setupFile));
