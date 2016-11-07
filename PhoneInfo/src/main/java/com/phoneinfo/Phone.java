@@ -4,13 +4,11 @@ import java.io.Serializable;
 
 public class Phone implements Serializable {
     private final String mainPath;
-    private final String phoneName;
     private String computerIP;
     private String currentPath;
     private String videoPath;
 
-    public Phone(String phoneName, String mainPath) {
-        this.phoneName = phoneName;
+    public Phone(String mainPath) {
         this.mainPath = mainPath;
     }
 
@@ -24,10 +22,6 @@ public class Phone implements Serializable {
 
     public void setCurrentPath(String currentPath){
         this.currentPath = currentPath;
-    }
-
-    public String getPhoneName() {
-        return phoneName;
     }
 
     public String getCurrentPath(){

@@ -27,8 +27,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class Setup extends Activity {
-
-    private EditText name;
     private EditText server;
     private EditText path;
 
@@ -48,18 +46,14 @@ public class Setup extends Activity {
                 REQUEST_EXTERNAL_STORAGE
         );
 
-        name = (EditText) findViewById(R.id.phoneName);
-        name.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
         server = (EditText) findViewById(R.id.ServerIP);
         server.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
         path = (EditText) findViewById(R.id.inputPath);
         path.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
 
-
         // Populating our textfields with our saved data if it exists
 
         try {
-            name.setText(MainActivity.myPhone.getPhoneName());
             server.setText(MainActivity.myPhone.getComputerIP());
             path.setText(MainActivity.myPhone.getMainPath());
         } catch (NullPointerException e){
@@ -70,7 +64,7 @@ public class Setup extends Activity {
         set.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveData(name.getText().toString(), server.getText().toString(), path.getText().toString());
+                saveData(server.getText().toString(), path.getText().toString());
 
                 startActivity(new Intent(Setup.this, MainActivity.class));
 
@@ -89,7 +83,7 @@ public class Setup extends Activity {
         });
     }
 
-    private void saveData(String name, String server, String path){
+    private void saveData(String server, String path){
         try {
             // Navigating to setup file and writing data to it
 
@@ -98,7 +92,7 @@ public class Setup extends Activity {
                 setupFile.createNewFile();
             }
 
-            Phone myPhone = new Phone(name, path);
+            Phone myPhone = new Phone(path);
             myPhone.setComputerIP(server);
 
             ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(setupFile));

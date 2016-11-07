@@ -25,22 +25,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Name"
-        android:id="@+id/textView4"
-        android:textColor="#ffff"
-        android:layout_gravity="center_horizontal" />
-
-    <EditText
-        android:layout_width="220dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/phoneName"
-        android:textColor="#ffff"
-        android:layout_gravity="center_horizontal" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="MainPath"
         android:id="@+id/textView5"
         android:textColor="#ffff"
