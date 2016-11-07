@@ -1,10 +1,6 @@
 package appmain;
 
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -19,15 +15,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
-import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
-import com.google.android.gms.common.images.WebImage;
 import com.phoneinfo.Phone;
 import com.restclient.RestClient;
 import com.google.common.cache.CacheBuilder;
@@ -49,9 +44,6 @@ public class MainActivity extends AppCompatActivity {
     public static final List<MovieInfo> MOVIE_INFO_LIST = new ArrayList<>();
     public static ProgressBar progressBar;
     CastContext castContext;
-    public static RemoteMediaClient remoteMediaClient;
-    public static MediaInfo mediaInfo;
-    public static long mediaLength;
 
     public static LoadingCache<String, List<MovieInfo>> movieInfo = null;
 
@@ -162,17 +154,19 @@ public class MainActivity extends AppCompatActivity {
                     metaData.putString(MediaMetadata.KEY_TITLE, title);
                     String url = "http://" + myPhone.getComputerIP() + ":3990/video.mp4";
 
-                    mediaInfo = new MediaInfo.Builder(url)
+                    MediaInfo mediaInfo = new MediaInfo.Builder(url)
                             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                             .setContentType("videos/mp4")
                             .setMetadata(metaData)
                             .build();
 
-                    CastSession session = castContext.getSessionManager().getCurrentCastSession();
-                    remoteMediaClient = session.getRemoteMediaClient();
-                    remoteMediaClient.load(mediaInfo, true, 0);
-
-                    startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class));
+                    try {
+                        CastSession session = castContext.getSessionManager().getCurrentCastSession();
+                        RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
+                        remoteMediaClient.load(mediaInfo, true, 0);
+                    } catch (Exception e){
+                        Toast.makeText(MainActivity.this, "Visit - " + url + " - to watch " + title, Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     new ThreadManager("GetTitles", title).start();
                 }
