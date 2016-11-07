@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
@@ -169,13 +170,10 @@ public class MainActivity extends AppCompatActivity {
 
                     CastSession session = castContext.getSessionManager().getCurrentCastSession();
                     remoteMediaClient = session.getRemoteMediaClient();
-
                     remoteMediaClient.load(mediaInfo, true, 0);
 
                     startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class));
-
                 } else {
-
                     new ThreadManager("GetTitles", title).start();
                 }
             }
