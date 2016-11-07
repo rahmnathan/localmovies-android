@@ -1,6 +1,10 @@
 package appmain;
 
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -22,6 +26,7 @@ import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.google.android.gms.common.images.WebImage;
 import com.phoneinfo.Phone;
 import com.restclient.RestClient;
 import com.google.common.cache.CacheBuilder;
@@ -33,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import rahmnathan.localmovies.R;
-import appremote.Remote;
 import appsetup.Setup;
 
 public class MainActivity extends AppCompatActivity {
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     CastContext castContext;
     public static RemoteMediaClient remoteMediaClient;
     public static MediaInfo mediaInfo;
+    public static long mediaLength;
 
     public static LoadingCache<String, List<MovieInfo>> movieInfo = null;
 
@@ -54,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         castContext = CastContext.getSharedInstance(this);
-
 
         if (Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -90,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         controls.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, Remote.class));
+                startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class));
             }
         });
 
@@ -155,18 +159,20 @@ public class MainActivity extends AppCompatActivity {
 
                     MediaMetadata metaData = new MediaMetadata();
                     metaData.putString(MediaMetadata.KEY_TITLE, title);
+                    String url = "http://" + myPhone.getComputerIP() + ":3990/video.mp4";
 
-                    mediaInfo = new MediaInfo.Builder("http://" + myPhone.getComputerIP() + ":3990/video.mp4")
+                    mediaInfo = new MediaInfo.Builder(url)
                             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                             .setContentType("videos/mp4")
                             .setMetadata(metaData)
                             .build();
-                    CastSession session = castContext.getSessionManager().getCurrentCastSession();
 
+                    CastSession session = castContext.getSessionManager().getCurrentCastSession();
                     remoteMediaClient = session.getRemoteMediaClient();
+
                     remoteMediaClient.load(mediaInfo, true, 0);
 
-                    startActivity(new Intent(MainActivity.this, Remote.class));
+                    startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class));
 
                 } else {
 
