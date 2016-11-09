@@ -1,6 +1,7 @@
 package appmain;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -23,6 +24,7 @@ import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.google.android.gms.common.images.WebImage;
 import com.phoneinfo.Phone;
 import com.restclient.RestClient;
 import com.google.common.cache.CacheBuilder;
@@ -35,6 +37,7 @@ import java.util.List;
 
 import rahmnathan.localmovies.R;
 import appsetup.Setup;
+import appmain.ThreadManager.SERVER_CALL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     public static final List<MovieInfo> MOVIE_INFO_LIST = new ArrayList<>();
     public static ProgressBar progressBar;
     CastContext castContext;
+
 
     public static LoadingCache<String, List<MovieInfo>> movieInfo = null;
 
@@ -76,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             myPhone = new Setup().getPhoneInfo(myPhone, this);
-            new ThreadManager("GetTitles", "Movies").start();
+            new ThreadManager(SERVER_CALL.GET_TITLES, "Movies").start();
         } catch(NullPointerException e){
             startActivity(new Intent(MainActivity.this, Setup.class));
         }
@@ -99,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Requesting series list and updating listview
 
-                new ThreadManager("GetTitles", "Series").start();
+                new ThreadManager(SERVER_CALL.GET_TITLES, "Series").start();
             }
         });
 
@@ -111,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Requesting movie list and updating listview
 
-                new ThreadManager("GetTitles", "Movies").start();
+                new ThreadManager(SERVER_CALL.GET_TITLES, "Movies").start();
             }
         });
 
@@ -148,10 +152,11 @@ public class MainActivity extends AppCompatActivity {
                      If we're viewing movies or episodes we
                      play the movie and start our Remote activity
                    */
-                    new ThreadManager("PlayMovie", title).start();
+                    new ThreadManager(SERVER_CALL.PLAY_MOVIE, title).start();
 
                     MediaMetadata metaData = new MediaMetadata();
                     metaData.putString(MediaMetadata.KEY_TITLE, title);
+                    metaData.addImage(new WebImage(Uri.parse("http://" + myPhone.getComputerIP() + ":3990/poster")));
                     String url = "http://" + myPhone.getComputerIP() + ":3990/video.mp4";
 
                     MediaInfo mediaInfo = new MediaInfo.Builder(url)
@@ -168,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "Visit - " + url + " - to watch " + title, Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    new ThreadManager("GetTitles", title).start();
+                    new ThreadManager(SERVER_CALL.GET_TITLES, title).start();
                 }
             }
         });
@@ -187,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                 newPath = newPath + pathSplit[x] + "/";
             }
             myPhone.setCurrentPath(newPath);
-            new ThreadManager("GetTitles", title).start();
+            new ThreadManager(SERVER_CALL.GET_TITLES, title).start();
         }
     }
 

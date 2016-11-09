@@ -18,6 +18,7 @@ import com.phoneinfo.Phone;
 import appmain.ThreadManager;
 import appmain.MainActivity;
 import rahmnathan.localmovies.R;
+import appmain.ThreadManager.SERVER_CALL;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,7 +76,7 @@ public class Setup extends Activity {
         refresh.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                new ThreadManager("Refresh", "Refresh").start();
+                new ThreadManager(SERVER_CALL.REFRESH, "Refresh").start();
                 Intent intent = new Intent(Setup.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);

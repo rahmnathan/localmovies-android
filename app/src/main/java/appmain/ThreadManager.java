@@ -9,13 +9,17 @@ import com.restclient.RestClient;
 
 public class ThreadManager extends Thread {
 
-    private final String request;
+    public enum SERVER_CALL {
+        GET_TITLES, PLAY_MOVIE, REFRESH
+    }
+
+    private final SERVER_CALL request;
     private final String title;
     private final Phone phone;
-    public static final Handler UIHandler = new Handler(Looper.getMainLooper());
-    private static final RestClient REST_CLIENT = new RestClient();
+    private final Handler UIHandler = new Handler(Looper.getMainLooper());
+    private final RestClient REST_CLIENT = new RestClient();
 
-    public ThreadManager(String request, String title){
+    public ThreadManager(SERVER_CALL request, String title){
         this.request = request;
         this.title = title;
         this.phone = MainActivity.myPhone;
@@ -23,15 +27,15 @@ public class ThreadManager extends Thread {
 
     public void run(){
         switch(request){
-            case "GetTitles":
+            case GET_TITLES:
                 MainActivity.myPhone.setCurrentPath(phone.getCurrentPath() + title + "/");
                 updateListView();
                 break;
-            case "PlayMovie":
+            case PLAY_MOVIE:
                 phone.setVideoPath(phone.getCurrentPath() + title);
                 REST_CLIENT.playMovie(phone);
                 break;
-            case "Refresh":
+            case REFRESH:
                 MainActivity.movieInfo.invalidateAll();
                 REST_CLIENT.refresh(phone);
                 MainActivity.myPhone.setCurrentPath(MainActivity.myPhone.getMainPath() + "Movies/");
