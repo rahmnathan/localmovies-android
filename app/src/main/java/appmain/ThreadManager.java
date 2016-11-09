@@ -10,7 +10,7 @@ import com.restclient.RestClient;
 public class ThreadManager extends Thread {
 
     public enum SERVER_CALL {
-        GET_TITLES, PLAY_MOVIE, REFRESH
+        GET_TITLES, REFRESH
     }
 
     private final SERVER_CALL request;
@@ -30,10 +30,6 @@ public class ThreadManager extends Thread {
             case GET_TITLES:
                 MainActivity.myPhone.setCurrentPath(phone.getCurrentPath() + title + "/");
                 updateListView();
-                break;
-            case PLAY_MOVIE:
-                phone.setVideoPath(phone.getCurrentPath() + title);
-                REST_CLIENT.playMovie(phone);
                 break;
             case REFRESH:
                 MainActivity.movieInfo.invalidateAll();

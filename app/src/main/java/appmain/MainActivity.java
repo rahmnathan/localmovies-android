@@ -152,12 +152,15 @@ public class MainActivity extends AppCompatActivity {
                      If we're viewing movies or episodes we
                      play the movie and start our Remote activity
                    */
-                    new ThreadManager(SERVER_CALL.PLAY_MOVIE, title).start();
+                    myPhone.setVideoPath(myPhone.getCurrentPath() + title);
 
                     MediaMetadata metaData = new MediaMetadata();
                     metaData.putString(MediaMetadata.KEY_TITLE, title);
-                    metaData.addImage(new WebImage(Uri.parse("http://" + myPhone.getComputerIP() + ":3990/poster")));
-                    String url = "http://" + myPhone.getComputerIP() + ":3990/video.mp4";
+                    metaData.addImage(new WebImage(Uri.parse("http://" + myPhone.getComputerIP()
+                            + ":3990/poster?path=" + myPhone.getCurrentPath()
+                            + "&title=" + title)));
+
+                    String url = "http://" + myPhone.getComputerIP() + ":3990/video.mp4?path=" + myPhone.getVideoPath();
 
                     MediaInfo mediaInfo = new MediaInfo.Builder(url)
                             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
