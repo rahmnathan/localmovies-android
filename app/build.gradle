@@ -7,8 +7,8 @@ android {
         applicationId "rahmnathan.localmovies"
         minSdkVersion 23
         targetSdkVersion 24
-        versionName '1.7.5'
-        versionCode 26
+        versionName '1.7.6'
+        versionCode 27
     }
     buildTypes {
         release {
