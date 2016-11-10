@@ -172,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
                         CastSession session = castContext.getSessionManager().getCurrentCastSession();
                         RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
                         remoteMediaClient.load(mediaInfo, true, 0);
+                        Toast.makeText(MainActivity.this, "Casting" , Toast.LENGTH_LONG).show();
                     } catch (Exception e){
                         Toast.makeText(MainActivity.this, "Visit - " + url + " - to watch " + title, Toast.LENGTH_LONG).show();
                     }
