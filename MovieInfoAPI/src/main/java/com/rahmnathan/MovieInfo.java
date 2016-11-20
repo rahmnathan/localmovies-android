@@ -3,7 +3,6 @@ package com.rahmnathan;
 import java.io.Serializable;
 
 public class MovieInfo implements Serializable {
-
     private final String title;
     private final String IMDBRating;
     private final String metaRating;
@@ -44,14 +43,13 @@ public class MovieInfo implements Serializable {
     }
 
     public static class Builder {
-
         private String title;
         private String IMDBRating;
         private String metaRating;
         private String image;
         private String releaseYear;
 
-        public static Builder newInstace(){
+        public static Builder newInstance(){
             return new Builder();
         }
 

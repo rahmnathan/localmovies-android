@@ -86,8 +86,6 @@ public class Setup extends Activity {
 
     private void saveData(String server, String path){
         try {
-            // Navigating to setup file and writing data to it
-
             File setupFile = new File(this.getFilesDir(), "setup.txt");
             if (!setupFile.exists()){
                 setupFile.createNewFile();
@@ -95,7 +93,6 @@ public class Setup extends Activity {
 
             Phone myPhone = new Phone(path);
             myPhone.setComputerIP(server);
-
             ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(setupFile));
             os.writeObject(myPhone);
             os.close();
@@ -107,9 +104,7 @@ public class Setup extends Activity {
     }
 
     public Phone getPhoneInfo(Phone myPhone, Context context) {
-
         File setupFile = new File(context.getFilesDir(), "setup.txt");
-
         try {
             ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(setupFile));
             myPhone = (Phone) objectInputStream.readObject();
@@ -119,7 +114,6 @@ public class Setup extends Activity {
         }
 
         myPhone.setCurrentPath(myPhone.getMainPath());
-
         return myPhone;
     }
 }

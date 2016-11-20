@@ -174,7 +174,9 @@ public class MainActivity extends AppCompatActivity {
                         remoteMediaClient.load(mediaInfo, true, 0);
                         Toast.makeText(MainActivity.this, "Casting" , Toast.LENGTH_LONG).show();
                     } catch (Exception e){
-                        Toast.makeText(MainActivity.this, "Visit - " + url + " - to watch " + title, Toast.LENGTH_LONG).show();
+                        Uri uri = Uri.parse(url);
+                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                        startActivity(intent);
                     }
                 } else {
                     new ThreadManager(SERVER_CALL.GET_TITLES, title).start();

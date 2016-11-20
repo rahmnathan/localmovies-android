@@ -15,10 +15,8 @@ public class RestClient {
     private final JSONtoMovieInfoMapper movieInfoMapper = new JSONtoMovieInfoMapper();
 
     public List<MovieInfo> requestTitles(com.phoneinfo.Phone myPhone) {
-
         String restRequest = "http://" + myPhone.getComputerIP() + ":3990/titlerequest?path=" +
                 myPhone.getCurrentPath().replace(" ", "%20");
-
         try {
             URL url = new URL(restRequest);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -31,7 +29,6 @@ public class RestClient {
             }
             br.close();
             connection.disconnect();
-
             JSONArray array = new JSONArray(result);
 
             return movieInfoMapper.jsonArrayToMovieInfoList(array);

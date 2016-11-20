@@ -14,10 +14,8 @@ class JSONtoMovieInfoMapper {
         List<MovieInfo> movieInfoList = new ArrayList<>();
 
         for(int i = 0; i<jsonList.length(); i++) {
-
-            MovieInfo.Builder builder = MovieInfo.Builder.newInstace();
+            MovieInfo.Builder builder = MovieInfo.Builder.newInstance();
             JSONObject object = jsonList.getJSONObject(i);
-
             builder.setReleaseYear(object.getString("releaseYear"));
             builder.setMetaRating(object.getString("metaRating"));
             builder.setIMDBRating(object.getString("imdbrating"));
