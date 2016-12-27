@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -17,6 +18,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
@@ -155,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                     myPhone.setVideoPath(myPhone.getCurrentPath() + title);
 
                     MediaMetadata metaData = new MediaMetadata();
-                    metaData.putString(MediaMetadata.KEY_TITLE, title);
+                    metaData.putString(MediaMetadata.KEY_TITLE, title.substring(0, title.length()-4));
                     metaData.addImage(new WebImage(Uri.parse("http://" + myPhone.getComputerIP()
                             + ":3990/poster?path=" + myPhone.getCurrentPath()
                             + "&title=" + title)));
@@ -174,8 +176,8 @@ public class MainActivity extends AppCompatActivity {
                         remoteMediaClient.load(mediaInfo, true, 0);
                         Toast.makeText(MainActivity.this, "Casting" , Toast.LENGTH_LONG).show();
                     } catch (Exception e){
-                        Uri uri = Uri.parse(url);
-                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                        Intent intent = new Intent(MainActivity.this, VideoPlayer.class);
+                        intent.putExtra("url", url);
                         startActivity(intent);
                     }
                 } else {
