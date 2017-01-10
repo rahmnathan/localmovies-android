@@ -49,9 +49,8 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
 
         MovieInfo movie = movies.get(position);
         String currentTitle = movie.getTitle();
-        String currentPath = MainActivity.myPhone.getCurrentPath().toLowerCase();
 
-        if (currentPath.contains("movies") || currentPath.contains("season")) {
+        if (currentTitle.contains(".")) {
             currentTitle = currentTitle.substring(0, currentTitle.length() - 4);
         }
         txtTitle.setText(currentTitle);
