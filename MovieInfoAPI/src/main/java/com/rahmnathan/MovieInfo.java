@@ -1,8 +1,9 @@
 package com.rahmnathan;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
-public class MovieInfo implements Serializable {
+public class MovieInfo implements Serializable, Comparator<MovieInfo> {
     private final String title;
     private final String IMDBRating;
     private final String metaRating;
@@ -40,6 +41,11 @@ public class MovieInfo implements Serializable {
     @Override
     public String toString(){
         return title;
+    }
+
+    @Override
+    public int compare(MovieInfo info1, MovieInfo info2){
+        return info1.getTitle().compareTo(info2.getTitle());
     }
 
     public static class Builder {

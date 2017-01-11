@@ -5,7 +5,12 @@ import android.os.Looper;
 import android.view.View;
 
 import com.phoneinfo.Phone;
+import com.rahmnathan.MovieInfo;
 import com.restclient.RestClient;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class ThreadManager extends Thread {
 
@@ -50,7 +55,9 @@ public class ThreadManager extends Thread {
 
         MainActivity.MOVIE_INFO_LIST.clear();
         try {
-            MainActivity.MOVIE_INFO_LIST.addAll(MainActivity.movieInfo.get(MainActivity.myPhone.getCurrentPath()));
+            List<MovieInfo> infoList = MainActivity.movieInfo.get(MainActivity.myPhone.getCurrentPath());
+            Collections.sort(infoList, MovieInfo.Builder.newInstance().build());
+            MainActivity.MOVIE_INFO_LIST.addAll(infoList);
         } catch (Exception e) {
             e.printStackTrace();
         }
