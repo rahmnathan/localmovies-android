@@ -30,6 +30,8 @@ import java.io.ObjectOutputStream;
 public class Setup extends Activity {
     private EditText server;
     private EditText path;
+    private EditText userName;
+    private EditText password;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static final String[] PERMISSIONS_STORAGE = {
@@ -51,12 +53,18 @@ public class Setup extends Activity {
         server.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
         path = (EditText) findViewById(R.id.inputPath);
         path.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
+        userName = (EditText) findViewById(R.id.userName);
+        userName.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
+        password = (EditText) findViewById(R.id.password);
+        password.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
 
         // Populating our textfields with our saved data if it exists
 
         try {
             server.setText(MainActivity.myPhone.getComputerIP());
             path.setText(MainActivity.myPhone.getMainPath());
+            userName.setText(MainActivity.myPhone.getUserName());
+            password.setText(MainActivity.myPhone.getPassword());
         } catch (NullPointerException e){
             e.printStackTrace();
         }
@@ -65,7 +73,7 @@ public class Setup extends Activity {
         set.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveData(server.getText().toString(), path.getText().toString());
+                saveData(server.getText().toString(), path.getText().toString(), userName.getText().toString(), password.getText().toString());
 
                 startActivity(new Intent(Setup.this, MainActivity.class));
 
@@ -84,7 +92,7 @@ public class Setup extends Activity {
         });
     }
 
-    private void saveData(String server, String path){
+    private void saveData(String server, String path, String userName, String password){
         try {
             File setupFile = new File(this.getFilesDir(), "setup.txt");
             if (!setupFile.exists()){
@@ -93,6 +101,8 @@ public class Setup extends Activity {
 
             Phone myPhone = new Phone(path);
             myPhone.setComputerIP(server);
+            myPhone.setUserName(userName);
+            myPhone.setPassword(password);
             ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(setupFile));
             os.writeObject(myPhone);
             os.close();

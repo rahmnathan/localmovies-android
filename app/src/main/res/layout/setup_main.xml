@@ -38,6 +38,42 @@
         android:textColor="#ffff"
         android:text="/media/pi/MyPassport/LocalMedia/" />
 
+    <TextView
+        android:text="Username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView2"
+        android:textAppearance="@android:style/TextAppearance.Material.Medium"
+        android:textColor="@color/cast_expanded_controller_text_color"
+        android:textAlignment="center" />
+
+    <EditText
+        android:layout_width="234dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:layout_gravity="center_horizontal"
+        android:ems="10"
+        android:textColor="#ffff"
+        android:id="@+id/userName" />
+
+    <TextView
+        android:text="Password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView3"
+        android:textAppearance="@android:style/TextAppearance.Material.Medium"
+        android:textColor="@color/cast_expanded_controller_text_color"
+        android:textAlignment="center" />
+
+    <EditText
+        android:layout_width="225dp"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:layout_gravity="center_horizontal"
+        android:ems="10"
+        android:textColor="#ffff"
+        android:id="@+id/password" />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
