@@ -158,16 +158,17 @@ public class MainActivity extends AppCompatActivity {
                     MediaMetadata metaData = new MediaMetadata();
                     if(myPhone.getCurrentPath().toLowerCase().contains("season")) {
                         metaData.addImage(new WebImage(Uri.parse("http://" + myPhone.getComputerIP()
-                                + ":3990/poster?path=" + myPhone.getCurrentPath()
-                                + "&title=" + title)));
+                                + ":3990/poster?access_token=" + myPhone.getAccessToken() + "&path="
+                                + myPhone.getCurrentPath() + "&title=" + title)));
                     } else {
                         metaData.addImage(new WebImage(Uri.parse("http://" + myPhone.getComputerIP()
-                                + ":3990/poster?path=" + myPhone.getVideoPath()
-                                + "&title=" + title)));
+                                + ":3990/poster?access_token=" + myPhone.getAccessToken() + "&path="
+                                + myPhone.getVideoPath() + "&title=" + title)));
                     }
 
                     metaData.putString(MediaMetadata.KEY_TITLE, title.substring(0, title.length()-4));
-                    String url = "http://" + myPhone.getComputerIP() + ":3990/video.mp4?path=" + myPhone.getVideoPath();
+                    String url = "http://" + myPhone.getComputerIP() + ":3990/video.mp4?access_token="
+                            + myPhone.getAccessToken() + "&path=" + myPhone.getVideoPath();
                     MediaInfo mediaInfo = new MediaInfo.Builder(url)
                             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                             .setContentType("videos/mp4")
