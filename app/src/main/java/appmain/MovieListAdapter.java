@@ -69,8 +69,8 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         year.setGravity(Gravity.CENTER);
         ratings.setGravity(Gravity.CENTER);
         ratings.setTextColor(Color.WHITE);
-        year.setText("Release Year: " + movie.getReleaseYear());
-        ratings.setText("IMDB: " + movie.getIMDBRating() + " Meta: " + movie.getMetaRating() + "  ");
+        year.setText(String.format("Release Year: %s", movie.getReleaseYear()));
+        ratings.setText(String.format("IMDB: %s Meta: %s", movie.getIMDBRating(), movie.getMetaRating()));
 
         return rowView;
     }
