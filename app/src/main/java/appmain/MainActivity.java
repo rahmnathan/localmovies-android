@@ -69,11 +69,11 @@ public class MainActivity extends AppCompatActivity {
                                 new CacheLoader<String, List<MovieInfo>>() {
                                     @Override
                                     public List<MovieInfo> load(String currentPath) {
-                                        return REST_CLIENT.requestTitles(myPhone);
+                                        return REST_CLIENT.getMovieInfo(myPhone);
                                     }
                                 });
 
-        // Getting phone info and Triggering initial requestTitles of titles from server
+        // Getting phone info and Triggering initial getMovieInfo of titles from server
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);

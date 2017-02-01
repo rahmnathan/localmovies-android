@@ -1,5 +1,6 @@
 package com.restclient;
 
+import com.phoneinfo.Phone;
 import com.rahmnathan.MovieInfo;
 
 import org.json.JSONArray;
@@ -28,7 +29,7 @@ public class RestClient {
         AUTH_FAIL, CONNECTION_FAIL, SUCCESS, UNKNOWN_FAIL
     }
 
-    public List<MovieInfo> requestTitles(com.phoneinfo.Phone myPhone) {
+    public List<MovieInfo> getMovieInfo(Phone myPhone) {
         if(myPhone.getAccessToken() == null){
             Response response = refreshKey(myPhone);
             switch (response){
@@ -52,6 +53,23 @@ public class RestClient {
             }
         }
 
+        return requestMovieInfoList(myPhone);
+    }
+
+    public void refresh(Phone myPhone){
+        String restRequest = "http://" + myPhone.getComputerIP() + ":3990/refresh";
+
+        try{
+            URL url = new URL(restRequest);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.getResponseCode();
+            connection.disconnect();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private List<MovieInfo> requestMovieInfoList(Phone myPhone){
         String restRequest = "http://" + myPhone.getComputerIP() + ":3990/titlerequest?access_token="
                 + myPhone.getAccessToken() + "&path=" + myPhone.getCurrentPath().replace(" ", "%20");
         try {
@@ -75,20 +93,7 @@ public class RestClient {
         return null;
     }
 
-    public void refresh(com.phoneinfo.Phone myPhone){
-        String restRequest = "http://" + myPhone.getComputerIP() + ":3990/refresh";
-
-        try{
-            URL url = new URL(restRequest);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.getResponseCode();
-            connection.disconnect();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public Response refreshKey(com.phoneinfo.Phone myPhone){
+    private Response refreshKey(Phone myPhone){
         String urlString = "http://" + myPhone.getComputerIP() + ":8082/auth/realms/Demo/protocol/openid-connect/token";
 
         Map<String, String> args = new HashMap<>();
