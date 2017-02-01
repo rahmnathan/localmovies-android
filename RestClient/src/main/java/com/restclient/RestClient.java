@@ -7,23 +7,50 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
 
 public class RestClient {
 
     private final JSONtoMovieInfoMapper movieInfoMapper = new JSONtoMovieInfoMapper();
 
+    private enum Response {
+        AUTH_FAIL, CONNECTION_FAIL, SUCCESS, UNKNOWN_FAIL
+    }
+
     public List<MovieInfo> requestTitles(com.phoneinfo.Phone myPhone) {
-        if(myPhone.getAccessToken() == null)
-            refreshKey(myPhone);
+        if(myPhone.getAccessToken() == null){
+            Response response = refreshKey(myPhone);
+            switch (response){
+                case SUCCESS:
+                    break;
+                case AUTH_FAIL:
+                    List<MovieInfo> infoList = new ArrayList<>();
+                    infoList.add(MovieInfo.Builder.newInstance()
+                            .setTitle("Authorization Failure").build());
+                    return infoList;
+                case CONNECTION_FAIL:
+                    List<MovieInfo> infoList1 = new ArrayList<>();
+                    infoList1.add(MovieInfo.Builder.newInstance()
+                            .setTitle("Unable to connect to Auth server").build());
+                    return infoList1;
+                case UNKNOWN_FAIL:
+                    List<MovieInfo> infoList2 = new ArrayList<>();
+                    infoList2.add(MovieInfo.Builder.newInstance()
+                            .setTitle("Unknown Auth failure").build());
+                    return infoList2;
+            }
+        }
 
         String restRequest = "http://" + myPhone.getComputerIP() + ":3990/titlerequest?access_token="
                 + myPhone.getAccessToken() + "&path=" + myPhone.getCurrentPath().replace(" ", "%20");
@@ -61,11 +88,9 @@ public class RestClient {
         }
     }
 
-    public void refreshKey(com.phoneinfo.Phone myPhone){
+    public Response refreshKey(com.phoneinfo.Phone myPhone){
         String urlString = "http://" + myPhone.getComputerIP() + ":8082/auth/realms/Demo/protocol/openid-connect/token";
 
-        System.out.println("refresh key");
-        System.out.println(urlString);
         Map<String, String> args = new HashMap<>();
         args.put("grant_type", "password");
         args.put("client_id", "movielogin");
@@ -89,14 +114,11 @@ public class RestClient {
             connection.setRequestMethod("POST");
             connection.setFixedLengthStreamingMode(postDataLength);
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            connection.setConnectTimeout(5000);
             connection.connect();
-            try{
-                DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-                wr.write( postData );
-                wr.close();
-            } catch (Exception e){
-                e.printStackTrace();
-            }
+            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr.write( postData );
+            wr.close();
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String response = br.readLine();
             String result = "";
@@ -107,8 +129,16 @@ public class RestClient {
             br.close();
             connection.disconnect();
             myPhone.setAccessToken(new JSONObject(result).getString("access_token"));
-        } catch (Exception e){
+            return Response.SUCCESS;
+        } catch (SocketTimeoutException e){
             e.printStackTrace();
+            return Response.CONNECTION_FAIL;
+        } catch (FileNotFoundException e){
+            e.printStackTrace();
+            return Response.AUTH_FAIL;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Response.UNKNOWN_FAIL;
         }
     }
 }

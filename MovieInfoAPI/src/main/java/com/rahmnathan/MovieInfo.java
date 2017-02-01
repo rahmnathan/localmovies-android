@@ -59,8 +59,9 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
             return new Builder();
         }
 
-        public void setTitle(String title) {
+        public Builder setTitle(String title) {
             this.title = title;
+            return this;
         }
 
         public void setIMDBRating(String IMDBRating) {

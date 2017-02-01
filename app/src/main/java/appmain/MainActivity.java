@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,7 +17,6 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
@@ -43,7 +41,7 @@ import appmain.ThreadManager.SERVER_CALL;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static MovieListAdapter myAdapter;
+    public static MovieListAdapter movieListAdapter;
     public static Phone myPhone;
     private static final RestClient REST_CLIENT = new RestClient();
     public static final List<MovieInfo> MOVIE_INFO_LIST = new ArrayList<>();
@@ -87,8 +85,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, Setup.class));
         }
 
-        // Creating buttons for controls, setup, series, and movies
-
         Button controls = (Button) findViewById(R.id.controls);
         controls.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,21 +117,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Creating ListAdapter and listView to display titles
-
-        myAdapter = new MovieListAdapter(this, MOVIE_INFO_LIST);
+        movieListAdapter = new MovieListAdapter(this, MOVIE_INFO_LIST);
 
         final GridView movieList = (GridView) findViewById(R.id.gridView);
-        movieList.setAdapter(myAdapter);
-
-        // Setting up our search box with a text change listener
+        movieList.setAdapter(movieListAdapter);
 
         EditText searchText = (EditText) findViewById(R.id.searchText);
         searchText.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 // Filtering list with user input
 
-                myAdapter.getFilter().filter(cs);
+                movieListAdapter.getFilter().filter(cs);
             }
             @Override
             public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
@@ -146,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         movieList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String title = myAdapter.movies.get(position).toString();
+                String title = movieListAdapter.movies.get(position).toString();
 
                 if (myPhone.getCurrentPath().toLowerCase().contains("season") ||
                         myPhone.getCurrentPath().toLowerCase().contains("movies")) {

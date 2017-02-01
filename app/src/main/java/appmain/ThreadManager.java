@@ -9,7 +9,6 @@ import com.rahmnathan.MovieInfo;
 import com.restclient.RestClient;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class ThreadManager extends Thread {
@@ -65,7 +64,7 @@ public class ThreadManager extends Thread {
             @Override
             public void run() {
                 MainActivity.progressBar.setVisibility(View.GONE);
-                MainActivity.myAdapter.notifyDataSetChanged();
+                MainActivity.movieListAdapter.notifyDataSetChanged();
             }
         });
     }

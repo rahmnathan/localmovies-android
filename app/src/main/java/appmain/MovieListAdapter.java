@@ -57,12 +57,13 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         txtTitle.setGravity(Gravity.CENTER);
         txtTitle.setTextColor(Color.WHITE);
 
-        byte[] image = Base64.decode(movie.getImage(), Base64.DEFAULT);
-        Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
-        if(bitmap != null)
-            imageView.setImageBitmap(bitmap);
-        else
+        String base64Image = movie.getImage();
+        if(base64Image != null && !base64Image.equals("")) {
+            byte[] image = Base64.decode(movie.getImage(), Base64.DEFAULT);
+            imageView.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length));
+        } else {
             imageView.setImageResource(R.mipmap.no_poster);
+        }
 
         year.setTextColor(Color.WHITE);
         year.setGravity(Gravity.CENTER);
