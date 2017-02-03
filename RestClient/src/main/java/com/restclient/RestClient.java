@@ -57,7 +57,7 @@ public class RestClient {
     }
 
     public void refresh(Phone myPhone){
-        String restRequest = "http://" + myPhone.getComputerIP() + ":3990/refresh";
+        String restRequest = "https://" + myPhone.getComputerIP() + ":8443/refresh";
 
         try{
             URL url = new URL(restRequest);
@@ -70,7 +70,7 @@ public class RestClient {
     }
 
     private List<MovieInfo> requestMovieInfoList(Phone myPhone){
-        String restRequest = "http://" + myPhone.getComputerIP() + ":3990/titlerequest?access_token="
+        String restRequest = "https://" + myPhone.getComputerIP() + ":8443/titlerequest?access_token="
                 + myPhone.getAccessToken() + "&path=" + myPhone.getCurrentPath().replace(" ", "%20");
         try {
             URL url = new URL(restRequest);
@@ -94,7 +94,7 @@ public class RestClient {
     }
 
     private Response refreshKey(Phone myPhone){
-        String urlString = "http://" + myPhone.getComputerIP() + ":8082/auth/realms/Demo/protocol/openid-connect/token";
+        String urlString = "https://" + myPhone.getComputerIP() + ":8445/auth/realms/Demo/protocol/openid-connect/token";
 
         Map<String, String> args = new HashMap<>();
         args.put("grant_type", "password");
