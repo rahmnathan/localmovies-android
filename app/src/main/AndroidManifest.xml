@@ -45,7 +45,7 @@
 
         <activity
             android:name="appmain.VideoPlayer"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
         </activity>
 
         <meta-data
