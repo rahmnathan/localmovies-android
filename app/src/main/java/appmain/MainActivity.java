@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (myPhone.getCurrentPath().toLowerCase().contains("season") ||
                         myPhone.getCurrentPath().toLowerCase().contains("movies")) {
+                    REST_CLIENT.refresh(myPhone);
                     /*
                      If we're viewing movies or episodes we
                      play the movie and start our Remote activity
