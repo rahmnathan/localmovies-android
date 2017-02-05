@@ -58,7 +58,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         txtTitle.setTextColor(Color.WHITE);
 
         String base64Image = movie.getImage();
-        if(base64Image != null && !base64Image.equals("")) {
+        if(base64Image != null && !base64Image.equals("") && !base64Image.equals("null")) {
             byte[] image = Base64.decode(movie.getImage(), Base64.DEFAULT);
             imageView.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length));
         } else {
