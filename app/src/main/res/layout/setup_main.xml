@@ -6,39 +6,6 @@
     android:background="@android:color/background_dark">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Server IP"
-        android:id="@+id/serverLabel"
-        android:textColor="#ffff"
-        android:layout_gravity="center_horizontal" />
-
-    <EditText
-        android:layout_width="235dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/ServerIP"
-        android:textColor="#ffff"
-        android:layout_gravity="center_horizontal" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="MainPath"
-        android:id="@+id/textView5"
-        android:textColor="#ffff"
-        android:layout_gravity="center_horizontal" />
-
-    <EditText
-        android:layout_width="244dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/inputPath"
-        android:layout_gravity="center_horizontal"
-        android:textColor="#ffff"
-        android:text="/media/pi/MyPassport/LocalMedia/" />
-
-    <TextView
         android:text="Username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

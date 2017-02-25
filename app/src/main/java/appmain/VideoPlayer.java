@@ -21,8 +21,7 @@ public class VideoPlayer extends Activity {
         videoView.setMediaController(mediaController);
 
         Bundle b = getIntent().getExtras();
-        String url = b.getString("url").replace(" ", "%20");
-        videoView.setVideoURI(Uri.parse(url));
+        videoView.setVideoURI(Uri.parse(b.getString("url")));
 
         videoView.start();
     }

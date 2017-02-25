@@ -3,8 +3,8 @@ package com.phoneinfo;
 import java.io.Serializable;
 
 public class Phone implements Serializable {
-    private final String mainPath;
-    private String computerIP;
+    private final String mainPath = "/home/nathan/LocalMedia/";
+    private String computerIP = "localmovies.hopto.org";
     private String userName;
     private String password;
     private String currentPath;
@@ -36,16 +36,8 @@ public class Phone implements Serializable {
         this.password = password;
     }
 
-    public Phone(String mainPath) {
-        this.mainPath = mainPath;
-    }
-
     public String getComputerIP() {
         return computerIP;
-    }
-
-    public void setComputerIP(String address){
-        this.computerIP = address;
     }
 
     public void setCurrentPath(String currentPath){

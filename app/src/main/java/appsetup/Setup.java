@@ -28,8 +28,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class Setup extends Activity {
-    private EditText server;
-    private EditText path;
     private EditText userName;
     private EditText password;
 
@@ -49,10 +47,6 @@ public class Setup extends Activity {
                 REQUEST_EXTERNAL_STORAGE
         );
 
-        server = (EditText) findViewById(R.id.ServerIP);
-        server.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
-        path = (EditText) findViewById(R.id.inputPath);
-        path.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
         userName = (EditText) findViewById(R.id.userName);
         userName.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
         password = (EditText) findViewById(R.id.password);
@@ -61,8 +55,6 @@ public class Setup extends Activity {
         // Populating our textfields with our saved data if it exists
 
         try {
-            server.setText(MainActivity.myPhone.getComputerIP());
-            path.setText(MainActivity.myPhone.getMainPath());
             userName.setText(MainActivity.myPhone.getUserName());
             password.setText(MainActivity.myPhone.getPassword());
         } catch (NullPointerException e){
@@ -73,7 +65,7 @@ public class Setup extends Activity {
         set.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveData(server.getText().toString(), path.getText().toString(), userName.getText().toString(), password.getText().toString());
+                saveData(userName.getText().toString(), password.getText().toString());
 
                 startActivity(new Intent(Setup.this, MainActivity.class));
 
@@ -92,15 +84,14 @@ public class Setup extends Activity {
         });
     }
 
-    private void saveData(String server, String path, String userName, String password){
+    private void saveData(String userName, String password){
         try {
             File setupFile = new File(this.getFilesDir(), "setup.txt");
             if (!setupFile.exists()){
                 setupFile.createNewFile();
             }
 
-            Phone myPhone = new Phone(path);
-            myPhone.setComputerIP(server);
+            Phone myPhone = new Phone();
             myPhone.setUserName(userName);
             myPhone.setPassword(password);
             ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(setupFile));
