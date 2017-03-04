@@ -46,7 +46,6 @@ class ThreadManager extends Thread {
         switch (task){
             case TITLE_REQUEST:
                 phone.setCurrentPath(phone.getCurrentPath() + title + "/");
-                System.out.println("run");
                 updateListView();
                 break;
             case TOKEN_REFRESH:

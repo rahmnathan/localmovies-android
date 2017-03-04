@@ -41,8 +41,8 @@ import appsetup.Setup;
 public class MainActivity extends AppCompatActivity {
     private MovieListAdapter movieListAdapter;
     private Phone myPhone;
-    private final RestClient REST_CLIENT = new RestClient();
-    private List<MovieInfo> MOVIE_INFO_LIST = new ArrayList<>();
+    private final RestClient restClient = new RestClient();
+    private List<MovieInfo> movieInfoList = new ArrayList<>();
     private ProgressBar progressBar;
     private CastContext castContext;
     private LoadingCache<String, List<MovieInfo>> movieInfo;
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
                                 new CacheLoader<String, List<MovieInfo>>() {
                                     @Override
                                     public List<MovieInfo> load(String currentPath) {
-                                        return REST_CLIENT.getMovieInfo(myPhone);
+                                        return restClient.getMovieInfo(myPhone);
                                     }
                                 });
 
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
-        movieListAdapter = new MovieListAdapter(this, MOVIE_INFO_LIST);
+        movieListAdapter = new MovieListAdapter(this, movieInfoList);
         final GridView movieList = (GridView) findViewById(R.id.gridView);
         movieList.setAdapter(movieListAdapter);
 
@@ -215,12 +215,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void requestTitles(String path){
-        new ThreadManager(path, progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
+        new ThreadManager(path, progressBar, movieListAdapter, myPhone, movieInfoList,
                 ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
     }
 
     private void requestToken(String path){
-        new ThreadManager(path, progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
+        new ThreadManager(path, progressBar, movieListAdapter, myPhone, movieInfoList,
                 ThreadManager.Task.TOKEN_REFRESH, movieInfo).start();
     }
 }
