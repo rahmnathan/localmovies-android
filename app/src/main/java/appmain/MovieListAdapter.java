@@ -31,14 +31,14 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
 
     MovieListAdapter(Activity context, List<MovieInfo> movies) {
         super(context, R.layout.my_adapter, movies);
-        this.context=context;
+        this.context = context;
         this.movies = movies;
         this.originalMovieList = movies;
     }
 
-    public View getView(int position,View rowView,ViewGroup parent) {
+    public View getView(int position, View rowView, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
-        if(rowView == null) {
+        if (rowView == null) {
             rowView = inflater.inflate(R.layout.my_adapter, parent, false);
         }
 
@@ -58,7 +58,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         txtTitle.setTextColor(Color.WHITE);
 
         String base64Image = movie.getImage();
-        if(base64Image != null && !base64Image.equals("") && !base64Image.equals("null")) {
+        if (base64Image != null && !base64Image.equals("") && !base64Image.equals("null")) {
             byte[] image = Base64.decode(movie.getImage(), Base64.DEFAULT);
             imageView.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length));
         } else {
@@ -76,14 +76,15 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
     }
 
     @Override
-    public Filter getFilter(){
-        if(adapterFilter == null){
+    public Filter getFilter() {
+        if (adapterFilter == null) {
             adapterFilter = new AdapterFilter();
             return adapterFilter;
         } else {
             return adapterFilter;
         }
     }
+
     @Override
     public int getCount() {
         return movies.size();
@@ -92,17 +93,17 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
     private class AdapterFilter extends Filter {
 
         @Override
-        protected FilterResults performFiltering(CharSequence charSequence){
+        protected FilterResults performFiltering(CharSequence charSequence) {
             FilterResults filterResults = new FilterResults();
-            if(charSequence == null || charSequence.length() == 0){
+            if (charSequence == null || charSequence.length() == 0) {
                 filterResults.values = originalMovieList;
                 filterResults.count = originalMovieList.size();
                 movies = originalMovieList;
-            } else{
+            } else {
                 List<MovieInfo> movieDataList = new ArrayList<>();
 
-                for(MovieInfo movie : originalMovieList){
-                    if(movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase())){
+                for (MovieInfo movie : originalMovieList) {
+                    if (movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase())) {
                         movieDataList.add(movie);
                     }
                 }
@@ -114,7 +115,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         }
 
         @Override
-        protected void publishResults(CharSequence charSequence, FilterResults filterResults){
+        protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
             movies = (List<MovieInfo>) filterResults.values;
             notifyDataSetChanged();
         }

@@ -3,6 +3,7 @@ package appmain;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import com.phoneinfo.Phone;
 import com.rahmnathan.MovieInfo;
@@ -12,35 +13,24 @@ import java.util.Collections;
 import java.util.List;
 
 public class ThreadManager extends Thread {
-
-    public enum SERVER_CALL {
-        GET_TITLES, REFRESH
-    }
-
-    private final SERVER_CALL request;
     private final String title;
     private final Phone phone;
-    private final Handler UIHandler = new Handler(Looper.getMainLooper());
-    private final RestClient REST_CLIENT = new RestClient();
+    private ProgressBar progressBar;
+    private MovieListAdapter movieListAdapter;
 
-    public ThreadManager(SERVER_CALL request, String title){
-        this.request = request;
+    private final Handler UIHandler = new Handler(Looper.getMainLooper());
+
+    public ThreadManager(String title, ProgressBar progressBar, MovieListAdapter movieListAdapter,
+                         Phone myPhone){
         this.title = title;
-        this.phone = MainActivity.myPhone;
+        this.phone = myPhone;
+        this.movieListAdapter = movieListAdapter;
+        this.progressBar = progressBar;
     }
 
-    public void run(){
-        switch(request){
-            case GET_TITLES:
-                MainActivity.myPhone.setCurrentPath(phone.getCurrentPath() + title + "/");
-                updateListView();
-                break;
-            case REFRESH:
-                MainActivity.movieInfo.invalidateAll();
-                REST_CLIENT.refresh(phone);
-                MainActivity.myPhone.setCurrentPath(MainActivity.myPhone.getMainPath() + "Movies/");
-                break;
-        }
+    public void run() {
+        phone.setCurrentPath(phone.getCurrentPath() + title + "/");
+        updateListView();
     }
 
     private void updateListView() {
@@ -48,13 +38,13 @@ public class ThreadManager extends Thread {
         UIHandler.post(new Runnable() {
             @Override
             public void run() {
-                MainActivity.progressBar.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
             }
         });
 
         MainActivity.MOVIE_INFO_LIST.clear();
         try {
-            List<MovieInfo> infoList = MainActivity.movieInfo.get(MainActivity.myPhone.getCurrentPath());
+            List<MovieInfo> infoList = MainActivity.movieInfo.get(phone.getCurrentPath());
             Collections.sort(infoList, MovieInfo.Builder.newInstance().build());
             MainActivity.MOVIE_INFO_LIST.addAll(infoList);
         } catch (Exception e) {
@@ -63,8 +53,8 @@ public class ThreadManager extends Thread {
         UIHandler.post(new Runnable() {
             @Override
             public void run() {
-                MainActivity.progressBar.setVisibility(View.GONE);
-                MainActivity.movieListAdapter.notifyDataSetChanged();
+                progressBar.setVisibility(View.GONE);
+                movieListAdapter.notifyDataSetChanged();
             }
         });
     }

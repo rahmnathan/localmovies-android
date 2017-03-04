@@ -2,7 +2,6 @@ package appsetup;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -15,19 +14,16 @@ import android.widget.Toast;
 
 import com.phoneinfo.Phone;
 
-import appmain.ThreadManager;
 import appmain.MainActivity;
 import rahmnathan.localmovies.R;
-import appmain.ThreadManager.SERVER_CALL;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class Setup extends Activity {
+    private Phone phone;
     private EditText userName;
     private EditText password;
 
@@ -53,10 +49,12 @@ public class Setup extends Activity {
         password.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
 
         // Populating our textfields with our saved data if it exists
-
+        phone = getPhoneInfo();
+        if(phone == null)
+            phone = new Phone();
         try {
-            userName.setText(MainActivity.myPhone.getUserName());
-            password.setText(MainActivity.myPhone.getPassword());
+            userName.setText(phone.getUserName());
+            password.setText(phone.getPassword());
         } catch (NullPointerException e){
             e.printStackTrace();
         }
@@ -71,17 +69,6 @@ public class Setup extends Activity {
 
             }
         });
-
-        Button refresh = (Button) findViewById(R.id.refresh);
-        refresh.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                new ThreadManager(SERVER_CALL.REFRESH, "Refresh").start();
-                Intent intent = new Intent(Setup.this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-            }
-        });
     }
 
     private void saveData(String userName, String password){
@@ -91,11 +78,10 @@ public class Setup extends Activity {
                 setupFile.createNewFile();
             }
 
-            Phone myPhone = new Phone();
-            myPhone.setUserName(userName);
-            myPhone.setPassword(password);
-            ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(setupFile));
-            os.writeObject(myPhone);
+            phone.setUserName(userName);
+            phone.setPassword(password);
+            ObjectOutputStream os = new ObjectOutputStream(openFileOutput("setup.txt", MODE_PRIVATE));
+            os.writeObject(phone);
             os.close();
 
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
@@ -104,18 +90,18 @@ public class Setup extends Activity {
         }
     }
 
-    public Phone getPhoneInfo(Phone myPhone, Context context) {
-        File setupFile = new File(context.getFilesDir(), "setup.txt");
+    public Phone getPhoneInfo() {
+        Phone phone = new Phone();
         try {
-            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(setupFile));
-            myPhone = (Phone) objectInputStream.readObject();
+            ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"));
+            phone = (Phone) objectInputStream.readObject();
             objectInputStream.close();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        myPhone.setCurrentPath(myPhone.getMainPath());
-        return myPhone;
+        phone.setCurrentPath(phone.getMainPath());
+        return phone;
     }
 }
 

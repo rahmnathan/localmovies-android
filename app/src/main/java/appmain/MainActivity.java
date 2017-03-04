@@ -2,9 +2,7 @@ package appmain;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -32,22 +30,22 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.rahmnathan.MovieInfo;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import rahmnathan.localmovies.R;
 import appsetup.Setup;
-import appmain.ThreadManager.SERVER_CALL;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static MovieListAdapter movieListAdapter;
-    public static Phone myPhone;
+    private MovieListAdapter movieListAdapter;
+    private Phone myPhone;
     private static final RestClient REST_CLIENT = new RestClient();
     public static final List<MovieInfo> MOVIE_INFO_LIST = new ArrayList<>();
-    public static ProgressBar progressBar;
+    private ProgressBar progressBar;
     CastContext castContext;
-
 
     public static LoadingCache<String, List<MovieInfo>> movieInfo = null;
 
@@ -56,12 +54,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         castContext = CastContext.getSharedInstance(this);
-
-        if (Build.VERSION.SDK_INT > 9) {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-        }
-
         movieInfo =
                 CacheBuilder.newBuilder()
                         .maximumSize(250)
@@ -77,11 +69,15 @@ public class MainActivity extends AppCompatActivity {
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
+        movieListAdapter = new MovieListAdapter(this, MOVIE_INFO_LIST);
+        final GridView movieList = (GridView) findViewById(R.id.gridView);
+        movieList.setAdapter(movieListAdapter);
 
         try {
-            myPhone = new Setup().getPhoneInfo(myPhone, this);
-            new ThreadManager(SERVER_CALL.GET_TITLES, "Movies").start();
+            myPhone = getPhoneInfo();
+            new ThreadManager("Movies", progressBar, movieListAdapter, myPhone).start();
         } catch(NullPointerException e){
+            e.printStackTrace();
             startActivity(new Intent(MainActivity.this, Setup.class));
         }
 
@@ -92,41 +88,26 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class));
             }
         });
-
         Button series = (Button) findViewById(R.id.series);
         series.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 myPhone.setCurrentPath(myPhone.getMainPath());
-
-                // Requesting series list and updating listview
-
-                new ThreadManager(SERVER_CALL.GET_TITLES, "Series").start();
+                new ThreadManager("Series", progressBar, movieListAdapter, myPhone).start();
             }
         });
-
-        Button movies = (Button) findViewById(R.id.movies);
+        final Button movies = (Button) findViewById(R.id.movies);
         movies.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 myPhone.setCurrentPath(myPhone.getMainPath());
-
-                // Requesting movie list and updating listview
-
-                new ThreadManager(SERVER_CALL.GET_TITLES, "Movies").start();
+                new ThreadManager("Movies", progressBar, movieListAdapter, myPhone).start();
             }
         });
-
-        movieListAdapter = new MovieListAdapter(this, MOVIE_INFO_LIST);
-
-        final GridView movieList = (GridView) findViewById(R.id.gridView);
-        movieList.setAdapter(movieListAdapter);
 
         EditText searchText = (EditText) findViewById(R.id.searchText);
         searchText.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                // Filtering list with user input
-
                 movieListAdapter.getFilter().filter(cs);
             }
             @Override
@@ -142,22 +123,22 @@ public class MainActivity extends AppCompatActivity {
 
                 if (myPhone.getCurrentPath().toLowerCase().contains("season") ||
                         myPhone.getCurrentPath().toLowerCase().contains("movies")) {
-                    REST_CLIENT.refresh(myPhone);
                     /*
                      If we're viewing movies or episodes we
-                     play the movie and start our Remote activity
+                     refresh our key and start the movie
                    */
+                    REST_CLIENT.refreshKey(myPhone);
                     myPhone.setVideoPath(myPhone.getCurrentPath() + title);
                     MediaMetadata metaData = new MediaMetadata();
-                    if(myPhone.getCurrentPath().toLowerCase().contains("season")) {
-                        metaData.addImage(new WebImage(Uri.parse("https://" + myPhone.getComputerIP()
-                                + ":8443/poster?access_token=" + myPhone.getAccessToken() + "&path="
-                                + myPhone.getCurrentPath() + "&title=" + title)));
-                    } else {
-                        metaData.addImage(new WebImage(Uri.parse("https://" + myPhone.getComputerIP()
-                                + ":8443/poster?access_token=" + myPhone.getAccessToken() + "&path="
-                                + myPhone.getVideoPath() + "&title=" + title)));
-                    }
+                    String videoPath;
+                    if(myPhone.getCurrentPath().toLowerCase().contains("season"))
+                        videoPath = myPhone.getCurrentPath();
+                    else
+                        videoPath = myPhone.getVideoPath();
+
+                    metaData.addImage(new WebImage(Uri.parse("https://" + myPhone.getComputerIP()
+                            + ":8443/poster?access_token=" + myPhone.getAccessToken() + "&path="
+                            + videoPath + "&title=" + title)));
 
                     metaData.putString(MediaMetadata.KEY_TITLE, title.substring(0, title.length()-4));
                     String url = "https://" + myPhone.getComputerIP() + ":8443/video.mp4?access_token="
@@ -179,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 } else {
-                    new ThreadManager(SERVER_CALL.GET_TITLES, title).start();
+                    new ThreadManager(title, progressBar, movieListAdapter, myPhone).start();
                 }
             }
         });
@@ -198,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
                 newPath = newPath + pathSplit[x] + "/";
             }
             myPhone.setCurrentPath(newPath);
-            new ThreadManager(SERVER_CALL.GET_TITLES, title).start();
+            new ThreadManager(title, progressBar, movieListAdapter, myPhone).start();
         }
     }
 
@@ -220,5 +201,18 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+    public Phone getPhoneInfo() {
+        Phone phone = new Phone();
+        try {
+            ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"));
+            phone = (Phone) objectInputStream.readObject();
+            objectInputStream.close();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        phone.setCurrentPath(phone.getMainPath());
+        return phone;
     }
 }

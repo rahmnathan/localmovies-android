@@ -56,19 +56,6 @@ public class RestClient {
         return requestMovieInfoList(myPhone);
     }
 
-    public void refresh(Phone myPhone){
-        String restRequest = "https://" + myPhone.getComputerIP() + ":8443/refresh";
-
-        try{
-            URL url = new URL(restRequest);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.getResponseCode();
-            connection.disconnect();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
     private List<MovieInfo> requestMovieInfoList(Phone myPhone){
         String restRequest = "https://" + myPhone.getComputerIP() + ":8443/titlerequest?access_token="
                 + myPhone.getAccessToken() + "&path=" + myPhone.getCurrentPath().replace(" ", "%20");
@@ -93,7 +80,7 @@ public class RestClient {
         return null;
     }
 
-    private Response refreshKey(Phone myPhone){
+    public Response refreshKey(Phone myPhone){
         String urlString = "https://" + myPhone.getComputerIP() + ":8445/auth/realms/Demo/protocol/openid-connect/token";
 
         Map<String, String> args = new HashMap<>();

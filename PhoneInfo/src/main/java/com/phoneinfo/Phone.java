@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class Phone implements Serializable {
     private final String mainPath = "/home/nathan/LocalMedia/";
-    private String computerIP = "localmovies.hopto.org";
+    private final String computerIP = "localmovies.hopto.org";
     private String userName;
     private String password;
     private String currentPath;
