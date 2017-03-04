@@ -39,15 +39,14 @@ import rahmnathan.localmovies.R;
 import appsetup.Setup;
 
 public class MainActivity extends AppCompatActivity {
-
     private MovieListAdapter movieListAdapter;
     private Phone myPhone;
-    private static final RestClient REST_CLIENT = new RestClient();
-    public static final List<MovieInfo> MOVIE_INFO_LIST = new ArrayList<>();
+    private final RestClient REST_CLIENT = new RestClient();
+    private List<MovieInfo> MOVIE_INFO_LIST = new ArrayList<>();
     private ProgressBar progressBar;
     CastContext castContext;
 
-    public static LoadingCache<String, List<MovieInfo>> movieInfo = null;
+    private LoadingCache<String, List<MovieInfo>> movieInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +74,8 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             myPhone = getPhoneInfo();
-            new ThreadManager("Movies", progressBar, movieListAdapter, myPhone).start();
+            new ThreadManager("Movies", progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
+                    ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
         } catch(NullPointerException e){
             e.printStackTrace();
             startActivity(new Intent(MainActivity.this, Setup.class));
@@ -93,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 myPhone.setCurrentPath(myPhone.getMainPath());
-                new ThreadManager("Series", progressBar, movieListAdapter, myPhone).start();
+                new ThreadManager("Series", progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
+                        ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
             }
         });
         final Button movies = (Button) findViewById(R.id.movies);
@@ -101,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 myPhone.setCurrentPath(myPhone.getMainPath());
-                new ThreadManager("Movies", progressBar, movieListAdapter, myPhone).start();
+                new ThreadManager("Movies", progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
+                        ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
             }
         });
 
@@ -127,7 +129,8 @@ public class MainActivity extends AppCompatActivity {
                      If we're viewing movies or episodes we
                      refresh our key and start the movie
                    */
-                    REST_CLIENT.refreshKey(myPhone);
+                    new ThreadManager("Movies", progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
+                            ThreadManager.Task.TOKEN_REFRESH, movieInfo).start();
                     myPhone.setVideoPath(myPhone.getCurrentPath() + title);
                     MediaMetadata metaData = new MediaMetadata();
                     String videoPath;
@@ -160,7 +163,8 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 } else {
-                    new ThreadManager(title, progressBar, movieListAdapter, myPhone).start();
+                    new ThreadManager(title, progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
+                            ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
                 }
             }
         });
@@ -179,7 +183,8 @@ public class MainActivity extends AppCompatActivity {
                 newPath = newPath + pathSplit[x] + "/";
             }
             myPhone.setCurrentPath(newPath);
-            new ThreadManager(title, progressBar, movieListAdapter, myPhone).start();
+            new ThreadManager(title, progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
+                    ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
         }
     }
 

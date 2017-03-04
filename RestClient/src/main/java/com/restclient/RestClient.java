@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 public class RestClient {
-
     private final JSONtoMovieInfoMapper movieInfoMapper = new JSONtoMovieInfoMapper();
 
     private enum Response {
