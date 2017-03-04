@@ -44,8 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private final RestClient REST_CLIENT = new RestClient();
     private List<MovieInfo> MOVIE_INFO_LIST = new ArrayList<>();
     private ProgressBar progressBar;
-    CastContext castContext;
-
+    private CastContext castContext;
     private LoadingCache<String, List<MovieInfo>> movieInfo;
 
     @Override
@@ -74,8 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             myPhone = getPhoneInfo();
-            new ThreadManager("Movies", progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
-                    ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
+            requestTitles("Movies");
         } catch(NullPointerException e){
             e.printStackTrace();
             startActivity(new Intent(MainActivity.this, Setup.class));
@@ -93,8 +91,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 myPhone.setCurrentPath(myPhone.getMainPath());
-                new ThreadManager("Series", progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
-                        ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
+                requestTitles("Series");
             }
         });
         final Button movies = (Button) findViewById(R.id.movies);
@@ -102,8 +99,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 myPhone.setCurrentPath(myPhone.getMainPath());
-                new ThreadManager("Movies", progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
-                        ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
+                requestTitles("Movies");
             }
         });
 
@@ -129,8 +125,7 @@ public class MainActivity extends AppCompatActivity {
                      If we're viewing movies or episodes we
                      refresh our key and start the movie
                    */
-                    new ThreadManager("Movies", progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
-                            ThreadManager.Task.TOKEN_REFRESH, movieInfo).start();
+                    requestToken(title);
                     myPhone.setVideoPath(myPhone.getCurrentPath() + title);
                     MediaMetadata metaData = new MediaMetadata();
                     String videoPath;
@@ -163,8 +158,7 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 } else {
-                    new ThreadManager(title, progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
-                            ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
+                    requestTitles(title);
                 }
             }
         });
@@ -183,8 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 newPath = newPath + pathSplit[x] + "/";
             }
             myPhone.setCurrentPath(newPath);
-            new ThreadManager(title, progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
-                    ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
+            requestTitles(title);
         }
     }
 
@@ -207,7 +200,8 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
-    public Phone getPhoneInfo() {
+
+    private Phone getPhoneInfo() {
         Phone phone = new Phone();
         try {
             ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"));
@@ -216,8 +210,17 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-
         phone.setCurrentPath(phone.getMainPath());
         return phone;
+    }
+
+    private void requestTitles(String path){
+        new ThreadManager(path, progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
+                ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
+    }
+
+    private void requestToken(String path){
+        new ThreadManager(path, progressBar, movieListAdapter, myPhone, MOVIE_INFO_LIST,
+                ThreadManager.Task.TOKEN_REFRESH, movieInfo).start();
     }
 }
