@@ -164,6 +164,29 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private Phone getPhoneInfo() {
+        Phone phone = new Phone();
+        try {
+            ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"));
+            phone = (Phone) objectInputStream.readObject();
+            objectInputStream.close();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        phone.setCurrentPath(phone.getMainPath());
+        return phone;
+    }
+
+    private void requestTitles(String path){
+        new ThreadManager(path, progressBar, movieListAdapter, myPhone, movieInfoList,
+                ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
+    }
+
+    private void requestToken(String path){
+        new ThreadManager(path, progressBar, movieListAdapter, myPhone, movieInfoList,
+                ThreadManager.Task.TOKEN_REFRESH, movieInfo).start();
+    }
+
     @Override
     public void onBackPressed(){
         String currentPath = myPhone.getCurrentPath();
@@ -199,28 +222,5 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return true;
-    }
-
-    private Phone getPhoneInfo() {
-        Phone phone = new Phone();
-        try {
-            ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"));
-            phone = (Phone) objectInputStream.readObject();
-            objectInputStream.close();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        phone.setCurrentPath(phone.getMainPath());
-        return phone;
-    }
-
-    private void requestTitles(String path){
-        new ThreadManager(path, progressBar, movieListAdapter, myPhone, movieInfoList,
-                ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
-    }
-
-    private void requestToken(String path){
-        new ThreadManager(path, progressBar, movieListAdapter, myPhone, movieInfoList,
-                ThreadManager.Task.TOKEN_REFRESH, movieInfo).start();
     }
 }
