@@ -24,16 +24,16 @@ import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
 import com.phoneinfo.Phone;
-import com.restclient.RestClient;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.rahmnathan.MovieInfo;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import rahmnathan.localmovies.R;
 import appsetup.Setup;
@@ -41,27 +41,18 @@ import appsetup.Setup;
 public class MainActivity extends AppCompatActivity {
     private MovieListAdapter movieListAdapter;
     private Phone myPhone;
-    private final RestClient restClient = new RestClient();
-    private List<MovieInfo> movieInfoList = new ArrayList<>();
+    private List<MovieInfo> movieInfoList;
     private ProgressBar progressBar;
     private CastContext castContext;
-    private LoadingCache<String, List<MovieInfo>> movieInfo;
+    private ConcurrentMap<String, List<MovieInfo>> movieInfoCache = new ConcurrentHashMap<>();
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         castContext = CastContext.getSharedInstance(this);
-        movieInfo =
-                CacheBuilder.newBuilder()
-                        .maximumSize(250)
-                        .build(
-                                new CacheLoader<String, List<MovieInfo>>() {
-                                    @Override
-                                    public List<MovieInfo> load(String currentPath) {
-                                        return restClient.getMovieInfo(myPhone);
-                                    }
-                                });
+        movieInfoList  = new ArrayList<>();
 
         // Getting phone info and Triggering initial getMovieInfo of titles from server
 
@@ -73,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             myPhone = getPhoneInfo();
-            requestTitles("Movies");
+            myPhone.setCurrentPath(myPhone.getMainPath() + "Movies/");
+            requestTitles();
         } catch(NullPointerException e){
             e.printStackTrace();
             startActivity(new Intent(MainActivity.this, Setup.class));
@@ -90,16 +82,16 @@ public class MainActivity extends AppCompatActivity {
         series.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myPhone.setCurrentPath(myPhone.getMainPath());
-                requestTitles("Series");
+                myPhone.setCurrentPath(myPhone.getMainPath() + "Series/");
+                requestTitles();
             }
         });
         final Button movies = (Button) findViewById(R.id.movies);
         movies.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myPhone.setCurrentPath(myPhone.getMainPath());
-                requestTitles("Movies");
+                myPhone.setCurrentPath(myPhone.getMainPath() + "Movies/");
+                requestTitles();
             }
         });
 
@@ -125,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                      If we're viewing movies or episodes we
                      refresh our key and start the movie
                    */
-                    requestToken(title);
+                    requestToken();
                     myPhone.setVideoPath(myPhone.getCurrentPath() + title);
                     MediaMetadata metaData = new MediaMetadata();
                     String videoPath;
@@ -158,7 +150,8 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 } else {
-                    requestTitles(title);
+                    myPhone.setCurrentPath(myPhone.getCurrentPath() + title + "/");
+                    requestTitles();
                 }
             }
         });
@@ -177,14 +170,21 @@ public class MainActivity extends AppCompatActivity {
         return phone;
     }
 
-    private void requestTitles(String path){
-        new ThreadManager(path, progressBar, movieListAdapter, myPhone, movieInfoList,
-                ThreadManager.Task.TITLE_REQUEST, movieInfo).start();
+    private void requestTitles(){
+        if(movieInfoCache.containsKey(myPhone.getCurrentPath())){
+            movieInfoList.clear();
+            List<MovieInfo> list = movieInfoCache.get(myPhone.getCurrentPath());
+            movieInfoList.addAll(list);
+            movieListAdapter.notifyDataSetChanged();
+        }else {
+            executorService.submit(new ThreadManager(progressBar, movieListAdapter, myPhone, movieInfoList,
+                    ThreadManager.Task.TITLE_REQUEST, movieInfoCache));
+        }
     }
 
-    private void requestToken(String path){
-        new ThreadManager(path, progressBar, movieListAdapter, myPhone, movieInfoList,
-                ThreadManager.Task.TOKEN_REFRESH, movieInfo).start();
+    private void requestToken(){
+        executorService.submit(new ThreadManager(progressBar, movieListAdapter, myPhone, movieInfoList,
+                ThreadManager.Task.TOKEN_REFRESH, movieInfoCache));
     }
 
     @Override
@@ -199,8 +199,8 @@ public class MainActivity extends AppCompatActivity {
             for(int x = 0; x<pathSplit.length - 2; x++){
                 newPath = newPath + pathSplit[x] + "/";
             }
-            myPhone.setCurrentPath(newPath);
-            requestTitles(title);
+            myPhone.setCurrentPath(newPath + title + "/");
+            requestTitles();
         }
     }
 

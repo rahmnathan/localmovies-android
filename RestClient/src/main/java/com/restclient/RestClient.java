@@ -28,7 +28,7 @@ public class RestClient {
         AUTH_FAIL, CONNECTION_FAIL, SUCCESS, UNKNOWN_FAIL
     }
 
-    public List<MovieInfo> getMovieInfo(Phone myPhone) {
+    public List<MovieInfo> getMovieInfo(Phone myPhone, int page, int resultsPerPage) {
         if(myPhone.getAccessToken() == null){
             Response response = refreshKey(myPhone);
             switch (response){
@@ -52,12 +52,26 @@ public class RestClient {
             }
         }
 
-        return requestMovieInfoList(myPhone);
+        return requestMovieInfoList(myPhone, page, resultsPerPage);
     }
 
-    private List<MovieInfo> requestMovieInfoList(Phone myPhone){
+    public Integer getMovieInfoCount(Phone phone){
+        refreshKey(phone);
+        String restRequest = "https://" + phone.getComputerIP() + ":8443/movieinfocount?access_token="
+                + phone.getAccessToken() + "&path=" + phone.getCurrentPath().replace(" ", "%20");
+        try {
+            URL url = new URL(restRequest);
+            return Integer.valueOf(url.openConnection().getHeaderField("Count"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private List<MovieInfo> requestMovieInfoList(Phone myPhone, int page, int resultsPerPage){
         String restRequest = "https://" + myPhone.getComputerIP() + ":8443/titlerequest?access_token="
-                + myPhone.getAccessToken() + "&path=" + myPhone.getCurrentPath().replace(" ", "%20");
+                + myPhone.getAccessToken() + "&page=" + page + "&resultsPerPage=" + resultsPerPage
+                + "&path=" + myPhone.getCurrentPath().replace(" ", "%20");
         try {
             URL url = new URL(restRequest);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
