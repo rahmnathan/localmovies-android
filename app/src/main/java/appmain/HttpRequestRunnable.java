@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
-class ThreadManager implements Runnable {
+class HttpRequestRunnable implements Runnable {
 
     enum Task {
         TITLE_REQUEST, TOKEN_REFRESH
@@ -29,8 +29,8 @@ class ThreadManager implements Runnable {
 
     private final Handler UIHandler = new Handler(Looper.getMainLooper());
 
-    ThreadManager(ProgressBar progressBar, MovieListAdapter movieListAdapter, Phone myPhone,
-                  List<MovieInfo> movieInfoList, Task task, ConcurrentMap<String, List<MovieInfo>> movieInfoCache){
+    HttpRequestRunnable(ProgressBar progressBar, MovieListAdapter movieListAdapter, Phone myPhone,
+                        List<MovieInfo> movieInfoList, Task task, ConcurrentMap<String, List<MovieInfo>> movieInfoCache){
         this.task = task;
         this.movieInfoCache = movieInfoCache;
         this.phone = myPhone;

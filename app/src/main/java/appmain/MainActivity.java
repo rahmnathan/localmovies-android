@@ -177,31 +177,30 @@ public class MainActivity extends AppCompatActivity {
             movieInfoList.addAll(list);
             movieListAdapter.notifyDataSetChanged();
         }else {
-            executorService.submit(new ThreadManager(progressBar, movieListAdapter, myPhone, movieInfoList,
-                    ThreadManager.Task.TITLE_REQUEST, movieInfoCache));
+            executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myPhone, movieInfoList,
+                    HttpRequestRunnable.Task.TITLE_REQUEST, movieInfoCache));
         }
     }
 
     private void requestToken(){
-        executorService.submit(new ThreadManager(progressBar, movieListAdapter, myPhone, movieInfoList,
-                ThreadManager.Task.TOKEN_REFRESH, movieInfoCache));
+        executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myPhone, movieInfoList,
+                HttpRequestRunnable.Task.TOKEN_REFRESH, movieInfoCache));
     }
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         String currentPath = myPhone.getCurrentPath();
-        if(currentPath.endsWith("Series/") | currentPath.endsWith("Movies/")){
+        if (currentPath.endsWith("Series/") | currentPath.endsWith("Movies/"))
             System.exit(8);
-        } else{
-            String newPath = "";
-            String[] pathSplit = currentPath.split("/");
-            String title = pathSplit[pathSplit.length - 2];
-            for(int x = 0; x<pathSplit.length - 2; x++){
-                newPath = newPath + pathSplit[x] + "/";
-            }
-            myPhone.setCurrentPath(newPath + title + "/");
-            requestTitles();
+
+        StringBuilder newPath = new StringBuilder();
+        String[] pathSplit = currentPath.split("/");
+        for (int x = 0; x < pathSplit.length - 1; x++) {
+            newPath.append(pathSplit[x]);
+            newPath.append("/");
         }
+        myPhone.setCurrentPath(newPath.toString());
+        requestTitles();
     }
 
     @Override
