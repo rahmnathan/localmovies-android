@@ -10,9 +10,7 @@ import com.rahmnathan.MovieInfo;
 import com.restclient.RestClient;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 class ThreadManager implements Runnable {
@@ -54,13 +52,7 @@ class ThreadManager implements Runnable {
 
     private void dynamicallyLoadTitles() {
         int itemsPerPage = 30;
-
-        UIHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.VISIBLE);
-            }
-        });
+        UIHandler.post(() -> progressBar.setVisibility(View.VISIBLE));
         try {
             if (movieInfoList.size() != 0)
                 movieInfoList.clear();
@@ -71,23 +63,14 @@ class ThreadManager implements Runnable {
                 List<MovieInfo> infoList = restClient.getMovieInfo(phone, i, itemsPerPage);
                 movieInfoList.addAll(infoList);
                 movieInfos.addAll(infoList);
-                updateListView();
+                UIHandler.post(() -> movieListAdapter.notifyDataSetChanged());
                 i++;
-            } while (i <= (phone.getCount() / itemsPerPage));
+            } while (i <= (phone.getMovieCount() / itemsPerPage));
 
+            UIHandler.post(() -> progressBar.setVisibility(View.GONE));
             movieInfoCache.putIfAbsent(phone.getCurrentPath(), movieInfos);
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private void updateListView() {
-        UIHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                movieListAdapter.notifyDataSetChanged();
-                progressBar.setVisibility(View.GONE);
-            }
-        });
     }
 }

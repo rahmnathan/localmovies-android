@@ -5,10 +5,17 @@ android {
     buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "rahmnathan.localmovies"
-        minSdkVersion 23
-        targetSdkVersion 24
+        minSdkVersion 24
+        targetSdkVersion 25
         versionName '1.9.0'
         versionCode 41
+        jackOptions {
+            enabled true
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     buildTypes {
         release {
@@ -25,7 +32,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:25.2.0'
     compile 'com.android.support:design:25.2.0'
-    compile 'com.google.guava:guava:19.0'
+    compile 'com.google.guava:guava:20.0'
     compile project(path: ':MovieInfoAPI')
     compile project(path: ':PhoneInfo')
     compile project(path: ':RestClient')

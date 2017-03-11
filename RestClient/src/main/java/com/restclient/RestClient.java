@@ -63,7 +63,7 @@ public class RestClient {
             URL url = new URL(restRequest);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             if(page == 0)
-                myPhone.setCount(Integer.valueOf(connection.getHeaderField("Count")));
+                myPhone.setMovieCount(Integer.valueOf(connection.getHeaderField("Count")));
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String response = br.readLine();
             String result = "";

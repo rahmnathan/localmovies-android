@@ -10,14 +10,14 @@ public class Phone implements Serializable {
     private String currentPath;
     private String videoPath;
     private String accessToken;
-    private Integer count;
+    private Integer movieCount;
 
-    public int getCount() {
-        return count;
+    public int getMovieCount() {
+        return movieCount;
     }
 
-    public void setCount(Integer count) {
-        this.count = count;
+    public void setMovieCount(Integer movieCount) {
+        this.movieCount = movieCount;
     }
 
     public String getAccessToken() {
