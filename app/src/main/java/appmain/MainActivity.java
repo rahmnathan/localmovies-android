@@ -72,28 +72,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Button controls = (Button) findViewById(R.id.controls);
-        controls.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class));
-            }
-        });
+        controls.setOnClickListener((view) -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
+
         Button series = (Button) findViewById(R.id.series);
-        series.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        series.setOnClickListener((view) -> {
                 myPhone.setCurrentPath(myPhone.getMainPath() + "Series/");
                 requestTitles();
-            }
-        });
+            });
         final Button movies = (Button) findViewById(R.id.movies);
-        movies.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        movies.setOnClickListener((view) -> {
                 myPhone.setCurrentPath(myPhone.getMainPath() + "Movies/");
                 requestTitles();
-            }
-        });
+            });
 
         EditText searchText = (EditText) findViewById(R.id.searchText);
         searchText.addTextChangedListener(new TextWatcher() {
@@ -106,9 +96,7 @@ public class MainActivity extends AppCompatActivity {
             public void afterTextChanged(Editable arg0) {}
         });
 
-        movieList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        movieList.setOnItemClickListener((parent, view, position, id) -> {
                 String title = movieListAdapter.movies.get(position).toString();
 
                 if (myPhone.getCurrentPath().toLowerCase().contains("season") ||
@@ -153,8 +141,7 @@ public class MainActivity extends AppCompatActivity {
                     myPhone.setCurrentPath(myPhone.getCurrentPath() + title + "/");
                     requestTitles();
                 }
-            }
-        });
+            });
     }
 
     private Phone getPhoneInfo() {
