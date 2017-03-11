@@ -160,8 +160,7 @@ public class MainActivity extends AppCompatActivity {
     private void requestTitles(){
         if(movieInfoCache.containsKey(myPhone.getCurrentPath())){
             movieInfoList.clear();
-            List<MovieInfo> list = movieInfoCache.get(myPhone.getCurrentPath());
-            movieInfoList.addAll(list);
+            movieInfoList.addAll(movieInfoCache.get(myPhone.getCurrentPath()));
             movieListAdapter.notifyDataSetChanged();
         }else {
             executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myPhone, movieInfoList,
