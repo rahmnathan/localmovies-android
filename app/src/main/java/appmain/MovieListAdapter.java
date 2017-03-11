@@ -18,6 +18,8 @@ import com.rahmnathan.MovieInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import rahmnathan.localmovies.R;
 
@@ -95,20 +97,16 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         protected FilterResults performFiltering(CharSequence charSequence) {
             FilterResults filterResults = new FilterResults();
             if (charSequence == null || charSequence.length() == 0) {
-                filterResults.values = originalMovieList;
-                filterResults.count = originalMovieList.size();
                 movies = originalMovieList;
+                filterResults.values = movies;
+                filterResults.count = movies.size();
             } else {
-                List<MovieInfo> movieDataList = new ArrayList<>();
+                movies = originalMovieList.parallelStream()
+                        .filter((movie)-> movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase()))
+                        .collect(Collectors.toList());
 
-                for (MovieInfo movie : originalMovieList) {
-                    if (movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase())) {
-                        movieDataList.add(movie);
-                    }
-                }
-                movies = movieDataList;
-                filterResults.values = movieDataList;
-                filterResults.count = movieDataList.size();
+                filterResults.values = movies;
+                filterResults.count = movies.size();
             }
             return filterResults;
         }
