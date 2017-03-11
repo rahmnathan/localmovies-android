@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         castContext = CastContext.getSharedInstance(this);
-        movieInfoList  = new ArrayList<>();
+        movieInfoList = new ArrayList<>();
 
         // Getting phone info and Triggering initial getMovieInfo of titles from server
 
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             myPhone = getPhoneInfo();
             myPhone.setCurrentPath(myPhone.getMainPath() + "Movies/");
             requestTitles();
-        } catch(NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
             startActivity(new Intent(MainActivity.this, Setup.class));
         }
@@ -76,72 +76,76 @@ public class MainActivity extends AppCompatActivity {
 
         Button series = (Button) findViewById(R.id.series);
         series.setOnClickListener((view) -> {
-                myPhone.setCurrentPath(myPhone.getMainPath() + "Series/");
-                requestTitles();
-            });
+            myPhone.setCurrentPath(myPhone.getMainPath() + "Series/");
+            requestTitles();
+        });
         final Button movies = (Button) findViewById(R.id.movies);
         movies.setOnClickListener((view) -> {
-                myPhone.setCurrentPath(myPhone.getMainPath() + "Movies/");
-                requestTitles();
-            });
+            myPhone.setCurrentPath(myPhone.getMainPath() + "Movies/");
+            requestTitles();
+        });
 
         EditText searchText = (EditText) findViewById(R.id.searchText);
         searchText.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 movieListAdapter.getFilter().filter(cs);
             }
+
             @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+            }
+
             @Override
-            public void afterTextChanged(Editable arg0) {}
+            public void afterTextChanged(Editable arg0) {
+            }
         });
 
         movieList.setOnItemClickListener((parent, view, position, id) -> {
-                String title = movieListAdapter.movies.get(position).toString();
+            String title = movieListAdapter.movies.get(position).toString();
 
-                if (myPhone.getCurrentPath().toLowerCase().contains("season") ||
-                        myPhone.getCurrentPath().toLowerCase().contains("movies")) {
+            if (myPhone.getCurrentPath().toLowerCase().contains("season") ||
+                    myPhone.getCurrentPath().toLowerCase().contains("movies")) {
                     /*
                      If we're viewing movies or episodes we
                      refresh our key and start the movie
                    */
-                    requestToken();
-                    myPhone.setVideoPath(myPhone.getCurrentPath() + title);
-                    MediaMetadata metaData = new MediaMetadata();
-                    String videoPath;
-                    if(myPhone.getCurrentPath().toLowerCase().contains("season"))
-                        videoPath = myPhone.getCurrentPath();
-                    else
-                        videoPath = myPhone.getVideoPath();
+                requestToken();
+                myPhone.setVideoPath(myPhone.getCurrentPath() + title);
+                MediaMetadata metaData = new MediaMetadata();
+                String videoPath;
+                if (myPhone.getCurrentPath().toLowerCase().contains("season"))
+                    videoPath = myPhone.getCurrentPath();
+                else
+                    videoPath = myPhone.getVideoPath();
 
-                    metaData.addImage(new WebImage(Uri.parse("https://" + myPhone.getComputerIP()
-                            + ":8443/poster?access_token=" + myPhone.getAccessToken() + "&path="
-                            + videoPath + "&title=" + title)));
+                metaData.addImage(new WebImage(Uri.parse("https://" + myPhone.getComputerIP()
+                        + ":8443/poster?access_token=" + myPhone.getAccessToken() + "&path="
+                        + videoPath + "&title=" + title)));
 
-                    metaData.putString(MediaMetadata.KEY_TITLE, title.substring(0, title.length()-4));
-                    String url = "https://" + myPhone.getComputerIP() + ":8443/video.mp4?access_token="
-                            + myPhone.getAccessToken() + "&path=" + myPhone.getVideoPath();
-                    MediaInfo mediaInfo = new MediaInfo.Builder(url)
-                            .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                            .setContentType("videos/mp4")
-                            .setMetadata(metaData)
-                            .build();
+                metaData.putString(MediaMetadata.KEY_TITLE, title.substring(0, title.length() - 4));
+                String url = "https://" + myPhone.getComputerIP() + ":8443/video.mp4?access_token="
+                        + myPhone.getAccessToken() + "&path=" + myPhone.getVideoPath();
+                MediaInfo mediaInfo = new MediaInfo.Builder(url)
+                        .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+                        .setContentType("videos/mp4")
+                        .setMetadata(metaData)
+                        .build();
 
-                    try {
-                        CastSession session = castContext.getSessionManager().getCurrentCastSession();
-                        RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
-                        remoteMediaClient.load(mediaInfo, true, 0);
-                        Toast.makeText(MainActivity.this, "Casting" , Toast.LENGTH_LONG).show();
-                    } catch (Exception e){
-                        Intent intent = new Intent(MainActivity.this, VideoPlayer.class);
-                        intent.putExtra("url", url);
-                        startActivity(intent);
-                    }
-                } else {
-                    myPhone.setCurrentPath(myPhone.getCurrentPath() + title + "/");
-                    requestTitles();
+                try {
+                    CastSession session = castContext.getSessionManager().getCurrentCastSession();
+                    RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
+                    remoteMediaClient.load(mediaInfo, true, 0);
+                    Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Intent intent = new Intent(MainActivity.this, VideoPlayer.class);
+                    intent.putExtra("url", url);
+                    startActivity(intent);
                 }
-            });
+            } else {
+                myPhone.setCurrentPath(myPhone.getCurrentPath() + title + "/");
+                requestTitles();
+            }
+        });
     }
 
     private Phone getPhoneInfo() {
