@@ -55,19 +55,6 @@ public class RestClient {
         return requestMovieInfoList(myPhone, page, resultsPerPage);
     }
 
-    public Integer getMovieInfoCount(Phone phone){
-        refreshKey(phone);
-        String restRequest = "https://" + phone.getComputerIP() + ":8443/movieinfocount?access_token="
-                + phone.getAccessToken() + "&path=" + phone.getCurrentPath().replace(" ", "%20");
-        try {
-            URL url = new URL(restRequest);
-            return Integer.valueOf(url.openConnection().getHeaderField("Count"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     private List<MovieInfo> requestMovieInfoList(Phone myPhone, int page, int resultsPerPage){
         String restRequest = "https://" + myPhone.getComputerIP() + ":8443/titlerequest?access_token="
                 + myPhone.getAccessToken() + "&page=" + page + "&resultsPerPage=" + resultsPerPage
@@ -75,6 +62,8 @@ public class RestClient {
         try {
             URL url = new URL(restRequest);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            if(page == 0)
+                myPhone.setCount(Integer.valueOf(connection.getHeaderField("Count")));
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String response = br.readLine();
             String result = "";

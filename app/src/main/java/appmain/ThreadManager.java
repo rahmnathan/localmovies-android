@@ -53,28 +53,28 @@ class ThreadManager implements Runnable {
     }
 
     private void dynamicallyLoadTitles() {
+        int itemsPerPage = 30;
+
         UIHandler.post(new Runnable() {
             @Override
             public void run() {
                 progressBar.setVisibility(View.VISIBLE);
             }
         });
-
         try {
             if (movieInfoList.size() != 0)
                 movieInfoList.clear();
-            Integer count = restClient.getMovieInfoCount(phone);
-            if (count == null)
-                return;
-            int pageCount = count / 30;
-            pageCount++;
+
             List<MovieInfo> movieInfos = new ArrayList<>();
-            for (int i = 0; i < pageCount; i++) {
-                List<MovieInfo> infoList = restClient.getMovieInfo(phone, i, 25);
+            int i = 0;
+            do{
+                List<MovieInfo> infoList = restClient.getMovieInfo(phone, i, itemsPerPage);
                 movieInfoList.addAll(infoList);
                 movieInfos.addAll(infoList);
                 updateListView();
-            }
+                i++;
+            } while (i <= (phone.getCount() / itemsPerPage));
+
             movieInfoCache.putIfAbsent(phone.getCurrentPath(), movieInfos);
         } catch (Exception e) {
             e.printStackTrace();

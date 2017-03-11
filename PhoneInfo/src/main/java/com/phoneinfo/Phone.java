@@ -10,6 +10,15 @@ public class Phone implements Serializable {
     private String currentPath;
     private String videoPath;
     private String accessToken;
+    private Integer count;
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
+    }
 
     public String getAccessToken() {
         return accessToken;
