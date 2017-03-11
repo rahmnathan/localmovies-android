@@ -91,15 +91,16 @@ public class RestClient {
         args.put("username", myPhone.getUserName());
         args.put("password", myPhone.getPassword());
         StringBuilder sb = new StringBuilder();
-        for(Map.Entry<String, String> entry: args.entrySet()){
-            try {
-                sb.append(URLEncoder.encode(entry.getKey(), "UTF-8") + "="
-                        + URLEncoder.encode(entry.getValue(), "UTF-8"));
-                sb.append("&");
-            } catch (UnsupportedEncodingException e){
-                e.printStackTrace();
-            }
-        }
+        args.entrySet().forEach((entry) -> {
+                    try {
+                        sb.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+                        sb.append("=");
+                        sb.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+                        sb.append("&");
+                    } catch (UnsupportedEncodingException e){
+                        e.printStackTrace();
+                    }
+                });
         byte[] postData = sb.toString().substring(0, sb.length()-1).getBytes();
         int postDataLength = postData.length;
         try{
@@ -111,7 +112,7 @@ public class RestClient {
             connection.setConnectTimeout(5000);
             connection.connect();
             DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-            wr.write( postData );
+            wr.write(postData);
             wr.close();
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String response = br.readLine();

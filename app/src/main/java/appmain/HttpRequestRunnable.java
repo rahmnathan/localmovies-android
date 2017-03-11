@@ -52,7 +52,7 @@ class HttpRequestRunnable implements Runnable {
 
     private void dynamicallyLoadTitles() {
         int itemsPerPage = 30;
-        UIHandler.post(() -> progressBar.setVisibility(View.VISIBLE));
+        UIHandler.post(()-> progressBar.setVisibility(View.VISIBLE));
         try {
             if (movieInfoList.size() != 0)
                 movieInfoList.clear();
@@ -63,11 +63,11 @@ class HttpRequestRunnable implements Runnable {
                 List<MovieInfo> infoList = restClient.getMovieInfo(phone, i, itemsPerPage);
                 movieInfoList.addAll(infoList);
                 movieInfos.addAll(infoList);
-                UIHandler.post(() -> movieListAdapter.notifyDataSetChanged());
+                UIHandler.post(()-> movieListAdapter.notifyDataSetChanged());
                 i++;
             } while (i <= (phone.getMovieCount() / itemsPerPage));
 
-            UIHandler.post(() -> progressBar.setVisibility(View.GONE));
+            UIHandler.post(()-> progressBar.setVisibility(View.GONE));
             movieInfoCache.putIfAbsent(phone.getCurrentPath(), movieInfos);
         } catch (Exception e) {
             e.printStackTrace();
