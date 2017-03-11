@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     CastSession session = castContext.getSessionManager().getCurrentCastSession();
                     RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
-                    remoteMediaClient.load(mediaInfo, true, 0);
+                    remoteMediaClient.load(mediaInfo);
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Intent intent = new Intent(MainActivity.this, VideoPlayer.class);
