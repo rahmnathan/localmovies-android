@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
             myPhone = getPhoneInfo();
             myPhone.setCurrentPath(myPhone.getMainPath() + "Movies/");
             requestTitles();
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             startActivity(new Intent(MainActivity.this, Setup.class));
         }
@@ -145,15 +145,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private Phone getPhoneInfo() {
-        Phone phone = new Phone();
-        try {
-            ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"));
-            phone = (Phone) objectInputStream.readObject();
-            objectInputStream.close();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+    private Phone getPhoneInfo() throws Exception {
+        ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"));
+        Phone phone = (Phone) objectInputStream.readObject();
+        objectInputStream.close();
         phone.setCurrentPath(phone.getMainPath());
         return phone;
     }
