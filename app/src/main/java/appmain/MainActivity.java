@@ -110,13 +110,13 @@ public class MainActivity extends AppCompatActivity {
                    */
                 requestToken();
                 myPhone.setVideoPath(myPhone.getCurrentPath() + title);
-                MediaMetadata metaData = new MediaMetadata();
                 String videoPath;
                 if (myPhone.getCurrentPath().toLowerCase().contains("season"))
                     videoPath = myPhone.getCurrentPath();
                 else
                     videoPath = myPhone.getVideoPath();
 
+                MediaMetadata metaData = new MediaMetadata();
                 metaData.addImage(new WebImage(Uri.parse("https://" + myPhone.getComputerIP()
                         + ":8443/poster?access_token=" + myPhone.getAccessToken() + "&path="
                         + videoPath + "&title=" + title)));
