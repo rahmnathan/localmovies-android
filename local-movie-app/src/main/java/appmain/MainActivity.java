@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         castContext = CastContext.getSharedInstance(this);
         movieInfoList = new ArrayList<>();
 
-        // Getting phone info and Triggering initial getMovieInfo of titles from server
+        // Getting phone info and Triggering initial request of titles from server
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
