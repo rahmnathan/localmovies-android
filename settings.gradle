@@ -1,1 +1,1 @@
-include ':app', ':local-movie-info-api', ':local-movie-rest-client', ':local-movie-phone'
+include ':local-movie-app', ':local-movie-info-api', ':local-movie-rest-client', ':local-movie-phone'
