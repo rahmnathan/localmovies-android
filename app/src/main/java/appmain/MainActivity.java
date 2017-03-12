@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             myPhone.setCurrentPath(myPhone.getMainPath() + "Series/");
             requestTitles();
         });
-        final Button movies = (Button) findViewById(R.id.movies);
+        Button movies = (Button) findViewById(R.id.movies);
         movies.setOnClickListener((view) -> {
             myPhone.setCurrentPath(myPhone.getMainPath() + "Movies/");
             requestTitles();
@@ -89,11 +89,9 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 movieListAdapter.getFilter().filter(cs);
             }
-
             @Override
             public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
             }
-
             @Override
             public void afterTextChanged(Editable arg0) {
             }
