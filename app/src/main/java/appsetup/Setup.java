@@ -71,9 +71,8 @@ public class Setup extends Activity {
     private void saveData(String userName, String password){
         try {
             File setupFile = new File(this.getFilesDir(), "setup.txt");
-            if (!setupFile.exists()){
+            if (!setupFile.exists())
                 setupFile.createNewFile();
-            }
 
             phone.setUserName(userName);
             phone.setPassword(password);
