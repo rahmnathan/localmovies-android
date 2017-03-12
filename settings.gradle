@@ -1,1 +1,1 @@
-include ':app', ':MovieInfoAPI', ':RestClient', ':PhoneInfo'
+include ':app', ':local-movie-info-api', ':local-movie-rest-client', ':local-movie-phone'
