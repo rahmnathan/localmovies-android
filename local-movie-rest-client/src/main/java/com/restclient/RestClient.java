@@ -66,9 +66,8 @@ public class RestClient {
                     .forEachOrdered(result::append);
             br.close();
             connection.disconnect();
-            JSONArray array = new JSONArray(result.toString());
 
-            return movieInfoMapper.jsonArrayToMovieInfoList(array);
+            return movieInfoMapper.jsonArrayToMovieInfoList(new JSONArray(result.toString()));
         } catch (Exception e) {
             e.printStackTrace();
         }
