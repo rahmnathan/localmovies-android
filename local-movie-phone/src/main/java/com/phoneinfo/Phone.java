@@ -24,9 +24,8 @@ public class Phone implements Serializable {
         return accessToken;
     }
 
-    public Phone setAccessToken(String accessToken) {
+    public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
-        return this;
     }
 
     public String getUserName() {

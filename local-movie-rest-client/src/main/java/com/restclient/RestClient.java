@@ -25,7 +25,7 @@ public class RestClient {
     private final JSONtoMovieInfoMapper movieInfoMapper = new JSONtoMovieInfoMapper();
 
     private enum Response {
-        AUTH_FAIL, CONNECTION_FAIL, SUCCESS, UNKNOWN_FAIL
+        AUTH_FAIL, CONNECTION_FAIL, SUCCESS
     }
 
     public List<MovieInfo> getMovieInfo(Phone myPhone, int page, int resultsPerPage) {
@@ -44,11 +44,6 @@ public class RestClient {
                     infoList1.add(MovieInfo.Builder.newInstance()
                             .setTitle("Unable to connect to Auth server").build());
                     return infoList1;
-                case UNKNOWN_FAIL:
-                    List<MovieInfo> infoList2 = new ArrayList<>();
-                    infoList2.add(MovieInfo.Builder.newInstance()
-                            .setTitle("Unknown Auth failure").build());
-                    return infoList2;
             }
         }
 
@@ -65,15 +60,13 @@ public class RestClient {
             if(page == 0)
                 myPhone.setMovieCount(Integer.valueOf(connection.getHeaderField("Count")));
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String response = br.readLine();
-            String result = "";
-            while(response != null){
-                result += response;
-                response = br.readLine();
-            }
+            StringBuilder result = new StringBuilder();
+            br.lines()
+                    .parallel()
+                    .forEachOrdered(result::append);
             br.close();
             connection.disconnect();
-            JSONArray array = new JSONArray(result);
+            JSONArray array = new JSONArray(result.toString());
 
             return movieInfoMapper.jsonArrayToMovieInfoList(array);
         } catch (Exception e) {
@@ -115,25 +108,20 @@ public class RestClient {
             wr.write(postData);
             wr.close();
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String response = br.readLine();
-            String result = "";
-            while(response != null){
-                result += response;
-                response = br.readLine();
-            }
+            StringBuilder result = new StringBuilder();
+            br.lines()
+                    .parallel()
+                    .forEachOrdered(result::append);
             br.close();
             connection.disconnect();
-            myPhone.setAccessToken(new JSONObject(result).getString("access_token"));
+            myPhone.setAccessToken(new JSONObject(result.toString()).getString("access_token"));
             return Response.SUCCESS;
         } catch (SocketTimeoutException e){
             e.printStackTrace();
             return Response.CONNECTION_FAIL;
-        } catch (FileNotFoundException e){
+        } catch (Exception e){
             e.printStackTrace();
             return Response.AUTH_FAIL;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Response.UNKNOWN_FAIL;
         }
     }
 }
