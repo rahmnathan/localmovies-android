@@ -28,6 +28,7 @@ import com.rahmnathan.MovieInfo;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -177,10 +178,13 @@ public class MainActivity extends AppCompatActivity {
 
         StringBuilder newPath = new StringBuilder();
         String[] pathSplit = currentPath.split("/");
-        for (int x = 0; x < pathSplit.length - 1; x++) {
-            newPath.append(pathSplit[x]);
-            newPath.append("/");
-        }
+        Arrays.stream(pathSplit)
+                .limit(pathSplit.length - 1)
+                .forEachOrdered( directory -> {
+                    newPath.append(directory);
+                    newPath.append("/");
+                });
+
         myPhone.setCurrentPath(newPath.toString());
         requestTitles();
     }

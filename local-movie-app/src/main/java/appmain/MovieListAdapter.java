@@ -37,9 +37,8 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
 
     public View getView(int position, View rowView, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
-        if (rowView == null) {
+        if (rowView == null)
             rowView = inflater.inflate(R.layout.my_adapter, parent, false);
-        }
 
         TextView txtTitle = (TextView) rowView.findViewById(R.id.textView);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
@@ -49,9 +48,9 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         MovieInfo movie = movies.get(position);
         String currentTitle = movie.getTitle();
 
-        if (currentTitle.contains(".")) {
+        if (currentTitle.contains("."))
             currentTitle = currentTitle.substring(0, currentTitle.length() - 4);
-        }
+
         txtTitle.setText(currentTitle);
         txtTitle.setGravity(Gravity.CENTER);
         txtTitle.setTextColor(Color.WHITE);
@@ -99,8 +98,8 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
                 filterResults.values = movies;
                 filterResults.count = movies.size();
             } else {
-                movies = originalMovieList.parallelStream()
-                        .filter((movie)-> movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase()))
+                movies = originalMovieList.stream()
+                        .filter(movie-> movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase()))
                         .collect(Collectors.toList());
 
                 filterResults.values = movies;

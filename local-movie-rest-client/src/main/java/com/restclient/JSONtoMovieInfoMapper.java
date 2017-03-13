@@ -28,7 +28,6 @@ class JSONtoMovieInfoMapper {
             }
 
             builder.setTitle(object.getString("title"));
-
             movieInfoList.add(builder.build());
         }
         return movieInfoList;
