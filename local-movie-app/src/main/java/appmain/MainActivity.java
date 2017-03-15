@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         movieList.setOnItemClickListener((parent, view, position, id) -> {
-            String title = movieListAdapter.movies.get(position).toString();
+            String title = movieListAdapter.getTitle(position);
 
             if (myPhone.getCurrentPath().toLowerCase().contains("season") ||
                     myPhone.getCurrentPath().toLowerCase().contains("movies")) {

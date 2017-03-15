@@ -22,8 +22,7 @@ class JSONtoMovieInfoMapper {
 
             try {
                 builder.setImage(object.getString("image"));
-            } catch (Exception e){
-                e.printStackTrace();
+            } catch (Exception e) {
                 builder.setImage(null);
             }
 

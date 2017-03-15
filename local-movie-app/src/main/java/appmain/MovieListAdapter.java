@@ -3,6 +3,7 @@ package appmain;
 import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -24,7 +25,7 @@ import rahmnathan.localmovies.R;
 class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
 
     private final Activity context;
-    List<MovieInfo> movies;
+    private List<MovieInfo> movies;
     private final List<MovieInfo> originalMovieList;
     private AdapterFilter adapterFilter;
 
@@ -35,7 +36,8 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         this.originalMovieList = movies;
     }
 
-    public View getView(int position, View rowView, ViewGroup parent) {
+    @NonNull
+    public View getView(int position, View rowView, @NonNull ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
         if (rowView == null)
             rowView = inflater.inflate(R.layout.my_adapter, parent, false);
@@ -74,6 +76,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
     }
 
     @Override
+    @NonNull
     public Filter getFilter() {
         if (adapterFilter == null) {
             adapterFilter = new AdapterFilter();
@@ -81,6 +84,10 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         } else {
             return adapterFilter;
         }
+    }
+
+    String getTitle(int position){
+        return movies.get(position).toString();
     }
 
     @Override
@@ -95,24 +102,21 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
             FilterResults filterResults = new FilterResults();
             if (charSequence == null || charSequence.length() == 0) {
                 movies = originalMovieList;
-                filterResults.values = movies;
-                filterResults.count = movies.size();
             } else {
                 movies = originalMovieList.stream()
                         .filter(movie-> movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase()))
                         .collect(Collectors.toList());
-
-                filterResults.values = movies;
-                filterResults.count = movies.size();
             }
+            filterResults.values = movies;
+            filterResults.count = movies.size();
             return filterResults;
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
             movies = (List<MovieInfo>) filterResults.values;
             notifyDataSetChanged();
         }
     }
-
 }
