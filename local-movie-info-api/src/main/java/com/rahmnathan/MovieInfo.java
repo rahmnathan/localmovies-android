@@ -64,21 +64,26 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
             return this;
         }
 
-        public void setIMDBRating(String IMDBRating) {
+        public Builder setIMDBRating(String IMDBRating) {
             this.IMDBRating = IMDBRating;
+            return this;
         }
 
-        public void setMetaRating(String metaRating) {
+        public Builder setMetaRating(String metaRating) {
             this.metaRating = metaRating;
+            return this;
         }
 
-        public void setImage(String image) {
+        public Builder setImage(String image) {
             this.image = image;
+            return this;
         }
 
-        public void setReleaseYear(String releaseYear) {
+        public Builder setReleaseYear(String releaseYear) {
             this.releaseYear = releaseYear;
+            return this;
         }
+
         public MovieInfo build(){
             return new MovieInfo(title, IMDBRating, metaRating, image, releaseYear);
         }
