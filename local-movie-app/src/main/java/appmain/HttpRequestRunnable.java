@@ -12,6 +12,8 @@ import com.restclient.RestClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 class HttpRequestRunnable implements Runnable {
 
@@ -26,7 +28,7 @@ class HttpRequestRunnable implements Runnable {
     private ConcurrentMap<String, List<MovieInfo>> movieInfoCache;
     private final Task task;
     private final RestClient restClient = new RestClient();
-
+    private final Logger logger = Logger.getLogger("HttpRequestRunnable");
     private final Handler UIHandler = new Handler(Looper.getMainLooper());
 
     HttpRequestRunnable(ProgressBar progressBar, MovieListAdapter movieListAdapter, Phone myPhone,
@@ -51,6 +53,7 @@ class HttpRequestRunnable implements Runnable {
     }
 
     private void dynamicallyLoadTitles() {
+        logger.log(Level.INFO, "Dynamically loading titles");
         int itemsPerPage = 30;
         UIHandler.post(()-> progressBar.setVisibility(View.VISIBLE));
         try {
@@ -61,6 +64,7 @@ class HttpRequestRunnable implements Runnable {
             int i = 0;
             do{
                 List<MovieInfo> infoList = restClient.getMovieInfo(phone, i, itemsPerPage);
+                logger.log(Level.INFO, "Adding movies to UI");
                 movieInfoList.addAll(infoList);
                 movieInfos.addAll(infoList);
                 UIHandler.post(movieListAdapter::notifyDataSetChanged);

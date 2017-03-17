@@ -18,15 +18,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RestClient {
     private final JSONtoMovieInfoMapper movieInfoMapper = new JSONtoMovieInfoMapper();
+    private final Logger logger = Logger.getLogger("RestClient");
 
     private enum Response {
         AUTH_FAIL, CONNECTION_FAIL, SUCCESS
     }
 
     public List<MovieInfo> getMovieInfo(Phone myPhone, int page, int resultsPerPage) {
+        logger.log(Level.INFO, "Refreshing token");
         if(myPhone.getAccessToken() == null){
             Response response = refreshKey(myPhone);
             switch (response){
@@ -45,6 +49,7 @@ public class RestClient {
             }
         }
 
+        logger.log(Level.INFO, "Requesting movies");
         return requestMovieInfoList(myPhone, page, resultsPerPage);
     }
 
@@ -63,6 +68,7 @@ public class RestClient {
             br.close();
             connection.disconnect();
 
+            logger.log(Level.INFO, "Got titles");
             return movieInfoMapper.jsonArrayToMovieInfoList(new JSONArray(result.toString()));
         } catch (Exception e) {
             e.printStackTrace();

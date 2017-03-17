@@ -60,7 +60,7 @@ public class Setup extends Activity {
         }
 
         Button set = (Button) findViewById(R.id.set);
-        set.setOnClickListener((view)-> {
+        set.setOnClickListener(view -> {
                 saveData(userName.getText().toString(), password.getText().toString());
 
                 startActivity(new Intent(Setup.this, MainActivity.class));
