@@ -95,7 +95,7 @@ public class Setup extends Activity {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-        phone.setCurrentPath(phone.getMainPath());
+        phone.resetCurrentPath();
         return phone;
     }
 }

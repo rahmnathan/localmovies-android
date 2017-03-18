@@ -22,6 +22,7 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
+import com.phoneinfo.LocalMediaPath;
 import com.phoneinfo.Phone;
 import com.rahmnathan.MovieInfo;
 
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             myPhone = getPhoneInfo();
-            myPhone.setCurrentPath(myPhone.getMainPath() + "Movies/");
+            myPhone.appendToCurrentPath("Movies");
             requestTitles();
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,12 +77,14 @@ public class MainActivity extends AppCompatActivity {
 
         Button series = (Button) findViewById(R.id.series);
         series.setOnClickListener((view) -> {
-            myPhone.setCurrentPath(myPhone.getMainPath() + "Series/");
+            myPhone.resetCurrentPath();
+            myPhone.appendToCurrentPath("Series");
             requestTitles();
         });
         Button movies = (Button) findViewById(R.id.movies);
         movies.setOnClickListener((view) -> {
-            myPhone.setCurrentPath(myPhone.getMainPath() + "Movies/");
+            myPhone.resetCurrentPath();
+            myPhone.appendToCurrentPath("Movies");
             requestTitles();
         });
 
@@ -101,8 +104,7 @@ public class MainActivity extends AppCompatActivity {
         movieList.setOnItemClickListener((parent, view, position, id) -> {
             String title = movieListAdapter.getTitle(position);
 
-            if (myPhone.getCurrentPath().toLowerCase().contains("season") ||
-                    myPhone.getCurrentPath().toLowerCase().contains("movies")) {
+            if (myPhone.isViewingVideos()) {
                     /*
                      If we're viewing movies or episodes we
                      refresh our key and start the movie
@@ -110,8 +112,8 @@ public class MainActivity extends AppCompatActivity {
                 requestToken();
                 myPhone.setVideoPath(myPhone.getCurrentPath() + title);
                 String videoPath;
-                if (myPhone.getCurrentPath().toLowerCase().contains("season"))
-                    videoPath = myPhone.getCurrentPath();
+                if (myPhone.isViewingEpisodes())
+                    videoPath = myPhone.getCurrentPath().toString();
                 else
                     videoPath = myPhone.getVideoPath();
 
@@ -140,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             } else {
-                myPhone.setCurrentPath(myPhone.getCurrentPath() + title + "/");
+                myPhone.appendToCurrentPath(title);
                 requestTitles();
             }
         });
@@ -150,14 +152,14 @@ public class MainActivity extends AppCompatActivity {
         ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"));
         Phone phone = (Phone) objectInputStream.readObject();
         objectInputStream.close();
-        phone.setCurrentPath(phone.getMainPath());
+        phone.resetCurrentPath();
         return phone;
     }
 
     private void requestTitles(){
-        if(movieInfoCache.containsKey(myPhone.getCurrentPath())){
+        if(movieInfoCache.containsKey(myPhone.getCurrentPath().toString())){
             movieInfoList.clear();
-            movieInfoList.addAll(movieInfoCache.get(myPhone.getCurrentPath()));
+            movieInfoList.addAll(movieInfoCache.get(myPhone.getCurrentPath().toString()));
             movieListAdapter.notifyDataSetChanged();
         }else {
             executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myPhone, movieInfoList,
@@ -172,20 +174,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        String currentPath = myPhone.getCurrentPath();
-        if (currentPath.endsWith("Series/") | currentPath.endsWith("Movies/"))
+        String currentDirectory = myPhone.getCurrentPath().peekLast();
+        if (currentDirectory.equals("Series") | currentDirectory.equals("Movies"))
             System.exit(8);
 
-        StringBuilder newPath = new StringBuilder();
-        String[] pathSplit = currentPath.split("/");
-        Arrays.stream(pathSplit)
-                .limit(pathSplit.length - 1)
-                .forEachOrdered( directory -> {
-                    newPath.append(directory);
-                    newPath.append("/");
-                });
-
-        myPhone.setCurrentPath(newPath.toString());
+        myPhone.popOneDirectory();
         requestTitles();
     }
 

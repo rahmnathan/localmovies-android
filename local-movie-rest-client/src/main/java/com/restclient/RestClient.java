@@ -30,8 +30,8 @@ public class RestClient {
     }
 
     public List<MovieInfo> getMovieInfo(Phone myPhone, int page, int resultsPerPage) {
-        logger.log(Level.INFO, "Refreshing token");
         if(myPhone.getAccessToken() == null){
+            logger.log(Level.INFO, "Refreshing token");
             Response response = refreshKey(myPhone);
             switch (response){
                 case SUCCESS:
@@ -49,14 +49,14 @@ public class RestClient {
             }
         }
 
-        logger.log(Level.INFO, "Requesting movies");
         return requestMovieInfoList(myPhone, page, resultsPerPage);
     }
 
     private List<MovieInfo> requestMovieInfoList(Phone myPhone, int page, int resultsPerPage){
+        logger.log(Level.INFO, "Requesting movies");
         String restRequest = "https://" + myPhone.getComputerIP() + ":8443/titlerequest?access_token="
                 + myPhone.getAccessToken() + "&page=" + page + "&resultsPerPage=" + resultsPerPage
-                + "&path=" + myPhone.getCurrentPath().replace(" ", "%20");
+                + "&path=" + myPhone.getCurrentPath().toString().replace(" ", "%20");
         try {
             URL url = new URL(restRequest);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -68,7 +68,6 @@ public class RestClient {
             br.close();
             connection.disconnect();
 
-            logger.log(Level.INFO, "Got titles");
             return movieInfoMapper.jsonArrayToMovieInfoList(new JSONArray(result.toString()));
         } catch (Exception e) {
             e.printStackTrace();

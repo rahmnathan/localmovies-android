@@ -72,7 +72,7 @@ class HttpRequestRunnable implements Runnable {
             } while (i <= (phone.getMovieCount() / itemsPerPage));
 
             UIHandler.post(()-> progressBar.setVisibility(View.GONE));
-            movieInfoCache.putIfAbsent(phone.getCurrentPath(), movieInfos);
+            movieInfoCache.putIfAbsent(phone.getCurrentPath().toString(), movieInfos);
         } catch (Exception e) {
             e.printStackTrace();
         }

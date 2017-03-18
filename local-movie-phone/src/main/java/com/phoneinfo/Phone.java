@@ -3,14 +3,42 @@ package com.phoneinfo;
 import java.io.Serializable;
 
 public class Phone implements Serializable {
-    private final String mainPath = "/home/nathan/LocalMedia/";
+    private final LocalMediaPath mainPath = new LocalMediaPath("/home/nathan/LocalMedia/");
+    private LocalMediaPath currentPath = mainPath;
     private final String computerIP = "localmovies.hopto.org";
     private String userName;
     private String password;
-    private String currentPath;
     private String videoPath;
     private String accessToken;
     private Integer movieCount;
+
+    public boolean isViewingEpisodes(){
+        return getCurrentPath().toString().toLowerCase().contains("season");
+    }
+
+    public boolean isViewingMovies(){
+        return getCurrentPath().toString().toLowerCase().contains("movies");
+    }
+
+    public void resetCurrentPath(){
+        currentPath = new LocalMediaPath(mainPath.toString());
+    }
+
+    public boolean isViewingVideos(){
+        return isViewingEpisodes() || isViewingMovies();
+    }
+
+    public LocalMediaPath getCurrentPath() {
+        return currentPath;
+    }
+
+    public void popOneDirectory(){
+        currentPath.removeLast();
+    }
+
+    public void appendToCurrentPath(String directory){
+        currentPath.addLast(directory);
+    }
 
     public int getMovieCount() {
         return movieCount;
@@ -46,18 +74,6 @@ public class Phone implements Serializable {
 
     public String getComputerIP() {
         return computerIP;
-    }
-
-    public void setCurrentPath(String currentPath){
-        this.currentPath = currentPath;
-    }
-
-    public String getCurrentPath(){
-        return currentPath;
-    }
-
-    public String getMainPath(){
-        return mainPath;
     }
 
     public String getVideoPath() {
