@@ -60,15 +60,14 @@ public class MainActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
         movieListAdapter = new MovieListAdapter(this, movieInfoList);
-        final GridView movieList = (GridView) findViewById(R.id.gridView);
-        movieList.setAdapter(movieListAdapter);
+        GridView movieListView = (GridView) findViewById(R.id.gridView);
+        movieListView.setAdapter(movieListAdapter);
 
         try {
             myPhone = getPhoneInfo();
             myPhone.appendToCurrentPath("Movies");
             requestTitles();
         } catch (Exception e) {
-            e.printStackTrace();
             startActivity(new Intent(MainActivity.this, Setup.class));
         }
 
@@ -101,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        movieList.setOnItemClickListener((parent, view, position, id) -> {
+        movieListView.setOnItemClickListener((parent, view, position, id) -> {
             String title = movieListAdapter.getTitle(position);
 
             if (myPhone.isViewingVideos()) {

@@ -64,7 +64,6 @@ class HttpRequestRunnable implements Runnable {
             int i = 0;
             do{
                 List<MovieInfo> infoList = restClient.getMovieInfo(phone, i, itemsPerPage);
-                logger.log(Level.INFO, "Adding movies to UI");
                 movieInfoList.addAll(infoList);
                 movieInfos.addAll(infoList);
                 UIHandler.post(movieListAdapter::notifyDataSetChanged);

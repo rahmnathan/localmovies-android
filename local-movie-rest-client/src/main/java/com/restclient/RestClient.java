@@ -58,8 +58,7 @@ public class RestClient {
                 + myPhone.getAccessToken() + "&page=" + page + "&resultsPerPage=" + resultsPerPage
                 + "&path=" + myPhone.getCurrentPath().toString().replace(" ", "%20");
         try {
-            URL url = new URL(restRequest);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            HttpURLConnection connection = (HttpURLConnection) (new URL(restRequest)).openConnection();
             if(page == 0)
                 myPhone.setMovieCount(Integer.valueOf(connection.getHeaderField("Count")));
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
