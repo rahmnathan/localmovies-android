@@ -22,14 +22,11 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
-import com.phoneinfo.LocalMediaPath;
 import com.phoneinfo.Phone;
-import com.rahmnathan.MovieInfo;
+import com.restclient.MovieInfo;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -110,16 +107,16 @@ public class MainActivity extends AppCompatActivity {
                    */
                 requestToken();
                 myPhone.setVideoPath(myPhone.getCurrentPath() + title);
-                String videoPath;
+                String posterPath;
                 if (myPhone.isViewingEpisodes())
-                    videoPath = myPhone.getCurrentPath().toString();
+                    posterPath = myPhone.getCurrentPath().toString();
                 else
-                    videoPath = myPhone.getVideoPath();
+                    posterPath = myPhone.getVideoPath();
 
                 MediaMetadata metaData = new MediaMetadata();
                 metaData.addImage(new WebImage(Uri.parse("https://" + myPhone.getComputerIP()
                         + ":8443/poster?access_token=" + myPhone.getAccessToken() + "&path="
-                        + videoPath + "&title=" + title)));
+                        + posterPath + "&title=" + title)));
 
                 metaData.putString(MediaMetadata.KEY_TITLE, title.substring(0, title.length() - 4));
                 String url = "https://" + myPhone.getComputerIP() + ":8443/video.mp4?access_token="

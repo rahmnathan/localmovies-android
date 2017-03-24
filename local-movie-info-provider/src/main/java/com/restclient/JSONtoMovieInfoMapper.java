@@ -1,6 +1,6 @@
 package com.restclient;
 
-import com.rahmnathan.MovieInfo;
+import com.restclient.MovieInfo;
 
 import java.util.ArrayList;
 import java.util.List;

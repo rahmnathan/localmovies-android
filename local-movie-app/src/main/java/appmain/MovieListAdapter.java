@@ -15,7 +15,7 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.rahmnathan.MovieInfo;
+import com.restclient.MovieInfo;
 
 import java.util.List;
 import java.util.stream.Collectors;

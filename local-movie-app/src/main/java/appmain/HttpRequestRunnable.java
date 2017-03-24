@@ -5,8 +5,10 @@ import android.os.Looper;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.localmovies.AuthenticationProvider;
+import com.localmovies.KeycloakAuthenticator;
 import com.phoneinfo.Phone;
-import com.rahmnathan.MovieInfo;
+import com.restclient.MovieInfo;
 import com.restclient.RestClient;
 
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ class HttpRequestRunnable implements Runnable {
     private ConcurrentMap<String, List<MovieInfo>> movieInfoCache;
     private final Task task;
     private final RestClient restClient = new RestClient();
+    private final AuthenticationProvider authenticationProvider = new KeycloakAuthenticator();
     private final Logger logger = Logger.getLogger("HttpRequestRunnable");
     private final Handler UIHandler = new Handler(Looper.getMainLooper());
 
@@ -47,7 +50,7 @@ class HttpRequestRunnable implements Runnable {
                 dynamicallyLoadTitles();
                 break;
             case TOKEN_REFRESH:
-                restClient.refreshKey(phone);
+                authenticationProvider.updateAuthenticationToken(phone);
                 break;
         }
     }
