@@ -30,8 +30,8 @@ class MovieInfoLoader implements Runnable {
     private final Context context;
 
     MovieInfoLoader(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
-                    List<MovieInfo> movieInfoList, ConcurrentMap<String,
-                        List<MovieInfo>> movieInfoCache, Context context){
+                    List<MovieInfo> movieInfoList, ConcurrentMap<String, List<MovieInfo>> movieInfoCache,
+                    Context context){
         this.movieInfoCache = movieInfoCache;
         this.client = myClient;
         this.movieListAdapter = movieListAdapter;
