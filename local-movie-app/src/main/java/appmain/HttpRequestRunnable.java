@@ -63,7 +63,7 @@ class HttpRequestRunnable implements Runnable {
     private void dynamicallyLoadTitles() {
         logger.log(Level.INFO, "Dynamically loading titles");
         if(client.getAccessToken() == null){
-            UIHandler.post(() -> Toast.makeText(context, "Login failed", Toast.LENGTH_LONG).show());
+            UIHandler.post(() -> Toast.makeText(context, "Login failed - Check credentials", Toast.LENGTH_LONG).show());
             return;
         }
         int itemsPerPage = 30;

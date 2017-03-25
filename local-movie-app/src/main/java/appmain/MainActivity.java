@@ -64,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
             myClient = getPhoneInfo();
             myClient.appendToCurrentPath("Movies");
             updateAccessToken();
-            Toast.makeText(this, "Requesting movies", Toast.LENGTH_SHORT).show();
             requestTitles();
         } catch (Exception e) {
             startActivity(new Intent(MainActivity.this, Setup.class));
@@ -173,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         String currentDirectory = myClient.getCurrentPath().peekLast();
-        if (currentDirectory.equals("Series") | currentDirectory.equals("Movies"))
+        if (currentDirectory.toLowerCase().equals("series") | currentDirectory.toLowerCase().equals("movies"))
             System.exit(8);
 
         myClient.popOneDirectory();
