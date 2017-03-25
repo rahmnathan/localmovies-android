@@ -1,9 +1,10 @@
-package com.restclient;
+package com.localmovies.provider.control;
 
 import com.localmovies.AuthenticationProvider;
 import com.localmovies.KeycloakAuthenticator;
 import com.localmovies.Response;
-import com.phoneinfo.Phone;
+import com.localmovies.client.Client;
+import com.localmovies.provider.data.MovieInfo;
 
 import org.json.JSONArray;
 
@@ -16,15 +17,15 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class RestClient {
+public class MovieInfoProvider {
     private final JSONtoMovieInfoMapper movieInfoMapper = new JSONtoMovieInfoMapper();
-    private final Logger logger = Logger.getLogger("RestClient");
+    private final Logger logger = Logger.getLogger("MovieInfoProvider");
     private final AuthenticationProvider authenticationProvider = new KeycloakAuthenticator();
 
-    public List<MovieInfo> getMovieInfo(Phone myPhone, int page, int resultsPerPage) {
-        if(myPhone.getAccessToken() == null){
+    public List<MovieInfo> getMovieInfo(Client myClient, int page, int resultsPerPage) {
+        if(myClient.getAccessToken() == null){
             logger.log(Level.INFO, "Refreshing token");
-            Response response = authenticationProvider.updateAuthenticationToken(myPhone);
+            Response response = authenticationProvider.updateAuthenticationToken(myClient);
             switch (response){
                 case SUCCESS:
                     break;
@@ -41,18 +42,18 @@ public class RestClient {
             }
         }
 
-        return requestMovieInfoList(myPhone, page, resultsPerPage);
+        return requestMovieInfoList(myClient, page, resultsPerPage);
     }
 
-    private List<MovieInfo> requestMovieInfoList(Phone myPhone, int page, int resultsPerPage){
+    private List<MovieInfo> requestMovieInfoList(Client myClient, int page, int resultsPerPage){
         logger.log(Level.INFO, "Requesting movies");
-        String restRequest = "https://" + myPhone.getComputerIP() + ":8443/titlerequest?access_token="
-                + myPhone.getAccessToken() + "&page=" + page + "&resultsPerPage=" + resultsPerPage
-                + "&path=" + myPhone.getCurrentPath().toString().replace(" ", "%20");
+        String restRequest = "https://" + myClient.getComputerIP() + ":8443/titlerequest?access_token="
+                + myClient.getAccessToken() + "&page=" + page + "&resultsPerPage=" + resultsPerPage
+                + "&path=" + myClient.getCurrentPath().toString().replace(" ", "%20");
         try {
             HttpURLConnection connection = (HttpURLConnection) (new URL(restRequest)).openConnection();
             if(page == 0)
-                myPhone.setMovieCount(Integer.valueOf(connection.getHeaderField("Count")));
+                myClient.setMovieCount(Integer.valueOf(connection.getHeaderField("Count")));
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             StringBuilder result = new StringBuilder();
             br.lines().forEachOrdered(result::append);

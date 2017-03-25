@@ -7,9 +7,10 @@ import android.widget.ProgressBar;
 
 import com.localmovies.AuthenticationProvider;
 import com.localmovies.KeycloakAuthenticator;
-import com.phoneinfo.Phone;
-import com.restclient.MovieInfo;
-import com.restclient.RestClient;
+import com.localmovies.client.Client;
+import com.localmovies.provider.boundary.MovieInfoFacade;
+import com.localmovies.provider.control.MovieInfoProvider;
+import com.localmovies.provider.data.MovieInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,22 +24,22 @@ class HttpRequestRunnable implements Runnable {
         TITLE_REQUEST, TOKEN_REFRESH
     }
 
-    private final Phone phone;
+    private final Client client;
     private List<MovieInfo> movieInfoList;
     private ProgressBar progressBar;
     private MovieListAdapter movieListAdapter;
     private ConcurrentMap<String, List<MovieInfo>> movieInfoCache;
     private final Task task;
-    private final RestClient restClient = new RestClient();
+    private final MovieInfoFacade movieInfoFacade = new MovieInfoFacade();
     private final AuthenticationProvider authenticationProvider = new KeycloakAuthenticator();
     private final Logger logger = Logger.getLogger("HttpRequestRunnable");
     private final Handler UIHandler = new Handler(Looper.getMainLooper());
 
-    HttpRequestRunnable(ProgressBar progressBar, MovieListAdapter movieListAdapter, Phone myPhone,
+    HttpRequestRunnable(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
                         List<MovieInfo> movieInfoList, Task task, ConcurrentMap<String, List<MovieInfo>> movieInfoCache){
         this.task = task;
         this.movieInfoCache = movieInfoCache;
-        this.phone = myPhone;
+        this.client = myClient;
         this.movieListAdapter = movieListAdapter;
         this.progressBar = progressBar;
         this.movieInfoList = movieInfoList;
@@ -50,7 +51,7 @@ class HttpRequestRunnable implements Runnable {
                 dynamicallyLoadTitles();
                 break;
             case TOKEN_REFRESH:
-                authenticationProvider.updateAuthenticationToken(phone);
+                authenticationProvider.updateAuthenticationToken(client);
                 break;
         }
     }
@@ -66,15 +67,15 @@ class HttpRequestRunnable implements Runnable {
             List<MovieInfo> movieInfos = new ArrayList<>();
             int i = 0;
             do{
-                List<MovieInfo> infoList = restClient.getMovieInfo(phone, i, itemsPerPage);
+                List<MovieInfo> infoList = movieInfoFacade.getMovieInfo(client, i, itemsPerPage);
                 movieInfoList.addAll(infoList);
                 movieInfos.addAll(infoList);
                 UIHandler.post(movieListAdapter::notifyDataSetChanged);
                 i++;
-            } while (i <= (phone.getMovieCount() / itemsPerPage));
+            } while (i <= (client.getMovieCount() / itemsPerPage));
 
             UIHandler.post(()-> progressBar.setVisibility(View.GONE));
-            movieInfoCache.putIfAbsent(phone.getCurrentPath().toString(), movieInfos);
+            movieInfoCache.putIfAbsent(client.getCurrentPath().toString(), movieInfos);
         } catch (Exception e) {
             e.printStackTrace();
         }

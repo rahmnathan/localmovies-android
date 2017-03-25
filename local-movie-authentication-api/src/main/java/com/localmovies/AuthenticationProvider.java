@@ -1,7 +1,7 @@
 package com.localmovies;
 
-import com.phoneinfo.Phone;
+import com.localmovies.client.Client;
 
 public interface AuthenticationProvider {
-    Response updateAuthenticationToken(Phone phone);
+    Response updateAuthenticationToken(Client client);
 }

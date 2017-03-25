@@ -1,8 +1,10 @@
-package com.phoneinfo;
+package com.localmovies.client;
+
+import com.localmovies.client.LocalMediaPath;
 
 import java.io.Serializable;
 
-public class Phone implements Serializable {
+public class Client implements Serializable {
     private final LocalMediaPath mainPath = new LocalMediaPath("/home/nathan/LocalMedia/");
     private LocalMediaPath currentPath = mainPath;
     private final String computerIP = "localmovies.hopto.org";

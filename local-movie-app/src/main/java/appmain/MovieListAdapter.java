@@ -15,7 +15,7 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.restclient.MovieInfo;
+import com.localmovies.provider.data.MovieInfo;
 
 import java.util.List;
 import java.util.stream.Collectors;

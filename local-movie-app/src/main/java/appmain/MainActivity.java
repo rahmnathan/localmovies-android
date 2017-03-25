@@ -22,8 +22,8 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
-import com.phoneinfo.Phone;
-import com.restclient.MovieInfo;
+import com.localmovies.client.Client;
+import com.localmovies.provider.data.MovieInfo;
 
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import appsetup.Setup;
 
 public class MainActivity extends AppCompatActivity {
     private MovieListAdapter movieListAdapter;
-    private Phone myPhone;
+    private Client myClient;
     private List<MovieInfo> movieInfoList;
     private ProgressBar progressBar;
     private CastContext castContext;
@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
         movieListView.setAdapter(movieListAdapter);
 
         try {
-            myPhone = getPhoneInfo();
-            myPhone.appendToCurrentPath("Movies");
+            myClient = getPhoneInfo();
+            myClient.appendToCurrentPath("Movies");
             requestTitles();
         } catch (Exception e) {
             startActivity(new Intent(MainActivity.this, Setup.class));
@@ -73,14 +73,14 @@ public class MainActivity extends AppCompatActivity {
 
         Button series = (Button) findViewById(R.id.series);
         series.setOnClickListener((view) -> {
-            myPhone.resetCurrentPath();
-            myPhone.appendToCurrentPath("Series");
+            myClient.resetCurrentPath();
+            myClient.appendToCurrentPath("Series");
             requestTitles();
         });
         Button movies = (Button) findViewById(R.id.movies);
         movies.setOnClickListener((view) -> {
-            myPhone.resetCurrentPath();
-            myPhone.appendToCurrentPath("Movies");
+            myClient.resetCurrentPath();
+            myClient.appendToCurrentPath("Movies");
             requestTitles();
         });
 
@@ -100,27 +100,27 @@ public class MainActivity extends AppCompatActivity {
         movieListView.setOnItemClickListener((parent, view, position, id) -> {
             String title = movieListAdapter.getTitle(position);
 
-            if (myPhone.isViewingVideos()) {
+            if (myClient.isViewingVideos()) {
                     /*
                      If we're viewing movies or episodes we
                      refresh our key and start the movie
                    */
                 requestToken();
-                myPhone.setVideoPath(myPhone.getCurrentPath() + title);
+                myClient.setVideoPath(myClient.getCurrentPath() + title);
                 String posterPath;
-                if (myPhone.isViewingEpisodes())
-                    posterPath = myPhone.getCurrentPath().toString();
+                if (myClient.isViewingEpisodes())
+                    posterPath = myClient.getCurrentPath().toString();
                 else
-                    posterPath = myPhone.getVideoPath();
+                    posterPath = myClient.getVideoPath();
 
                 MediaMetadata metaData = new MediaMetadata();
-                metaData.addImage(new WebImage(Uri.parse("https://" + myPhone.getComputerIP()
-                        + ":8443/poster?access_token=" + myPhone.getAccessToken() + "&path="
+                metaData.addImage(new WebImage(Uri.parse("https://" + myClient.getComputerIP()
+                        + ":8443/poster?access_token=" + myClient.getAccessToken() + "&path="
                         + posterPath + "&title=" + title)));
 
                 metaData.putString(MediaMetadata.KEY_TITLE, title.substring(0, title.length() - 4));
-                String url = "https://" + myPhone.getComputerIP() + ":8443/video.mp4?access_token="
-                        + myPhone.getAccessToken() + "&path=" + myPhone.getVideoPath();
+                String url = "https://" + myClient.getComputerIP() + ":8443/video.mp4?access_token="
+                        + myClient.getAccessToken() + "&path=" + myClient.getVideoPath();
                 MediaInfo mediaInfo = new MediaInfo.Builder(url)
                         .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                         .setContentType("videos/mp4")
@@ -138,43 +138,43 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             } else {
-                myPhone.appendToCurrentPath(title);
+                myClient.appendToCurrentPath(title);
                 requestTitles();
             }
         });
     }
 
-    private Phone getPhoneInfo() throws Exception {
+    private Client getPhoneInfo() throws Exception {
         ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"));
-        Phone phone = (Phone) objectInputStream.readObject();
+        Client client = (Client) objectInputStream.readObject();
         objectInputStream.close();
-        phone.resetCurrentPath();
-        return phone;
+        client.resetCurrentPath();
+        return client;
     }
 
     private void requestTitles(){
-        if(movieInfoCache.containsKey(myPhone.getCurrentPath().toString())){
+        if(movieInfoCache.containsKey(myClient.getCurrentPath().toString())){
             movieInfoList.clear();
-            movieInfoList.addAll(movieInfoCache.get(myPhone.getCurrentPath().toString()));
+            movieInfoList.addAll(movieInfoCache.get(myClient.getCurrentPath().toString()));
             movieListAdapter.notifyDataSetChanged();
         }else {
-            executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myPhone, movieInfoList,
+            executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myClient, movieInfoList,
                     HttpRequestRunnable.Task.TITLE_REQUEST, movieInfoCache));
         }
     }
 
     private void requestToken(){
-        executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myPhone, movieInfoList,
+        executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myClient, movieInfoList,
                 HttpRequestRunnable.Task.TOKEN_REFRESH, movieInfoCache));
     }
 
     @Override
     public void onBackPressed() {
-        String currentDirectory = myPhone.getCurrentPath().peekLast();
+        String currentDirectory = myClient.getCurrentPath().peekLast();
         if (currentDirectory.equals("Series") | currentDirectory.equals("Movies"))
             System.exit(8);
 
-        myPhone.popOneDirectory();
+        myClient.popOneDirectory();
         requestTitles();
     }
 

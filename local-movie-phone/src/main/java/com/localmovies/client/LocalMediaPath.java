@@ -1,4 +1,4 @@
-package com.phoneinfo;
+package com.localmovies.client;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;

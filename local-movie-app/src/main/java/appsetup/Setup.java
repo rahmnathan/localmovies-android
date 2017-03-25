@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.phoneinfo.Phone;
+import com.localmovies.client.Client;
 
 import appmain.MainActivity;
 import rahmnathan.localmovies.R;
@@ -22,7 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class Setup extends Activity {
-    private Phone phone;
+    private Client client;
     private EditText userName;
     private EditText password;
 
@@ -48,12 +48,12 @@ public class Setup extends Activity {
         password.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
 
         // Populating our textfields with our saved data if it exists
-        phone = getPhoneInfo();
-        if(phone == null)
-            phone = new Phone();
+        client = getPhoneInfo();
+        if(client == null)
+            client = new Client();
         try {
-            userName.setText(phone.getUserName());
-            password.setText(phone.getPassword());
+            userName.setText(client.getUserName());
+            password.setText(client.getPassword());
         } catch (NullPointerException e){
             e.printStackTrace();
         }
@@ -73,10 +73,10 @@ public class Setup extends Activity {
             if (!setupFile.exists())
                 setupFile.createNewFile();
 
-            phone.setUserName(userName);
-            phone.setPassword(password);
+            client.setUserName(userName);
+            client.setPassword(password);
             ObjectOutputStream os = new ObjectOutputStream(openFileOutput("setup.txt", MODE_PRIVATE));
-            os.writeObject(phone);
+            os.writeObject(client);
             os.close();
 
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
@@ -85,16 +85,16 @@ public class Setup extends Activity {
         }
     }
 
-    public Phone getPhoneInfo() {
-        Phone phone = new Phone();
+    public Client getPhoneInfo() {
+        Client client = new Client();
         try {
             ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"));
-            phone = (Phone) objectInputStream.readObject();
+            client = (Client) objectInputStream.readObject();
             objectInputStream.close();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-        phone.resetCurrentPath();
-        return phone;
+        client.resetCurrentPath();
+        return client;
     }
 }

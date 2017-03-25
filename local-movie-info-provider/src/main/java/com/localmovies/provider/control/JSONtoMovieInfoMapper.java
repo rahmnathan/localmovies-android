@@ -1,6 +1,6 @@
-package com.restclient;
+package com.localmovies.provider.control;
 
-import com.restclient.MovieInfo;
+import com.localmovies.provider.data.MovieInfo;
 
 import java.util.ArrayList;
 import java.util.List;

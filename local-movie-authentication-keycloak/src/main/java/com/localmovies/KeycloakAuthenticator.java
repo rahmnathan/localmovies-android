@@ -1,6 +1,6 @@
 package com.localmovies;
 
-import com.phoneinfo.Phone;
+import com.localmovies.client.Client;
 
 import org.json.JSONObject;
 
@@ -16,14 +16,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class KeycloakAuthenticator implements AuthenticationProvider {
-    public Response updateAuthenticationToken(Phone phone){
-        String urlString = "https://" + phone.getComputerIP() + ":8445/auth/realms/Demo/protocol/openid-connect/token";
+    public Response updateAuthenticationToken(Client client){
+        String urlString = "https://" + client.getComputerIP() + ":8445/auth/realms/Demo/protocol/openid-connect/token";
 
         Map<String, String> args = new HashMap<>();
         args.put("grant_type", "password");
         args.put("client_id", "movielogin");
-        args.put("username", phone.getUserName());
-        args.put("password", phone.getPassword());
+        args.put("username", client.getUserName());
+        args.put("password", client.getPassword());
         StringBuilder sb = new StringBuilder();
         args.entrySet().forEach((entry) -> {
             try {
@@ -51,7 +51,7 @@ public class KeycloakAuthenticator implements AuthenticationProvider {
             br.lines().forEachOrdered(result::append);
             br.close();
             connection.disconnect();
-            phone.setAccessToken(new JSONObject(result.toString()).getString("access_token"));
+            client.setAccessToken(new JSONObject(result.toString()).getString("access_token"));
             return Response.SUCCESS;
         } catch (SocketTimeoutException e){
             e.printStackTrace();

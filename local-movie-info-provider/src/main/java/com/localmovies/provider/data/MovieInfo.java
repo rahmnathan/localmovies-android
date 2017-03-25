@@ -1,4 +1,4 @@
-package com.restclient;
+package com.localmovies.provider.data;
 
 import java.io.Serializable;
 import java.util.Comparator;
