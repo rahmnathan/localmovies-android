@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class KeycloakAuthenticator implements AuthenticationProvider {
-    public Response updateAuthenticationToken(Client client){
+    public Response updateAccessToken(Client client){
         String urlString = "https://" + client.getComputerIP() + ":8445/auth/realms/Demo/protocol/openid-connect/token";
 
         Map<String, String> args = new HashMap<>();

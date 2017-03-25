@@ -22,10 +22,10 @@ public class MovieInfoProvider {
     private final Logger logger = Logger.getLogger("MovieInfoProvider");
     private final AuthenticationProvider authenticationProvider = new KeycloakAuthenticator();
 
-    public List<MovieInfo> getMovieInfo(Client myClient, int page, int resultsPerPage) {
-        if(myClient.getAccessToken() == null){
+    public List<MovieInfo> getMovieInfo(Client client, int page, int resultsPerPage) {
+        if(client.getAccessToken() == null){
             logger.log(Level.INFO, "Refreshing token");
-            Response response = authenticationProvider.updateAuthenticationToken(myClient);
+            Response response = authenticationProvider.updateAccessToken(client);
             switch (response){
                 case SUCCESS:
                     break;
@@ -42,7 +42,7 @@ public class MovieInfoProvider {
             }
         }
 
-        return requestMovieInfoList(myClient, page, resultsPerPage);
+        return requestMovieInfoList(client, page, resultsPerPage);
     }
 
     private List<MovieInfo> requestMovieInfoList(Client myClient, int page, int resultsPerPage){

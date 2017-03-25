@@ -9,7 +9,6 @@ import com.localmovies.AuthenticationProvider;
 import com.localmovies.KeycloakAuthenticator;
 import com.localmovies.client.Client;
 import com.localmovies.provider.boundary.MovieInfoFacade;
-import com.localmovies.provider.control.MovieInfoProvider;
 import com.localmovies.provider.data.MovieInfo;
 
 import java.util.ArrayList;
@@ -51,7 +50,7 @@ class HttpRequestRunnable implements Runnable {
                 dynamicallyLoadTitles();
                 break;
             case TOKEN_REFRESH:
-                authenticationProvider.updateAuthenticationToken(client);
+                authenticationProvider.updateAccessToken(client);
                 break;
         }
     }
