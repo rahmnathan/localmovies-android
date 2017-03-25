@@ -48,9 +48,8 @@ class MovieInfoLoader implements Runnable {
         }
         int itemsPerPage = 30;
         UIHandler.post(()-> progressBar.setVisibility(View.VISIBLE));
+        movieInfoList.clear();
         try {
-            movieInfoList.clear();
-
             List<MovieInfo> movieInfos = new ArrayList<>();
             int i = 0;
             do{
