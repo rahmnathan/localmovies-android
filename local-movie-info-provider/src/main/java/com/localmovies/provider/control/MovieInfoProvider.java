@@ -11,15 +11,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MovieInfoProvider {
     private final JSONtoMovieInfoMapper movieInfoMapper = new JSONtoMovieInfoMapper();
-    private final Logger logger = Logger.getLogger("MovieInfoProvider");
 
     public List<MovieInfo> getMovieInfo(Client client, int page, int resultsPerPage) {
-        logger.log(Level.INFO, "Requesting movies");
         JSONArray movieInfoJson = getMovieInfoJson(client, page, resultsPerPage);
         if(movieInfoJson == null)
             return new ArrayList<>();
