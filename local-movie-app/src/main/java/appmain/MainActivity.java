@@ -22,6 +22,7 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
+import com.localmovies.KeycloakAuthenticator;
 import com.localmovies.client.Client;
 import com.localmovies.provider.data.MovieInfo;
 
@@ -73,13 +74,13 @@ public class MainActivity extends AppCompatActivity {
         controls.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
 
         Button series = (Button) findViewById(R.id.series);
-        series.setOnClickListener((view) -> {
+        series.setOnClickListener(view -> {
             myClient.resetCurrentPath();
             myClient.appendToCurrentPath("Series");
             requestTitles();
         });
         Button movies = (Button) findViewById(R.id.movies);
-        movies.setOnClickListener((view) -> {
+        movies.setOnClickListener(view -> {
             myClient.resetCurrentPath();
             myClient.appendToCurrentPath("Movies");
             requestTitles();
@@ -158,15 +159,14 @@ public class MainActivity extends AppCompatActivity {
             movieInfoList.addAll(movieInfoCache.get(myClient.getCurrentPath().toString()));
             movieListAdapter.notifyDataSetChanged();
         }else {
-            executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myClient, movieInfoList,
-                    HttpRequestRunnable.Task.TITLE_REQUEST, movieInfoCache, this));
+            executorService.submit(new MovieInfoLoader(progressBar, movieListAdapter, myClient, movieInfoList,
+                    movieInfoCache, this));
         }
     }
 
     private void updateAccessToken(){
         Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
-        executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myClient, movieInfoList,
-                HttpRequestRunnable.Task.TOKEN_REFRESH, movieInfoCache, this));
+        executorService.submit(new KeycloakAuthenticator(myClient));
     }
 
     @Override

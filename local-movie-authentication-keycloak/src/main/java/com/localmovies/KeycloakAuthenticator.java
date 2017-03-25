@@ -14,10 +14,45 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-public class KeycloakAuthenticator implements AuthenticationProvider {
-    public void updateAccessToken(Client client){
+public class KeycloakAuthenticator implements Runnable {
+
+    private Client client;
+
+    public KeycloakAuthenticator(Client client){
+        this.client = client;
+    }
+
+    public void run(){
+        updateAccessToken();
+    }
+
+    public void updateAccessToken(){
         String urlString = "https://" + client.getComputerIP() + ":8445/auth/realms/Demo/protocol/openid-connect/token";
 
+        byte[] loginInfo = buildLoginInfo(client);
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setFixedLengthStreamingMode(loginInfo.length);
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            connection.setConnectTimeout(5000);
+            connection.connect();
+            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr.write(loginInfo);
+            wr.close();
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder result = new StringBuilder();
+            br.lines().forEachOrdered(result::append);
+            br.close();
+            connection.disconnect();
+            client.setAccessToken(new JSONObject(result.toString()).getString("access_token"));
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private byte[] buildLoginInfo(Client client){
         Map<String, String> args = new HashMap<>();
         args.put("grant_type", "password");
         args.put("client_id", "movielogin");
@@ -32,27 +67,7 @@ public class KeycloakAuthenticator implements AuthenticationProvider {
                 e.printStackTrace();
             }
         });
-        byte[] postData = sb.toString().substring(0, sb.length()-1).getBytes();
-        int postDataLength = postData.length;
-        try {
-            URL url = new URL(urlString);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setFixedLengthStreamingMode(postDataLength);
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            connection.setConnectTimeout(5000);
-            connection.connect();
-            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-            wr.write(postData);
-            wr.close();
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder result = new StringBuilder();
-            br.lines().forEachOrdered(result::append);
-            br.close();
-            connection.disconnect();
-            client.setAccessToken(new JSONObject(result.toString()).getString("access_token"));
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+
+        return  sb.toString().substring(0, sb.length()-1).getBytes();
     }
 }
