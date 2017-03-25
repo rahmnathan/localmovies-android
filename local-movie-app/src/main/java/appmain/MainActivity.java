@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
             myClient = getPhoneInfo();
             myClient.appendToCurrentPath("Movies");
             updateAccessToken();
+            Toast.makeText(this, "Requesting movies", Toast.LENGTH_SHORT).show();
             requestTitles();
         } catch (Exception e) {
             startActivity(new Intent(MainActivity.this, Setup.class));
@@ -103,8 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (myClient.isViewingVideos()) {
                     /*
-                     If we're viewing movies or episodes we
-                     refresh our key and start the movie
+                     If we're viewing movies or episodes we refresh our key and start the movie
                    */
                 updateAccessToken();
                 myClient.setVideoPath(myClient.getCurrentPath() + title);
@@ -159,20 +159,15 @@ public class MainActivity extends AppCompatActivity {
             movieInfoList.addAll(movieInfoCache.get(myClient.getCurrentPath().toString()));
             movieListAdapter.notifyDataSetChanged();
         }else {
-            if(myClient.getAccessToken() == null){
-                Toast.makeText(this, "Login failed", Toast.LENGTH_LONG).show();
-                return;
-            }
-            Toast.makeText(this, "Requesting movies...", Toast.LENGTH_SHORT).show();
             executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myClient, movieInfoList,
-                    HttpRequestRunnable.Task.TITLE_REQUEST, movieInfoCache));
+                    HttpRequestRunnable.Task.TITLE_REQUEST, movieInfoCache, this));
         }
     }
 
     private void updateAccessToken(){
         Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
         executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myClient, movieInfoList,
-                HttpRequestRunnable.Task.TOKEN_REFRESH, movieInfoCache));
+                HttpRequestRunnable.Task.TOKEN_REFRESH, movieInfoCache, this));
     }
 
     @Override

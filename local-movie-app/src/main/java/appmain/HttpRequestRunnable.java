@@ -1,9 +1,11 @@
 package appmain;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.localmovies.AuthenticationProvider;
 import com.localmovies.KeycloakAuthenticator;
@@ -33,15 +35,18 @@ class HttpRequestRunnable implements Runnable {
     private final AuthenticationProvider authenticationProvider = new KeycloakAuthenticator();
     private final Logger logger = Logger.getLogger("HttpRequestRunnable");
     private final Handler UIHandler = new Handler(Looper.getMainLooper());
+    private final Context context;
 
     HttpRequestRunnable(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
-                        List<MovieInfo> movieInfoList, Task task, ConcurrentMap<String, List<MovieInfo>> movieInfoCache){
+                        List<MovieInfo> movieInfoList, Task task, ConcurrentMap<String,
+                        List<MovieInfo>> movieInfoCache, Context context){
         this.task = task;
         this.movieInfoCache = movieInfoCache;
         this.client = myClient;
         this.movieListAdapter = movieListAdapter;
         this.progressBar = progressBar;
         this.movieInfoList = movieInfoList;
+        this.context = context;
     }
 
     public void run() {
@@ -57,6 +62,10 @@ class HttpRequestRunnable implements Runnable {
 
     private void dynamicallyLoadTitles() {
         logger.log(Level.INFO, "Dynamically loading titles");
+        if(client.getAccessToken() == null){
+            UIHandler.post(() -> Toast.makeText(context, "Login failed", Toast.LENGTH_LONG).show());
+            return;
+        }
         int itemsPerPage = 30;
         UIHandler.post(()-> progressBar.setVisibility(View.VISIBLE));
         try {
