@@ -60,8 +60,7 @@ class HttpRequestRunnable implements Runnable {
         int itemsPerPage = 30;
         UIHandler.post(()-> progressBar.setVisibility(View.VISIBLE));
         try {
-            if (movieInfoList.size() != 0)
-                movieInfoList.clear();
+            movieInfoList.clear();
 
             List<MovieInfo> movieInfos = new ArrayList<>();
             int i = 0;

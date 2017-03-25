@@ -63,13 +63,14 @@ public class MainActivity extends AppCompatActivity {
         try {
             myClient = getPhoneInfo();
             myClient.appendToCurrentPath("Movies");
+            updateAccessToken();
             requestTitles();
         } catch (Exception e) {
             startActivity(new Intent(MainActivity.this, Setup.class));
         }
 
         Button controls = (Button) findViewById(R.id.controls);
-        controls.setOnClickListener((view) -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
+        controls.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
 
         Button series = (Button) findViewById(R.id.series);
         series.setOnClickListener((view) -> {
@@ -105,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                      If we're viewing movies or episodes we
                      refresh our key and start the movie
                    */
-                requestToken();
+                updateAccessToken();
                 myClient.setVideoPath(myClient.getCurrentPath() + title);
                 String posterPath;
                 if (myClient.isViewingEpisodes())
@@ -158,12 +159,18 @@ public class MainActivity extends AppCompatActivity {
             movieInfoList.addAll(movieInfoCache.get(myClient.getCurrentPath().toString()));
             movieListAdapter.notifyDataSetChanged();
         }else {
+            if(myClient.getAccessToken() == null){
+                Toast.makeText(this, "Login failed", Toast.LENGTH_LONG).show();
+                return;
+            }
+            Toast.makeText(this, "Requesting movies...", Toast.LENGTH_SHORT).show();
             executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myClient, movieInfoList,
                     HttpRequestRunnable.Task.TITLE_REQUEST, movieInfoCache));
         }
     }
 
-    private void requestToken(){
+    private void updateAccessToken(){
+        Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
         executorService.submit(new HttpRequestRunnable(progressBar, movieListAdapter, myClient, movieInfoList,
                 HttpRequestRunnable.Task.TOKEN_REFRESH, movieInfoCache));
     }

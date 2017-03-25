@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class KeycloakAuthenticator implements AuthenticationProvider {
-    public Response updateAccessToken(Client client){
+    public void updateAccessToken(Client client){
         String urlString = "https://" + client.getComputerIP() + ":8445/auth/realms/Demo/protocol/openid-connect/token";
 
         Map<String, String> args = new HashMap<>();
@@ -35,7 +35,7 @@ public class KeycloakAuthenticator implements AuthenticationProvider {
         });
         byte[] postData = sb.toString().substring(0, sb.length()-1).getBytes();
         int postDataLength = postData.length;
-        try{
+        try {
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
@@ -52,13 +52,8 @@ public class KeycloakAuthenticator implements AuthenticationProvider {
             br.close();
             connection.disconnect();
             client.setAccessToken(new JSONObject(result.toString()).getString("access_token"));
-            return Response.SUCCESS;
-        } catch (SocketTimeoutException e){
-            e.printStackTrace();
-            return Response.CONNECTION_FAIL;
         } catch (Exception e){
             e.printStackTrace();
-            return Response.AUTH_FAIL;
         }
     }
 }
