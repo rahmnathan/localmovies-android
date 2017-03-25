@@ -4,6 +4,3 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(path: ':local-movie-client')
 }
-
-sourceCompatibility = "1.8"
-targetCompatibility = "1.8"

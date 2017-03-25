@@ -26,10 +26,10 @@ class HttpRequestRunnable implements Runnable {
     }
 
     private final Client client;
-    private List<MovieInfo> movieInfoList;
-    private ProgressBar progressBar;
-    private MovieListAdapter movieListAdapter;
-    private ConcurrentMap<String, List<MovieInfo>> movieInfoCache;
+    private final List<MovieInfo> movieInfoList;
+    private final ProgressBar progressBar;
+    private final MovieListAdapter movieListAdapter;
+    private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache;
     private final Task task;
     private final MovieInfoFacade movieInfoFacade = new MovieInfoFacade();
     private final AuthenticationProvider authenticationProvider = new KeycloakAuthenticator();

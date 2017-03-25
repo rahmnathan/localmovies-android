@@ -42,8 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private List<MovieInfo> movieInfoList;
     private ProgressBar progressBar;
     private CastContext castContext;
-    private ConcurrentMap<String, List<MovieInfo>> movieInfoCache = new ConcurrentHashMap<>();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache = new ConcurrentHashMap<>();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -6,6 +6,3 @@ dependencies {
     compile project(path: ':local-movie-client')
     compile project(path: ':local-movie-authentication-api')
 }
-
-sourceCompatibility = "1.8"
-targetCompatibility = "1.8"
