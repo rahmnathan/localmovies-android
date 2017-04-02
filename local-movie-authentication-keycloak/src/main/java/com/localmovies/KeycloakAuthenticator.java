@@ -13,9 +13,10 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class KeycloakAuthenticator implements Runnable {
-
+    private final Logger logger = Logger.getLogger(KeycloakAuthenticator.class.getName());
     private Client client;
 
     public KeycloakAuthenticator(Client client){
@@ -48,7 +49,7 @@ public class KeycloakAuthenticator implements Runnable {
             connection.disconnect();
             client.setAccessToken(new JSONObject(result.toString()).getString("access_token"));
         } catch (Exception e){
-            e.printStackTrace();
+            logger.info(e.toString());
         }
     }
 
@@ -64,7 +65,7 @@ public class KeycloakAuthenticator implements Runnable {
                 sb.append(URLEncoder.encode(entry.getKey(), "UTF-8")).append("=")
                         .append(URLEncoder.encode(entry.getValue(), "UTF-8")).append("&");
             } catch (UnsupportedEncodingException e){
-                e.printStackTrace();
+                logger.info(e.toString());
             }
         });
 

@@ -11,9 +11,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class MovieInfoProvider {
     private final JSONtoMovieInfoMapper movieInfoMapper = new JSONtoMovieInfoMapper();
+    private final Logger logger = Logger.getLogger(MovieInfoProvider.class.getName());
 
     public List<MovieInfo> getMovieInfo(Client client, int page, int resultsPerPage) {
         JSONArray movieInfoJson = getMovieInfoJson(client, page, resultsPerPage);
@@ -38,7 +40,7 @@ public class MovieInfoProvider {
             connection.disconnect();
             return new JSONArray(result.toString());
         }catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.toString());
         }
         return null;
     }
