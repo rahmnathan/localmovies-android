@@ -18,7 +18,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class MovieInfoLoader implements Runnable {
-
     private final Client client;
     private final List<MovieInfo> movieInfoList;
     private final ProgressBar progressBar;
@@ -42,28 +41,24 @@ class MovieInfoLoader implements Runnable {
 
     public void run() {
         logger.log(Level.INFO, "Dynamically loading titles");
-        if(client.getAccessToken() == null){
+        if (client.getAccessToken() == null) {
             UIHandler.post(() -> Toast.makeText(context, "Login failed - Check credentials", Toast.LENGTH_LONG).show());
             return;
         }
         int itemsPerPage = 30;
-        UIHandler.post(()-> progressBar.setVisibility(View.VISIBLE));
+        UIHandler.post(() -> progressBar.setVisibility(View.VISIBLE));
         movieInfoList.clear();
-        try {
-            List<MovieInfo> movieInfos = new ArrayList<>();
-            int i = 0;
-            do{
-                List<MovieInfo> infoList = movieInfoFacade.getMovieInfo(client, i, itemsPerPage);
-                movieInfoList.addAll(infoList);
-                movieInfos.addAll(infoList);
-                UIHandler.post(movieListAdapter::notifyDataSetChanged);
-                i++;
-            } while (i <= (client.getMovieCount() / itemsPerPage));
+        List<MovieInfo> movieInfos = new ArrayList<>();
+        int i = 0;
+        do {
+            List<MovieInfo> infoList = movieInfoFacade.getMovieInfo(client, i, itemsPerPage);
+            movieInfoList.addAll(infoList);
+            movieInfos.addAll(infoList);
+            UIHandler.post(movieListAdapter::notifyDataSetChanged);
+            i++;
+        } while (i <= (client.getMovieCount() / itemsPerPage));
 
-            UIHandler.post(()-> progressBar.setVisibility(View.GONE));
-            movieInfoCache.putIfAbsent(client.getCurrentPath().toString(), movieInfos);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        UIHandler.post(() -> progressBar.setVisibility(View.GONE));
+        movieInfoCache.putIfAbsent(client.getCurrentPath().toString(), movieInfos);
     }
 }
