@@ -1,7 +1,5 @@
 package com.localmovies.client;
 
-import com.localmovies.client.LocalMediaPath;
-
 import java.io.Serializable;
 
 public class Client implements Serializable {
