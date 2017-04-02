@@ -59,7 +59,7 @@ public class KeycloakAuthenticator implements Runnable {
         args.put("username", client.getUserName());
         args.put("password", client.getPassword());
         StringBuilder sb = new StringBuilder();
-        args.entrySet().forEach((entry) -> {
+        args.entrySet().forEach(entry -> {
             try {
                 sb.append(URLEncoder.encode(entry.getKey(), "UTF-8")).append("=")
                         .append(URLEncoder.encode(entry.getValue(), "UTF-8")).append("&");
