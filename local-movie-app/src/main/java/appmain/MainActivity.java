@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                      If we're viewing movies or episodes we refresh our key and start the movie
                    */
                 updateAccessToken();
-                myClient.setVideoPath(myClient.getCurrentPath() + title);
+                myClient.appendToCurrentPath(title);
                 String posterPath;
                 if (myClient.isViewingEpisodes())
                     posterPath = myClient.getCurrentPath().toString();
