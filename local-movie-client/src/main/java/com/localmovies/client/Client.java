@@ -3,7 +3,7 @@ package com.localmovies.client;
 import java.io.Serializable;
 
 public class Client implements Serializable {
-    private final LocalMediaPath mainPath = new LocalMediaPath("/home/nathan/LocalMedia/");
+    private final LocalMediaPath mainPath = new LocalMediaPath();
     private LocalMediaPath currentPath = mainPath;
     private final String computerIP = "localmovies.hopto.org";
     private String userName;
@@ -21,7 +21,7 @@ public class Client implements Serializable {
     }
 
     public void resetCurrentPath(){
-        currentPath = new LocalMediaPath(mainPath.toString());
+        currentPath = new LocalMediaPath();
     }
 
     public boolean isViewingVideos(){
