@@ -135,34 +135,36 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
     }
 
     public void sort(MovieOrder order) {
-        movies.clear();
+        List<MovieInfo> tempList = new ArrayList<>();
         switch (order) {
             case DATE_ADDED:
-                movies.addAll(originalMovieList.stream()
+                tempList = movies.stream()
                         .sorted((movie1, movie2) -> movie2.getCreated().compareTo(movie1.getCreated()))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList());
                 break;
             case MOST_VIEWS:
-                movies.addAll(originalMovieList.stream()
+                tempList = movies.stream()
                         .sorted((movie1, movie2) -> Integer.valueOf(movie2.getViews()).compareTo(movie1.getViews()))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList());
                 break;
             case RATING:
-                movies.addAll(originalMovieList.stream()
+                tempList = movies.stream()
                         .sorted((movie1, movie2) -> Double.valueOf(movie2.getIMDBRating()).compareTo(Double.valueOf(movie1.getIMDBRating())))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList());
                 break;
             case RELEASE_YEAR:
-                movies.addAll(originalMovieList.stream()
+                tempList = movies.stream()
                         .sorted((movie1, movie2) -> movie2.getReleaseYear().compareTo(movie1.getReleaseYear()))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList());
                 break;
             case TITLE:
-                movies.addAll(originalMovieList.stream()
+                tempList = movies.stream()
                         .sorted((movie1, movie2) -> movie1.getTitle().compareTo(movie2.getTitle()))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList());
                 break;
         }
+        movies.clear();
+        movies.addAll(tempList);
         notifyDataSetChanged();
     }
 }
