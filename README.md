@@ -1,1 +1,1 @@
-See LocalMovies Repository for project explanation.
+Android client for LocalMovies server
