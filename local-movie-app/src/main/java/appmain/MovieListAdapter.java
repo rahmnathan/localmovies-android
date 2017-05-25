@@ -113,12 +113,13 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
             FilterResults filterResults = new FilterResults();
+            movies.clear();
             if (charSequence == null || charSequence.length() == 0) {
-                movies = originalMovieList;
+                movies.addAll(originalMovieList);
             } else {
-                movies = originalMovieList.stream()
+                movies.addAll(originalMovieList.stream()
                         .filter(movie-> movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase()))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
             }
             filterResults.values = movies;
             filterResults.count = movies.size();
@@ -134,31 +135,32 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
     }
 
     public void sort(MovieOrder order) {
+        movies.clear();
         switch (order) {
             case DATE_ADDED:
-                movies = originalMovieList.stream()
+                movies.addAll(originalMovieList.stream()
                         .sorted((movie1, movie2) -> movie2.getCreated().compareTo(movie1.getCreated()))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
                 break;
             case MOST_VIEWS:
-                movies = originalMovieList.stream()
+                movies.addAll(originalMovieList.stream()
                         .sorted((movie1, movie2) -> Integer.valueOf(movie2.getViews()).compareTo(movie1.getViews()))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
                 break;
             case RATING:
-                movies = originalMovieList.stream()
+                movies.addAll(originalMovieList.stream()
                         .sorted((movie1, movie2) -> Double.valueOf(movie2.getIMDBRating()).compareTo(Double.valueOf(movie1.getIMDBRating())))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
                 break;
             case RELEASE_YEAR:
-                movies = originalMovieList.stream()
+                movies.addAll(originalMovieList.stream()
                         .sorted((movie1, movie2) -> movie2.getReleaseYear().compareTo(movie1.getReleaseYear()))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
                 break;
             case TITLE:
-                movies = originalMovieList.stream()
+                movies.addAll(originalMovieList.stream()
                         .sorted((movie1, movie2) -> movie1.getTitle().compareTo(movie2.getTitle()))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()));
                 break;
         }
         notifyDataSetChanged();

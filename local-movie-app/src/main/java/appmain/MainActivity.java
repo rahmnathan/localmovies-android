@@ -68,22 +68,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, Setup.class));
         }
 
-        Button controls = (Button) findViewById(R.id.controls);
-        controls.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
-
-        Button series = (Button) findViewById(R.id.series);
-        series.setOnClickListener(view -> {
-            myClient.resetCurrentPath();
-            myClient.appendToCurrentPath("Series");
-            requestTitles();
-        });
-        Button movies = (Button) findViewById(R.id.movies);
-        movies.setOnClickListener(view -> {
-            myClient.resetCurrentPath();
-            myClient.appendToCurrentPath("Movies");
-            requestTitles();
-        });
-
         EditText searchText = (EditText) findViewById(R.id.searchText);
         searchText.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
@@ -95,6 +79,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable arg0) {
             }
+        });
+
+        Button controls = (Button) findViewById(R.id.controls);
+        controls.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
+
+        Button series = (Button) findViewById(R.id.series);
+        series.setOnClickListener(view -> {
+            myClient.resetCurrentPath();
+            searchText.setText("");
+            myClient.appendToCurrentPath("Series");
+            requestTitles();
+        });
+        Button movies = (Button) findViewById(R.id.movies);
+        movies.setOnClickListener(view -> {
+            myClient.resetCurrentPath();
+            searchText.setText("");
+            myClient.appendToCurrentPath("Movies");
+            requestTitles();
         });
 
         movieListView.setOnItemClickListener((parent, view, position, id) -> {
