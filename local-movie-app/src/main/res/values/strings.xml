@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">LocalMovies</string>
     <string name="action_settings">Settings</string>
+    <string name="action_sortByViews">Sort by views</string>
+    <string name="action_sortByAdded">Sort by date added</string>
+    <string name="action_sortByYear">Sort by year</string>
+    <string name="action_sortByTitle">Sort by title</string>
+    <string name="action_sortByRating">Sort by rating</string>
 </resources>

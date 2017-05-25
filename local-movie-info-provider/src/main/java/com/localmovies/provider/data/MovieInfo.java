@@ -1,6 +1,8 @@
 package com.localmovies.provider.data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Comparator;
 
 public class MovieInfo implements Serializable, Comparator<MovieInfo> {
@@ -9,13 +11,18 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
     private final String metaRating;
     private final String image;
     private final String releaseYear;
+    private Long created;
+    private int views;
 
-    private MovieInfo(String title, String IMDBRating, String metaRating, String image, String releaseYear) {
+    private MovieInfo(String title, String IMDBRating, String metaRating, String image, String releaseYear,
+                      Long created, int views) {
         this.title = title;
         this.IMDBRating = IMDBRating;
         this.metaRating = metaRating;
         this.image = image;
         this.releaseYear = releaseYear;
+        this.created = created;
+        this.views = views;
     }
 
     public String getReleaseYear(){
@@ -38,6 +45,14 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
         return image;
     }
 
+    public Long getCreated() {
+        return created;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
     @Override
     public String toString(){
         return title;
@@ -54,9 +69,21 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
         private String metaRating;
         private String image;
         private String releaseYear;
+        private long created;
+        private int views;
 
         public static Builder newInstance(){
             return new Builder();
+        }
+
+        public Builder setCreated(long created) {
+            this.created = created;
+            return this;
+        }
+
+        public Builder setViews(int views) {
+            this.views = views;
+            return this;
         }
 
         public Builder setTitle(String title) {
@@ -85,7 +112,7 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
         }
 
         public MovieInfo build(){
-            return new MovieInfo(title, IMDBRating, metaRating, image, releaseYear);
+            return new MovieInfo(title, IMDBRating, metaRating, image, releaseYear, created, views);
         }
     }
 }

@@ -193,6 +193,18 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_settings:
                 startActivity(new Intent(MainActivity.this, Setup.class));
                 break;
+            case R.id.action_sortByAdded:
+                movieListAdapter.sort(MovieOrder.DATE_ADDED);
+                break;
+            case R.id.action_sortByViews:
+                movieListAdapter.sort(MovieOrder.MOST_VIEWS);
+                break;
+            case R.id.action_sortByYear:
+                movieListAdapter.sort(MovieOrder.RELEASE_YEAR);
+                break;
+            case R.id.action_sortByRating:
+                movieListAdapter.sort(MovieOrder.RATING);
+                break;
         }
         return true;
     }

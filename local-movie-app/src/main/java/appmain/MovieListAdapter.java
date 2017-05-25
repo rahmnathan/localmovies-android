@@ -3,6 +3,8 @@ package appmain;
 import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.view.Gravity;
@@ -28,6 +30,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
     private List<MovieInfo> movies;
     private final List<MovieInfo> originalMovieList;
     private AdapterFilter adapterFilter;
+
 
     MovieListAdapter(Activity context, List<MovieInfo> movies) {
         super(context, R.layout.my_adapter, movies);
@@ -118,5 +121,31 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
             movies = (List<MovieInfo>) filterResults.values;
             notifyDataSetChanged();
         }
+    }
+
+    public void sort(MovieOrder order) {
+        switch (order) {
+            case DATE_ADDED:
+                movies = originalMovieList.stream()
+                        .sorted((movie1, movie2) -> movie2.getCreated().compareTo(movie1.getCreated()))
+                        .collect(Collectors.toList());
+                break;
+            case MOST_VIEWS:
+                movies = originalMovieList.stream()
+                        .sorted((movie1, movie2) -> Integer.valueOf(movie2.getViews()).compareTo(movie1.getViews()))
+                        .collect(Collectors.toList());
+                break;
+            case RATING:
+                movies = originalMovieList.stream()
+                        .sorted((movie1, movie2) -> Double.valueOf(movie2.getIMDBRating()).compareTo(Double.valueOf(movie1.getIMDBRating())))
+                        .collect(Collectors.toList());
+                break;
+            case RELEASE_YEAR:
+                movies = originalMovieList.stream()
+                        .sorted((movie1, movie2) -> movie2.getReleaseYear().compareTo(movie1.getReleaseYear()))
+                        .collect(Collectors.toList());
+                break;
+        }
+        notifyDataSetChanged();
     }
 }

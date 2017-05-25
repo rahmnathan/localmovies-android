@@ -2,7 +2,10 @@ package com.localmovies.provider.control;
 
 import com.localmovies.provider.data.MovieInfo;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -23,10 +26,13 @@ class JSONtoMovieInfoMapper {
 
             try {
                 builder.setImage(object.getString("image"));
-            } catch (Exception e){
-                e.printStackTrace();
-                builder.setImage(null);
-            }
+            } catch (Exception e){}
+            try {
+                builder.setCreated(Long.valueOf(object.getString("created")));
+            } catch (Exception e){}
+            try {
+                builder.setViews(Integer.valueOf(object.getString("views")));
+            } catch (Exception e){}
 
             movieInfoList.add(builder.build());
         }
