@@ -145,6 +145,11 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
                         .sorted((movie1, movie2) -> movie2.getReleaseYear().compareTo(movie1.getReleaseYear()))
                         .collect(Collectors.toList());
                 break;
+            case TITLE:
+                movies = originalMovieList.stream()
+                        .sorted((movie1, movie2) -> movie1.getTitle().compareTo(movie2.getTitle()))
+                        .collect(Collectors.toList());
+                break;
         }
         notifyDataSetChanged();
     }

@@ -18,6 +18,11 @@
         android:title="@string/action_sortByRating"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_sortByTitle"
+        android:orderInCategory="100"
+        android:title="@string/action_sortByTitle"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_sortByViews"
         android:orderInCategory="100"
         android:title="@string/action_sortByViews"

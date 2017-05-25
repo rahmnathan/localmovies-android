@@ -205,6 +205,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_sortByRating:
                 movieListAdapter.sort(MovieOrder.RATING);
                 break;
+            case R.id.action_sortByTitle:
+                movieListAdapter.sort(MovieOrder.TITLE);
+                break;
         }
         return true;
     }
