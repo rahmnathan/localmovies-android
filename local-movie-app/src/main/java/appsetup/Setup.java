@@ -85,7 +85,7 @@ public class Setup extends Activity {
         }
     }
 
-    public Client getPhoneInfo() {
+    private Client getPhoneInfo() {
         Client client = new Client();
         try {
             ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"));

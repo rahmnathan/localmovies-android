@@ -1,7 +1,6 @@
 package com.localmovies.client;
 
 import java.util.ArrayDeque;
-import java.util.Arrays;
 
 public class LocalMediaPath extends ArrayDeque<String> {
 

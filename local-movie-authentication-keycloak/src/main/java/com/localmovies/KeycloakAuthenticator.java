@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 public class KeycloakAuthenticator implements Runnable {
     private final Logger logger = Logger.getLogger(KeycloakAuthenticator.class.getName());
-    private Client client;
+    private final Client client;
 
     public KeycloakAuthenticator(Client client){
         this.client = client;
@@ -27,7 +27,7 @@ public class KeycloakAuthenticator implements Runnable {
         updateAccessToken();
     }
 
-    public void updateAccessToken(){
+    void updateAccessToken(){
         String urlString = "https://" + client.getComputerIP() + ":8445/auth/realms/Demo/protocol/openid-connect/token";
 
         byte[] loginInfo = buildLoginInfo(client);

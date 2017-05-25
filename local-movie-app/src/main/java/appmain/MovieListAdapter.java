@@ -3,8 +3,6 @@ package appmain;
 import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.view.Gravity;
@@ -29,7 +27,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
 
     private final Activity context;
     private List<MovieInfo> movies;
-    private List<MovieInfo> originalMovieList;
+    private final List<MovieInfo> originalMovieList;
     private AdapterFilter adapterFilter;
 
     MovieListAdapter(Activity context, List<MovieInfo> movieInfoList) {

@@ -1,8 +1,6 @@
 package com.localmovies.provider.data;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.Calendar;
 import java.util.Comparator;
 
 public class MovieInfo implements Serializable, Comparator<MovieInfo> {
@@ -11,8 +9,8 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
     private final String metaRating;
     private final String image;
     private final String releaseYear;
-    private Long created;
-    private int views;
+    private final Long created;
+    private final int views;
 
     private MovieInfo(String title, String IMDBRating, String metaRating, String image, String releaseYear,
                       Long created, int views) {
