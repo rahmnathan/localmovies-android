@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.localmovies.provider.data.MovieInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,15 +29,14 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
 
     private final Activity context;
     private List<MovieInfo> movies;
-    private final List<MovieInfo> originalMovieList;
+    private List<MovieInfo> originalMovieList;
     private AdapterFilter adapterFilter;
 
-
-    MovieListAdapter(Activity context, List<MovieInfo> movies) {
-        super(context, R.layout.my_adapter, movies);
+    MovieListAdapter(Activity context, List<MovieInfo> movieInfoList) {
+        super(context, R.layout.my_adapter, movieInfoList);
         this.context = context;
-        this.movies = movies;
-        this.originalMovieList = movies;
+        this.movies = movieInfoList;
+        originalMovieList = new ArrayList<>();
     }
 
     @NonNull
@@ -87,6 +87,16 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         } else {
             return adapterFilter;
         }
+    }
+
+    void clearLists(){
+        movies.clear();
+        originalMovieList.clear();
+    }
+
+    void updateList(List<MovieInfo> movieInfoList){
+        this.movies.addAll(movieInfoList);
+        this.originalMovieList.addAll(movieInfoList);
     }
 
     String getTitle(int position){

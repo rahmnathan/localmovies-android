@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 
 class MovieInfoLoader implements Runnable {
     private final Client client;
-    private final List<MovieInfo> movieInfoList;
     private final ProgressBar progressBar;
     private final MovieListAdapter movieListAdapter;
     private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache;
@@ -29,13 +28,11 @@ class MovieInfoLoader implements Runnable {
     private final Context context;
 
     MovieInfoLoader(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
-                    List<MovieInfo> movieInfoList, ConcurrentMap<String, List<MovieInfo>> movieInfoCache,
-                    Context context){
+                    ConcurrentMap<String, List<MovieInfo>> movieInfoCache, Context context){
         this.movieInfoCache = movieInfoCache;
         this.client = myClient;
         this.movieListAdapter = movieListAdapter;
         this.progressBar = progressBar;
-        this.movieInfoList = movieInfoList;
         this.context = context;
     }
 
@@ -47,12 +44,12 @@ class MovieInfoLoader implements Runnable {
         }
         int itemsPerPage = 30;
         UIHandler.post(() -> progressBar.setVisibility(View.VISIBLE));
-        movieInfoList.clear();
+        movieListAdapter.clearLists();
         List<MovieInfo> movieInfos = new ArrayList<>();
         int i = 0;
         do {
             List<MovieInfo> infoList = movieInfoFacade.getMovieInfo(client, i, itemsPerPage);
-            movieInfoList.addAll(infoList);
+            movieListAdapter.updateList(infoList);
             movieInfos.addAll(infoList);
             UIHandler.post(movieListAdapter::notifyDataSetChanged);
             i++;

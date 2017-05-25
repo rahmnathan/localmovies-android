@@ -40,7 +40,6 @@ import appsetup.Setup;
 public class MainActivity extends AppCompatActivity {
     private MovieListAdapter movieListAdapter;
     private Client myClient;
-    private List<MovieInfo> movieInfoList;
     private ProgressBar progressBar;
     private CastContext castContext;
     private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache = new ConcurrentHashMap<>();
@@ -51,13 +50,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         castContext = CastContext.getSharedInstance(this);
-        movieInfoList = new ArrayList<>();
 
         // Getting phone info and Triggering initial request of titles from server
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
-        movieListAdapter = new MovieListAdapter(this, movieInfoList);
+        movieListAdapter = new MovieListAdapter(this, new ArrayList<>());
         GridView movieListView = (GridView) findViewById(R.id.gridView);
         movieListView.setAdapter(movieListAdapter);
 
@@ -155,12 +153,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void requestTitles(){
         if(movieInfoCache.containsKey(myClient.getCurrentPath().toString())){
-            movieInfoList.clear();
-            movieInfoList.addAll(movieInfoCache.get(myClient.getCurrentPath().toString()));
+            movieListAdapter.clearLists();
+            movieListAdapter.updateList(movieInfoCache.get(myClient.getCurrentPath().toString()));
             movieListAdapter.notifyDataSetChanged();
         }else {
-            executorService.submit(new MovieInfoLoader(progressBar, movieListAdapter, myClient, movieInfoList,
-                    movieInfoCache, this));
+            executorService.submit(new MovieInfoLoader(progressBar, movieListAdapter, myClient, movieInfoCache, this));
         }
     }
 
