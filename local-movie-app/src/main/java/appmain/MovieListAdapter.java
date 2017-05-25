@@ -113,16 +113,18 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
             FilterResults filterResults = new FilterResults();
-            movies.clear();
-            if (charSequence == null || charSequence.length() == 0) {
-                movies.addAll(originalMovieList);
-            } else {
-                movies.addAll(originalMovieList.stream()
-                        .filter(movie-> movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase()))
-                        .collect(Collectors.toList()));
+            if(movies != null) {
+                movies.clear();
+                if (charSequence == null || charSequence.length() == 0) {
+                    movies.addAll(originalMovieList);
+                } else {
+                    movies.addAll(originalMovieList.stream()
+                            .filter(movie -> movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase()))
+                            .collect(Collectors.toList()));
+                }
+                filterResults.values = movies;
+                filterResults.count = movies.size();
             }
-            filterResults.values = movies;
-            filterResults.count = movies.size();
             return filterResults;
         }
 
