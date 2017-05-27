@@ -116,11 +116,11 @@ public class MainActivity extends AppCompatActivity {
 
                 MediaMetadata metaData = new MediaMetadata();
                 metaData.addImage(new WebImage(Uri.parse("https://" + myClient.getComputerIP()
-                        + ":8443/poster?access_token=" + myClient.getAccessToken() + "&path="
+                        + "/movie-api/v1/poster?access_token=" + myClient.getAccessToken() + "&path="
                         + posterPath + "&title=" + title)));
 
                 metaData.putString(MediaMetadata.KEY_TITLE, title.substring(0, title.length() - 4));
-                String url = "https://" + myClient.getComputerIP() + ":8443/video.mp4?access_token="
+                String url = "https://" + myClient.getComputerIP() + "/movie-api/v1/video.mp4?access_token="
                         + myClient.getAccessToken() + "&path=" + myClient.getVideoPath();
                 MediaInfo mediaInfo = new MediaInfo.Builder(url)
                         .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
