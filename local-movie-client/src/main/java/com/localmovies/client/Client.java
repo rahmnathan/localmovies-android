@@ -13,7 +13,7 @@ public class Client implements Serializable {
     private Integer movieCount;
 
     public boolean isViewingEpisodes(){
-        return getCurrentPath().toString().toLowerCase().contains("season");
+        return currentPath.size() == 3;
     }
 
     public boolean isViewingMovies(){
