@@ -49,12 +49,16 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         TextView year = (TextView) rowView.findViewById(R.id.year);
         TextView ratings = (TextView) rowView.findViewById(R.id.rating);
 
+        if(movies.size() <= position)
+            return new View(context);
         MovieInfo movie = movies.get(position);
         String currentTitle = movie.getTitle();
 
         if (currentTitle.contains("."))
             currentTitle = currentTitle.substring(0, currentTitle.length() - 4);
 
+        if(txtTitle == null)
+            return new View(context);
         txtTitle.setText(currentTitle);
         txtTitle.setGravity(Gravity.CENTER);
         txtTitle.setTextColor(Color.WHITE);
