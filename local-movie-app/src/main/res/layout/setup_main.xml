@@ -6,6 +6,24 @@
     android:background="@android:color/background_dark">
 
     <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="URL"
+        android:textAlignment="center"
+        android:textAppearance="@android:style/TextAppearance.Material.Medium"
+        android:textColor="@color/cast_expanded_controller_text_color" />
+
+    <EditText
+        android:id="@+id/url"
+        android:layout_width="291dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:ems="10"
+        android:inputType="textUri"
+        android:textColor="#ffff" />
+
+    <TextView
         android:text="Username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

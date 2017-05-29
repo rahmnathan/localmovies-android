@@ -5,12 +5,14 @@ import java.io.Serializable;
 public class Client implements Serializable {
     private final LocalMediaPath mainPath = new LocalMediaPath();
     private LocalMediaPath currentPath = mainPath;
-    private final String computerIP = "localmovies.hopto.org";
+    private String computerUrl = "https://localmovies.hopto.org";
     private String userName;
     private String password;
     private String videoPath;
     private String accessToken;
     private Integer movieCount;
+
+
 
     public boolean isViewingEpisodes(){
         return currentPath.size() == 3;
@@ -72,8 +74,12 @@ public class Client implements Serializable {
         this.password = password;
     }
 
-    public String getComputerIP() {
-        return computerIP;
+    public String getComputerUrl() {
+        return computerUrl;
+    }
+
+    public void setComputerUrl(String computerUrl){
+        this.computerUrl = computerUrl;
     }
 
     public String getVideoPath() {

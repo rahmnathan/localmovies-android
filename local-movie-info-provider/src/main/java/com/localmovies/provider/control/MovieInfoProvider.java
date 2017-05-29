@@ -26,7 +26,7 @@ public class MovieInfoProvider {
     }
 
     private JSONArray getMovieInfoJson(Client client, int page, int resultsPerPage){
-        String restRequest = "https://" + client.getComputerIP() + "/movie-api/v1/titlerequest?access_token="
+        String restRequest = client.getComputerUrl() + "/movie-api/v1/titlerequest?access_token="
                 + client.getAccessToken() + "&page=" + page + "&resultsPerPage=" + resultsPerPage
                 + "&path=" + client.getCurrentPath().toString().replace(" ", "%20");
         try {

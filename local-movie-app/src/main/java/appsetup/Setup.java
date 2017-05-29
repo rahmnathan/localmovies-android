@@ -25,6 +25,7 @@ public class Setup extends Activity {
     private Client client;
     private EditText userName;
     private EditText password;
+    private EditText url;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static final String[] PERMISSIONS_STORAGE = {
@@ -46,6 +47,8 @@ public class Setup extends Activity {
         userName.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
         password = (EditText) findViewById(R.id.password);
         password.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
+        url = (EditText) findViewById(R.id.url);
+        url.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
 
         // Populating our textfields with our saved data if it exists
         client = getPhoneInfo();
@@ -54,20 +57,21 @@ public class Setup extends Activity {
         try {
             userName.setText(client.getUserName());
             password.setText(client.getPassword());
+            url.setText(client.getComputerUrl());
         } catch (NullPointerException e){
             e.printStackTrace();
         }
 
         Button set = (Button) findViewById(R.id.set);
         set.setOnClickListener(view -> {
-                saveData(userName.getText().toString(), password.getText().toString());
+                saveData(userName.getText().toString(), password.getText().toString(), url.getText().toString());
 
                 startActivity(new Intent(Setup.this, MainActivity.class));
 
             });
     }
 
-    private void saveData(String userName, String password){
+    private void saveData(String userName, String password, String computerUrl){
         try {
             File setupFile = new File(this.getFilesDir(), "setup.txt");
             if (!setupFile.exists())
@@ -75,6 +79,7 @@ public class Setup extends Activity {
 
             client.setUserName(userName);
             client.setPassword(password);
+            client.setComputerUrl(computerUrl);
             ObjectOutputStream os = new ObjectOutputStream(openFileOutput("setup.txt", MODE_PRIVATE));
             os.writeObject(client);
             os.close();
