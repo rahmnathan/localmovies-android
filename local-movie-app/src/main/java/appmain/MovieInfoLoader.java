@@ -53,6 +53,9 @@ class MovieInfoLoader implements Runnable {
             movieInfos.addAll(infoList);
             UIHandler.post(movieListAdapter::notifyDataSetChanged);
             i++;
+            if(!movieListAdapter.getChars().equals("")){
+                UIHandler.post(() -> movieListAdapter.getFilter().filter(movieListAdapter.getChars()));
+            }
         } while (i <= (client.getMovieCount() / itemsPerPage));
 
         UIHandler.post(() -> progressBar.setVisibility(View.GONE));

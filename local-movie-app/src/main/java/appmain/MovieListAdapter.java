@@ -29,6 +29,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
     private List<MovieInfo> movies;
     private final List<MovieInfo> originalMovieList;
     private AdapterFilter adapterFilter;
+    private CharSequence chars = "";
 
     MovieListAdapter(Activity context, List<MovieInfo> movieInfoList) {
         super(context, R.layout.my_adapter, movieInfoList);
@@ -97,6 +98,10 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         this.originalMovieList.addAll(movieInfoList);
     }
 
+    public CharSequence getChars() {
+        return chars;
+    }
+
     String getTitle(int position){
         return movies.get(position).toString();
     }
@@ -110,6 +115,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
 
         @Override
         protected FilterResults performFiltering(CharSequence charSequence) {
+            chars = charSequence;
             FilterResults filterResults = new FilterResults();
             if(movies != null) {
                 movies.clear();
