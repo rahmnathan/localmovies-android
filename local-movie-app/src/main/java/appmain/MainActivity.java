@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
         movieListAdapter = new MovieListAdapter(this, new ArrayList<>());
-        GridView movieListView = (GridView) findViewById(R.id.gridView);
-        movieListView.setAdapter(movieListAdapter);
+        GridView movieGridView = (GridView) findViewById(R.id.gridView);
+        movieGridView.setAdapter(movieListAdapter);
 
         try {
             myClient = getPhoneInfo();
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
             requestTitles();
         });
 
-        movieListView.setOnItemClickListener((parent, view, position, id) -> {
+        movieGridView.setOnItemClickListener((parent, view, position, id) -> {
             String title = movieListAdapter.getTitle(position);
 
             if (myClient.isViewingVideos()) {
