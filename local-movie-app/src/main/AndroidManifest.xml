@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="appmain.MainActivity"
+            android:name="com.github.rahmnathan.localmovies.app.main.MainActivity"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:label="@string/app_name">
             <intent-filter>
@@ -25,7 +25,7 @@
         </activity>
 
         <activity
-            android:name="appmain.ExpandedControlActivity"
+            android:name="com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:theme="@style/Theme.AppCompat.NoActionBar"
@@ -35,23 +35,23 @@
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="appmain.MainActivity"/>
+                android:value="com.github.rahmnathan.localmovies.app.main.MainActivity"/>
         </activity>
 
         <activity
-            android:name="appsetup.Setup"
+            android:name="com.github.rahmnathan.localmovies.app.setup.Setup"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
         <activity
-            android:name="appmain.VideoPlayer"
+            android:name="com.github.rahmnathan.localmovies.app.video.player.VideoPlayer"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
         </activity>
 
         <meta-data
             android:name=
                 "com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="appmain.CastOptionsProvider" />
+            android:value="com.github.rahmnathan.localmovies.app.google.cast.config.CastOptionsProvider" />
     </application>
 
 </manifest>
