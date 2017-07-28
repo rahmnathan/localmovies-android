@@ -28,7 +28,7 @@ public class KeycloakAuthenticator implements Runnable {
     }
 
     void updateAccessToken(){
-        String urlString = client.getComputerUrl() + "/auth/realms/Demo/protocol/openid-connect/token";
+        String urlString = client.getComputerUrl() + "/auth/realms/LocalMovies/protocol/openid-connect/token";
 
         byte[] loginInfo = buildLoginInfo(client);
         try {

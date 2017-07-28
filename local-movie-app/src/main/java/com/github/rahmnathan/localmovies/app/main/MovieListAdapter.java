@@ -106,6 +106,10 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         return chars;
     }
 
+    public List<MovieInfo> getOriginalMovieList() {
+        return originalMovieList;
+    }
+
     String getTitle(int position){
         return movies.get(position).toString();
     }

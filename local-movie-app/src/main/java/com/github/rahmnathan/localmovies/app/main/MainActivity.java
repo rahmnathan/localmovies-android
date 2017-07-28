@@ -3,6 +3,7 @@ package com.github.rahmnathan.localmovies.app.main;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,6 +20,7 @@ import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlA
 import com.github.rahmnathan.localmovies.app.video.player.VideoPlayer;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
@@ -111,10 +113,45 @@ public class MainActivity extends AppCompatActivity {
                 updateAccessToken();
                 myClient.setVideoPath(myClient.getCurrentPath() + title);
                 String posterPath;
-                if (myClient.isViewingEpisodes())
+                MediaQueueItem[] queueItems = null;
+                if (myClient.isViewingEpisodes()) {
+                    System.out.println("Viewing episodes ---- ");
                     posterPath = myClient.getCurrentPath().toString();
-                else
+                    List<MediaQueueItem> mediaQueueItems = new ArrayList<>();
+                    movieListAdapter.getOriginalMovieList().forEach(movieInfo -> {
+                        System.out.println("Comparing -- " + title + " -- to --" + movieInfo.getTitle());
+                        if(movieInfo.getTitle().equals(title) || movieInfo.getTitle().compareTo(title) > 0){
+                            MediaMetadata metaData = new MediaMetadata();
+                            metaData.addImage(new WebImage(Uri.parse(myClient.getComputerUrl()
+                                    + "/movie-api/v1/poster?access_token=" + myClient.getAccessToken() + "&path="
+                                    + posterPath + "&title=" + movieInfo.getTitle())));
+
+                            metaData.putString(MediaMetadata.KEY_TITLE, movieInfo.getTitle().substring(0, movieInfo.getTitle().length() - 4));
+                            String url = myClient.getComputerUrl() + "/movie-api/v1/video.mp4?access_token="
+                                    + myClient.getAccessToken() + "&path=" + myClient.getCurrentPath() + movieInfo.getTitle();
+                            MediaInfo mediaInfo = new MediaInfo.Builder(url)
+                                    .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+                                    .setContentType("videos/mp4")
+                                    .setMetadata(metaData)
+                                    .build();
+                            MediaQueueItem queueItem = new MediaQueueItem.Builder(mediaInfo)
+                                    .setAutoplay(true)
+                                    .setPreloadTime(20)
+                                    .build();
+                            mediaQueueItems.add(queueItem);
+                            System.out.println("ADDED QUEUE - " + movieInfo.getTitle());
+                        }
+                    });
+                    queueItems = new MediaQueueItem[mediaQueueItems.size()];
+                    int i = 0;
+                    for(MediaQueueItem item : mediaQueueItems){
+                        queueItems[i] = item;
+                        i++;
+                    }
+                }
+                else {
                     posterPath = myClient.getVideoPath();
+                }
 
                 MediaMetadata metaData = new MediaMetadata();
                 metaData.addImage(new WebImage(Uri.parse(myClient.getComputerUrl()
@@ -133,7 +170,12 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     CastSession session = castContext.getSessionManager().getCurrentCastSession();
                     RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
-                    remoteMediaClient.load(mediaInfo);
+                    if(queueItems != null){
+                        System.out.println("LOADING QUEUE ------- ");
+                        remoteMediaClient.queueLoad(queueItems, 0, 0, null);
+                    } else {
+                        remoteMediaClient.load(mediaInfo);
+                    }
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Intent intent = new Intent(MainActivity.this, VideoPlayer.class);
