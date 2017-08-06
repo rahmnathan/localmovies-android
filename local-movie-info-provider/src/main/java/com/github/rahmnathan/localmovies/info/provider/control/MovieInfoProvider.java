@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -26,10 +28,10 @@ public class MovieInfoProvider {
     }
 
     private JSONArray getMovieInfoJson(Client client, int page, int resultsPerPage){
-        String restRequest = client.getComputerUrl() + "/movie-api/v1/titlerequest?access_token="
-                + client.getAccessToken() + "&page=" + page + "&resultsPerPage=" + resultsPerPage
-                + "&path=" + client.getCurrentPath().toString().replace(" ", "%20");
         try {
+            String restRequest = client.getComputerUrl() + "/movie-api/v1/titlerequest?access_token="
+                    + client.getAccessToken() + "&page=" + page + "&resultsPerPage=" + resultsPerPage
+                    + "&path=" + URLEncoder.encode(client.getCurrentPath().toString(), StandardCharsets.UTF_8.name());
             HttpURLConnection connection = (HttpURLConnection) (new URL(restRequest)).openConnection();
             if (page == 0)
                 client.setMovieCount(Integer.valueOf(connection.getHeaderField("Count")));

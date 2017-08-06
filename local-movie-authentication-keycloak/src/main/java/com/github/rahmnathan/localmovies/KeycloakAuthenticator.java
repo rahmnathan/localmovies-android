@@ -28,6 +28,7 @@ public class KeycloakAuthenticator implements Runnable {
     }
 
     void updateAccessToken(){
+        logger.info("Logging in");
         String urlString = client.getComputerUrl() + "/auth/realms/LocalMovies/protocol/openid-connect/token";
 
         byte[] loginInfo = buildLoginInfo(client);
@@ -49,7 +50,7 @@ public class KeycloakAuthenticator implements Runnable {
             connection.disconnect();
             client.setAccessToken(new JSONObject(result.toString()).getString("access_token"));
         } catch (Exception e){
-            logger.info(e.toString());
+            logger.severe(e.toString());
         }
     }
 
@@ -65,7 +66,7 @@ public class KeycloakAuthenticator implements Runnable {
                 sb.append(URLEncoder.encode(entry.getKey(), "UTF-8")).append("=")
                         .append(URLEncoder.encode(entry.getValue(), "UTF-8")).append("&");
             } catch (UnsupportedEncodingException e){
-                logger.info(e.toString());
+                logger.severe(e.toString());
             }
         });
 

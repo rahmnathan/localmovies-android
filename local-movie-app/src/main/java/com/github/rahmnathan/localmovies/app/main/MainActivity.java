@@ -31,12 +31,16 @@ import com.github.rahmnathan.localmovies.client.Client;
 import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
 
 import java.io.ObjectInputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import rahmnathan.localmovies.R;
 import com.github.rahmnathan.localmovies.app.setup.Setup;
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private Client myClient;
     private ProgressBar progressBar;
     private CastContext castContext;
+    private final Logger logger = Logger.getLogger(MainActivity.class.getName());
     private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache = new ConcurrentHashMap<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -115,20 +120,18 @@ public class MainActivity extends AppCompatActivity {
                 String posterPath;
                 MediaQueueItem[] queueItems = null;
                 if (myClient.isViewingEpisodes()) {
-                    System.out.println("Viewing episodes ---- ");
                     posterPath = myClient.getCurrentPath().toString();
                     List<MediaQueueItem> mediaQueueItems = new ArrayList<>();
                     movieListAdapter.getOriginalMovieList().forEach(movieInfo -> {
-                        System.out.println("Comparing -- " + title + " -- to --" + movieInfo.getTitle());
                         if(movieInfo.getTitle().equals(title) || movieInfo.getTitle().compareTo(title) > 0){
                             MediaMetadata metaData = new MediaMetadata();
                             metaData.addImage(new WebImage(Uri.parse(myClient.getComputerUrl()
                                     + "/movie-api/v1/poster?access_token=" + myClient.getAccessToken() + "&path="
-                                    + posterPath + "&title=" + movieInfo.getTitle())));
+                                    + encodeParameter(posterPath) + "&title=" + encodeParameter(movieInfo.getTitle()))));
 
                             metaData.putString(MediaMetadata.KEY_TITLE, movieInfo.getTitle().substring(0, movieInfo.getTitle().length() - 4));
                             String url = myClient.getComputerUrl() + "/movie-api/v1/video.mp4?access_token="
-                                    + myClient.getAccessToken() + "&path=" + myClient.getCurrentPath() + movieInfo.getTitle();
+                                    + myClient.getAccessToken() + "&path=" + encodeParameter(myClient.getCurrentPath() + movieInfo.getTitle());
                             MediaInfo mediaInfo = new MediaInfo.Builder(url)
                                     .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                                     .setContentType("videos/mp4")
@@ -139,7 +142,6 @@ public class MainActivity extends AppCompatActivity {
                                     .setPreloadTime(20)
                                     .build();
                             mediaQueueItems.add(queueItem);
-                            System.out.println("ADDED QUEUE - " + movieInfo.getTitle());
                         }
                     });
                     queueItems = new MediaQueueItem[mediaQueueItems.size()];
@@ -156,11 +158,12 @@ public class MainActivity extends AppCompatActivity {
                 MediaMetadata metaData = new MediaMetadata();
                 metaData.addImage(new WebImage(Uri.parse(myClient.getComputerUrl()
                         + "/movie-api/v1/poster?access_token=" + myClient.getAccessToken() + "&path="
-                        + posterPath + "&title=" + title)));
+                        + encodeParameter(posterPath) + "&title=" + encodeParameter(title))));
 
                 metaData.putString(MediaMetadata.KEY_TITLE, title.substring(0, title.length() - 4));
                 String url = myClient.getComputerUrl() + "/movie-api/v1/video.mp4?access_token="
-                        + myClient.getAccessToken() + "&path=" + myClient.getVideoPath();
+                        + myClient.getAccessToken() + "&path=" + encodeParameter(myClient.getVideoPath());
+
                 MediaInfo mediaInfo = new MediaInfo.Builder(url)
                         .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                         .setContentType("videos/mp4")
@@ -171,13 +174,13 @@ public class MainActivity extends AppCompatActivity {
                     CastSession session = castContext.getSessionManager().getCurrentCastSession();
                     RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
                     if(queueItems != null){
-                        System.out.println("LOADING QUEUE ------- ");
                         remoteMediaClient.queueLoad(queueItems, 0, 0, null);
                     } else {
                         remoteMediaClient.load(mediaInfo);
                     }
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
+                    logger.severe(e.toString());
                     Intent intent = new Intent(MainActivity.this, VideoPlayer.class);
                     intent.putExtra("url", url);
                     startActivity(intent);
@@ -187,6 +190,15 @@ public class MainActivity extends AppCompatActivity {
                 requestTitles();
             }
         });
+    }
+
+    private String encodeParameter(String parameter) {
+        try{
+            return URLEncoder.encode(parameter, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e){
+            logger.severe(e.toString());
+            return "";
+        }
     }
 
     private Client getPhoneInfo() throws Exception {
