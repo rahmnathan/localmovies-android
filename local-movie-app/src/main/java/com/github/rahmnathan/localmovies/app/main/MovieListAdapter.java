@@ -163,7 +163,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
                 break;
             case RATING:
                 tempList = movies.stream()
-                        .sorted((movie1, movie2) -> Double.valueOf(movie2.getIMDBRating()).compareTo(Double.valueOf(movie1.getIMDBRating())))
+                        .sorted((movie1, movie2) -> String.valueOf(movie2.getIMDBRating()).compareTo(String.valueOf(movie1.getIMDBRating())))
                         .collect(Collectors.toList());
                 break;
             case RELEASE_YEAR:
