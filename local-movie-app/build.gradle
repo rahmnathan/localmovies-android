@@ -37,5 +37,5 @@ dependencies {
     compile project(path: ':local-movie-info-provider')
     compile project(path: ':local-movie-authentication-keycloak')
     compile 'com.android.support:mediarouter-v7:25.3.1'
-    compile 'com.google.android.gms:play-services-cast-framework:10.2.6'
+    compile 'com.google.android.gms:play-services-cast-framework:11.0.4'
 }
