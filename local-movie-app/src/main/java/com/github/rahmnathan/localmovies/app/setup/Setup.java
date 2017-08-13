@@ -16,7 +16,6 @@ import com.github.rahmnathan.localmovies.client.Client;
 import com.github.rahmnathan.localmovies.app.main.MainActivity;
 import rahmnathan.localmovies.R;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -60,9 +59,9 @@ public class Setup extends Activity {
         });
     }
 
-    private void saveData(String userName, String password, String url){
+    private void saveData(String userName, String password, String url) {
         Client client = new Client(url, userName, password);
-        try(ObjectOutputStream os = new ObjectOutputStream(openFileOutput("setup.txt", MODE_PRIVATE))){
+        try (ObjectOutputStream os = new ObjectOutputStream(openFileOutput("setup.txt", MODE_PRIVATE))) {
             os.writeObject(client);
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
@@ -71,7 +70,7 @@ public class Setup extends Activity {
     }
 
     private Client getPhoneInfo() {
-        try(ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"))){
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"))) {
             return (Client) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             logger.severe(e.toString());

@@ -1,9 +1,7 @@
 package com.github.rahmnathan.localmovies.app.main;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,22 +17,18 @@ import android.widget.Toast;
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
 import com.github.rahmnathan.localmovies.app.google.cast.control.CastControl;
 import com.github.rahmnathan.localmovies.app.video.player.VideoPlayer;
-import com.google.android.gms.cast.MediaInfo;
-import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
-import com.google.android.gms.common.images.WebImage;
 import com.github.rahmnathan.localmovies.KeycloakAuthenticator;
 import com.github.rahmnathan.localmovies.client.Client;
 import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,8 +65,9 @@ public class MainActivity extends AppCompatActivity {
         try {
             myClient = getPhoneInfo();
             myClient.appendToCurrentPath("Movies");
-            updateAccessToken(false);
-            requestTitles();
+            Toast.makeText(this, "Logging in", Toast.LENGTH_SHORT).show();
+            executorService.submit(new KeycloakAuthenticator(myClient));
+            getVideos();
         } catch (Exception e) {
             startActivity(new Intent(MainActivity.this, Setup.class));
         }
@@ -82,9 +77,11 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 movieListAdapter.getFilter().filter(cs);
             }
+
             @Override
             public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
             }
+
             @Override
             public void afterTextChanged(Editable arg0) {
             }
@@ -98,37 +95,34 @@ public class MainActivity extends AppCompatActivity {
             myClient.resetCurrentPath();
             searchText.setText("");
             myClient.appendToCurrentPath("Series");
-            requestTitles();
+            getVideos();
         });
         Button movies = (Button) findViewById(R.id.movies);
         movies.setOnClickListener(view -> {
             myClient.resetCurrentPath();
             searchText.setText("");
             myClient.appendToCurrentPath("Movies");
-            requestTitles();
+            getVideos();
         });
 
         movieGridView.setOnItemClickListener((parent, view, position, id) -> {
             String title = movieListAdapter.getTitle(position);
             String posterPath;
             List<String> titles = new ArrayList<>();
-
             if (myClient.isViewingVideos()) {
-                //If we're viewing movies or episodes we refresh our key and start the movie
-                updateAccessToken(true);
-                myClient.setVideoPath(myClient.getCurrentPath() + title);
+                // If we're viewing movies or episodes we refresh our key and start the movie
+                executorService.submit(new KeycloakAuthenticator(myClient));
                 if (myClient.isViewingEpisodes()) {
+                    // If we're playing episodes, we queue up the rest of the season
                     posterPath = myClient.getCurrentPath().toString();
                     movieListAdapter.getOriginalMovieList().forEach(movieInfo -> {
-                        if(movieInfo.getTitle().equals(title) ||
-                                Integer.valueOf(movieInfo.getTitle().split(" ")[1].split("\\.")[0])
-                                        .compareTo(Integer.valueOf(title.split(" ")[1].split("\\.")[0])) > 0){
+                        if (getEpisodeNumber(movieInfo.getTitle()).compareTo(getEpisodeNumber(title)) > 0
+                                || movieInfo.getTitle().equals(title)) {
                             titles.add(movieInfo.getTitle());
                         }
                     });
-                }
-                else {
-                    posterPath = myClient.getVideoPath();
+                } else {
+                    posterPath = myClient.getCurrentPath() + title;
                     titles.add(title);
                 }
 
@@ -148,34 +142,33 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 myClient.appendToCurrentPath(title);
-                requestTitles();
+                getVideos();
             }
         });
     }
 
-    private Client getPhoneInfo() throws Exception {
-        ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"));
-        Client client = (Client) objectInputStream.readObject();
-        objectInputStream.close();
-        client.resetCurrentPath();
-        return client;
+    private Client getPhoneInfo() {
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"))) {
+            Client client = (Client) objectInputStream.readObject();
+            client.resetCurrentPath();
+            return client;
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException();
+        }
     }
 
-    private void requestTitles(){
-        if(movieInfoCache.containsKey(myClient.getCurrentPath().toString())){
+    private void getVideos() {
+        if (movieInfoCache.containsKey(myClient.getCurrentPath().toString())) {
             movieListAdapter.clearLists();
             movieListAdapter.updateList(movieInfoCache.get(myClient.getCurrentPath().toString()));
             movieListAdapter.notifyDataSetChanged();
-        }else {
+        } else {
             executorService.submit(new MovieInfoLoader(progressBar, movieListAdapter, myClient, movieInfoCache, this));
         }
     }
 
-    private void updateAccessToken(boolean quiet){
-        if(!quiet)
-            Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
-
-        executorService.submit(new KeycloakAuthenticator(myClient));
+    private Integer getEpisodeNumber(String title) {
+        return Integer.valueOf(title.split(" ")[1].split("\\.")[0]);
     }
 
     @Override
@@ -185,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
             System.exit(8);
 
         myClient.popOneDirectory();
-        requestTitles();
+        getVideos();
     }
 
     @Override
@@ -197,8 +190,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch (item.getItemId()){
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
             case R.id.action_settings:
                 startActivity(new Intent(MainActivity.this, Setup.class));
                 break;

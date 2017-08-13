@@ -23,19 +23,19 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
         this.views = views;
     }
 
-    public String getReleaseYear(){
+    public String getReleaseYear() {
         return releaseYear;
     }
 
-    public String getTitle(){
+    public String getTitle() {
         return title;
     }
 
-    public String getIMDBRating(){
+    public String getIMDBRating() {
         return IMDBRating;
     }
 
-    public String getMetaRating(){
+    public String getMetaRating() {
         return metaRating;
     }
 
@@ -52,12 +52,12 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return title;
     }
 
     @Override
-    public int compare(MovieInfo info1, MovieInfo info2){
+    public int compare(MovieInfo info1, MovieInfo info2) {
         return info1.getTitle().compareTo(info2.getTitle());
     }
 
@@ -70,7 +70,7 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
         private long created;
         private int views;
 
-        public static Builder newInstance(){
+        public static Builder newInstance() {
             return new Builder();
         }
 
@@ -109,7 +109,7 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
             return this;
         }
 
-        public MovieInfo build(){
+        public MovieInfo build() {
             return new MovieInfo(title, IMDBRating, metaRating, image, releaseYear, created, views);
         }
     }

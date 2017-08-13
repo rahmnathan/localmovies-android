@@ -15,7 +15,7 @@ public class VideoPlayer extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.video_player);
 
-        VideoView videoView = (VideoView)findViewById(R.id.VideoView);
+        VideoView videoView = (VideoView) findViewById(R.id.VideoView);
         MediaController mediaController = new MediaController(this);
         mediaController.setAnchorView(videoView);
         videoView.setMediaController(mediaController);

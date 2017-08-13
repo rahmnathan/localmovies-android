@@ -49,7 +49,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         TextView year = (TextView) rowView.findViewById(R.id.year);
         TextView ratings = (TextView) rowView.findViewById(R.id.rating);
 
-        if(movies.size() <= position)
+        if (movies.size() <= position)
             return new View(context);
         MovieInfo movie = movies.get(position);
         String currentTitle = movie.getTitle();
@@ -57,7 +57,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         if (currentTitle.contains("."))
             currentTitle = currentTitle.substring(0, currentTitle.length() - 4);
 
-        if(txtTitle == null)
+        if (txtTitle == null)
             return new View(context);
         txtTitle.setText(currentTitle);
         txtTitle.setGravity(Gravity.CENTER);
@@ -92,12 +92,12 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         }
     }
 
-    void clearLists(){
+    void clearLists() {
         movies.clear();
         originalMovieList.clear();
     }
 
-    void updateList(List<MovieInfo> movieInfoList){
+    void updateList(List<MovieInfo> movieInfoList) {
         this.movies.addAll(movieInfoList);
         this.originalMovieList.addAll(movieInfoList);
     }
@@ -110,7 +110,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         return originalMovieList;
     }
 
-    String getTitle(int position){
+    String getTitle(int position) {
         return movies.get(position).toString();
     }
 
@@ -125,7 +125,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         protected FilterResults performFiltering(CharSequence charSequence) {
             chars = charSequence;
             FilterResults filterResults = new FilterResults();
-            if(movies != null) {
+            if (movies != null) {
                 movies.clear();
                 if (charSequence == null || charSequence.length() == 0) {
                     movies.addAll(originalMovieList);

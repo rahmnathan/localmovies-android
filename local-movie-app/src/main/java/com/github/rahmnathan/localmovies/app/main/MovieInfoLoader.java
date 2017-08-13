@@ -28,7 +28,7 @@ class MovieInfoLoader implements Runnable {
     private final Context context;
 
     MovieInfoLoader(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
-                    ConcurrentMap<String, List<MovieInfo>> movieInfoCache, Context context){
+                    ConcurrentMap<String, List<MovieInfo>> movieInfoCache, Context context) {
         this.movieInfoCache = movieInfoCache;
         this.client = myClient;
         this.movieListAdapter = movieListAdapter;
@@ -45,20 +45,20 @@ class MovieInfoLoader implements Runnable {
         int itemsPerPage = 30;
         UIHandler.post(() -> progressBar.setVisibility(View.VISIBLE));
         movieListAdapter.clearLists();
-        List<MovieInfo> movieInfos = new ArrayList<>();
+        List<MovieInfo> movieInfoList = new ArrayList<>();
         int i = 0;
         do {
             List<MovieInfo> infoList = movieInfoFacade.getMovieInfo(client, i, itemsPerPage);
             movieListAdapter.updateList(infoList);
-            movieInfos.addAll(infoList);
+            movieInfoList.addAll(infoList);
             UIHandler.post(movieListAdapter::notifyDataSetChanged);
             i++;
-            if(!movieListAdapter.getChars().equals("")){
+            if (!movieListAdapter.getChars().equals("")) {
                 UIHandler.post(() -> movieListAdapter.getFilter().filter(movieListAdapter.getChars()));
             }
         } while (i <= (client.getMovieCount() / itemsPerPage));
 
         UIHandler.post(() -> progressBar.setVisibility(View.GONE));
-        movieInfoCache.putIfAbsent(client.getCurrentPath().toString(), movieInfos);
+        movieInfoCache.putIfAbsent(client.getCurrentPath().toString(), movieInfoList);
     }
 }

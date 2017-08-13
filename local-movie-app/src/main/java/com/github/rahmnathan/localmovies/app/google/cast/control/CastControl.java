@@ -7,6 +7,7 @@ import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.common.images.WebImage;
+import com.google.common.net.MediaType;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -32,7 +33,7 @@ public class CastControl {
                     + myClient.getAccessToken() + "&path=" + encodeParameter(myClient.getCurrentPath() + title);
             MediaInfo mediaInfo = new MediaInfo.Builder(url)
                     .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                    .setContentType("videos/mp4")
+                    .setContentType(MediaType.MP4_VIDEO.toString())
                     .setMetadata(metaData)
                     .build();
             MediaQueueItem queueItem = new MediaQueueItem.Builder(mediaInfo)
@@ -50,9 +51,9 @@ public class CastControl {
     }
 
     private static String encodeParameter(String parameter) {
-        try{
+        try {
             return URLEncoder.encode(parameter, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e){
+        } catch (UnsupportedEncodingException e) {
             logger.severe(e.toString());
             return "";
         }

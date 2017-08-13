@@ -10,10 +10,9 @@ import org.json.JSONObject;
 
 class JSONtoMovieInfoMapper {
 
-    List<MovieInfo> jsonArrayToMovieInfoList(JSONArray jsonList) {
+    static List<MovieInfo> jsonArrayToMovieInfoList(JSONArray jsonList) {
         List<MovieInfo> movieInfoList = new ArrayList<>();
-
-        for(int i = 0; i<jsonList.length(); i++) {
+        for (int i = 0; i < jsonList.length(); i++) {
             JSONObject object = jsonList.getJSONObject(i);
             MovieInfo.Builder builder = MovieInfo.Builder.newInstance()
                     .setReleaseYear(object.getString("releaseYear"))
@@ -23,9 +22,8 @@ class JSONtoMovieInfoMapper {
                     .setCreated(object.getLong("dateCreated"))
                     .setViews(object.getInt("views"));
 
-            try {
+            if(object.has("image"))
                 builder.setImage(object.getString("image"));
-            } catch (Exception e){}
 
             movieInfoList.add(builder.build());
         }

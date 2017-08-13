@@ -14,7 +14,6 @@ import java.util.List;
 public class CastOptionsProvider implements OptionsProvider {
     @Override
     public CastOptions getCastOptions(Context appContext) {
-
         NotificationOptions notificationOptions = new NotificationOptions.Builder()
                 .setTargetActivityClassName(ExpandedControlActivity.class.getName())
                 .build();
