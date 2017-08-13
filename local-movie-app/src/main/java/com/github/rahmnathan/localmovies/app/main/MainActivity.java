@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
             String posterPath;
             List<String> titles = new ArrayList<>();
             if (myClient.isViewingVideos()) {
-                // If we're viewing movies or episodes we refresh our key and start the movie
+                // If we're viewing movies or episodes we refresh our token and start the video
                 executorService.submit(new KeycloakAuthenticator(myClient));
                 if (myClient.isViewingEpisodes()) {
                     // If we're playing episodes, we queue up the rest of the season
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Client getPhoneInfo() {
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"))) {
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup"))) {
             Client client = (Client) objectInputStream.readObject();
             client.resetCurrentPath();
             return client;

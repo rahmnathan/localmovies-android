@@ -61,7 +61,7 @@ public class Setup extends Activity {
 
     private void saveData(String userName, String password, String url) {
         Client client = new Client(url, userName, password);
-        try (ObjectOutputStream os = new ObjectOutputStream(openFileOutput("setup.txt", MODE_PRIVATE))) {
+        try (ObjectOutputStream os = new ObjectOutputStream(openFileOutput("setup", MODE_PRIVATE))) {
             os.writeObject(client);
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
@@ -70,7 +70,7 @@ public class Setup extends Activity {
     }
 
     private Client getPhoneInfo() {
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup.txt"))) {
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup"))) {
             return (Client) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             logger.severe(e.toString());
