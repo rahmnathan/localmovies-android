@@ -16,9 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class CastControl {
-
-    private static final Logger logger = Logger.getLogger(CastControl.class.getName());
+public class GoogleCastUtils {
+    private static final Logger logger = Logger.getLogger(GoogleCastUtils.class.getName());
 
     public static MediaQueueItem[] assembleMediaQueue(List<String> titles, String posterPath, Client myClient) {
         List<MediaQueueItem> mediaQueueItems = new ArrayList<>();

@@ -15,7 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
-import com.github.rahmnathan.localmovies.app.google.cast.control.CastControl;
+import com.github.rahmnathan.localmovies.app.google.cast.control.GoogleCastUtils;
 import com.github.rahmnathan.localmovies.app.video.player.VideoPlayer;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastButtonFactory;
@@ -26,7 +26,6 @@ import com.github.rahmnathan.localmovies.KeycloakAuthenticator;
 import com.github.rahmnathan.localmovies.client.Client;
 import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -126,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                     titles.add(title);
                 }
 
-                MediaQueueItem[] queueItems = CastControl.assembleMediaQueue(titles, posterPath, myClient);
+                MediaQueueItem[] queueItems = GoogleCastUtils.assembleMediaQueue(titles, posterPath, myClient);
 
                 try {
                     CastSession session = castContext.getSessionManager().getCurrentCastSession();

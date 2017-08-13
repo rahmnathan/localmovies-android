@@ -25,7 +25,7 @@ public class Client implements Serializable {
     }
 
     private boolean isViewingMovies(){
-        return getCurrentPath().toString().toLowerCase().contains("movies");
+        return currentPath.toString().toLowerCase().contains("movies");
     }
 
     public void resetCurrentPath(){
