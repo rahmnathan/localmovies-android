@@ -6,4 +6,5 @@
     <string name="action_sortByYear">Sort by year</string>
     <string name="action_sortByTitle">Sort by title</string>
     <string name="action_sortByRating">Sort by rating</string>
+    <string name="action_history">Show History</string>
 </resources>

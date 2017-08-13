@@ -148,6 +148,12 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         }
     }
 
+    public void display(List<MovieInfo> movieInfoList){
+        movies.clear();
+        movies.addAll(movieInfoList);
+        notifyDataSetChanged();
+    }
+
     public void sort(MovieOrder order) {
         List<MovieInfo> tempList = new ArrayList<>();
         switch (order) {

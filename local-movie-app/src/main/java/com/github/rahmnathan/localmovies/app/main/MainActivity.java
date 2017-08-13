@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
 import com.github.rahmnathan.localmovies.app.google.cast.control.GoogleCastUtils;
+import com.github.rahmnathan.localmovies.app.history.MovieHistory;
 import com.github.rahmnathan.localmovies.app.video.player.VideoPlayer;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastButtonFactory;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private Client myClient;
     private ProgressBar progressBar;
     private CastContext castContext;
+    private MovieHistory movieHistory;
     private final Logger logger = Logger.getLogger(MainActivity.class.getName());
     private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache = new ConcurrentHashMap<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -53,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         castContext = CastContext.getSharedInstance(this);
+        movieHistory = new MovieHistory(this);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
         movieListAdapter = new MovieListAdapter(this, new ArrayList<>());
@@ -109,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
             String posterPath;
             List<String> titles = new ArrayList<>();
             if (myClient.isViewingVideos()) {
+                movieHistory.addHistoryItem(movieListAdapter.getItem(position));
                 // If we're viewing movies or episodes we refresh our token and start the video
                 executorService.submit(new KeycloakAuthenticator(myClient));
                 if (myClient.isViewingEpisodes()) {
@@ -208,6 +212,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.action_sortByTitle:
                 movieListAdapter.sort(MovieOrder.TITLE);
+                break;
+            case R.id.action_history:
+                movieListAdapter.display(movieHistory.getHistoryList());
                 break;
         }
         return true;
