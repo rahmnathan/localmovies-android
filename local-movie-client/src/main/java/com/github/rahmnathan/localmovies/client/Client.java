@@ -12,6 +12,15 @@ public class Client implements Serializable {
     private String accessToken;
     private Integer movieCount;
 
+    public Client(String computerUrl, String userName, String password) {
+        this.computerUrl = computerUrl;
+        this.userName = userName;
+        this.password = password;
+    }
+
+    public Client() {
+    }
+
     public boolean isViewingEpisodes(){
         return currentPath.size() == 3;
     }

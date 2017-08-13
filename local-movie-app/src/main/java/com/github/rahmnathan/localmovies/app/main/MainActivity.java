@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
+import com.github.rahmnathan.localmovies.app.google.cast.control.CastControl;
 import com.github.rahmnathan.localmovies.app.video.player.VideoPlayer;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
@@ -59,19 +60,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         castContext = CastContext.getSharedInstance(this);
-
-        // Getting phone info and Triggering initial request of titles from server
-
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
         movieListAdapter = new MovieListAdapter(this, new ArrayList<>());
         GridView movieGridView = (GridView) findViewById(R.id.gridView);
         movieGridView.setAdapter(movieListAdapter);
 
+        // Getting phone info and Triggering initial request of titles from server
+
         try {
             myClient = getPhoneInfo();
             myClient.appendToCurrentPath("Movies");
-            updateAccessToken();
+            updateAccessToken(false);
             requestTitles();
         } catch (Exception e) {
             startActivity(new Intent(MainActivity.this, Setup.class));
@@ -110,78 +110,39 @@ public class MainActivity extends AppCompatActivity {
 
         movieGridView.setOnItemClickListener((parent, view, position, id) -> {
             String title = movieListAdapter.getTitle(position);
+            String posterPath;
+            List<String> titles = new ArrayList<>();
 
             if (myClient.isViewingVideos()) {
-                    /*
-                     If we're viewing movies or episodes we refresh our key and start the movie
-                   */
-                updateAccessToken();
+                //If we're viewing movies or episodes we refresh our key and start the movie
+                updateAccessToken(true);
                 myClient.setVideoPath(myClient.getCurrentPath() + title);
-                String posterPath;
-                MediaQueueItem[] queueItems = null;
                 if (myClient.isViewingEpisodes()) {
                     posterPath = myClient.getCurrentPath().toString();
-                    List<MediaQueueItem> mediaQueueItems = new ArrayList<>();
                     movieListAdapter.getOriginalMovieList().forEach(movieInfo -> {
-                        if(movieInfo.getTitle().equals(title) || movieInfo.getTitle().compareTo(title) > 0){
-                            MediaMetadata metaData = new MediaMetadata();
-                            metaData.addImage(new WebImage(Uri.parse(myClient.getComputerUrl()
-                                    + "/movie-api/v1/poster?access_token=" + myClient.getAccessToken() + "&path="
-                                    + encodeParameter(posterPath) + "&title=" + encodeParameter(movieInfo.getTitle()))));
-
-                            metaData.putString(MediaMetadata.KEY_TITLE, movieInfo.getTitle().substring(0, movieInfo.getTitle().length() - 4));
-                            String url = myClient.getComputerUrl() + "/movie-api/v1/video.mp4?access_token="
-                                    + myClient.getAccessToken() + "&path=" + encodeParameter(myClient.getCurrentPath() + movieInfo.getTitle());
-                            MediaInfo mediaInfo = new MediaInfo.Builder(url)
-                                    .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                                    .setContentType("videos/mp4")
-                                    .setMetadata(metaData)
-                                    .build();
-                            MediaQueueItem queueItem = new MediaQueueItem.Builder(mediaInfo)
-                                    .setAutoplay(true)
-                                    .setPreloadTime(20)
-                                    .build();
-                            mediaQueueItems.add(queueItem);
+                        if(movieInfo.getTitle().equals(title) ||
+                                Integer.valueOf(movieInfo.getTitle().split(" ")[1].split("\\.")[0])
+                                        .compareTo(Integer.valueOf(title.split(" ")[1].split("\\.")[0])) > 0){
+                            titles.add(movieInfo.getTitle());
                         }
                     });
-                    queueItems = new MediaQueueItem[mediaQueueItems.size()];
-                    int i = 0;
-                    for(MediaQueueItem item : mediaQueueItems){
-                        queueItems[i] = item;
-                        i++;
-                    }
                 }
                 else {
                     posterPath = myClient.getVideoPath();
+                    titles.add(title);
                 }
 
-                MediaMetadata metaData = new MediaMetadata();
-                metaData.addImage(new WebImage(Uri.parse(myClient.getComputerUrl()
-                        + "/movie-api/v1/poster?access_token=" + myClient.getAccessToken() + "&path="
-                        + encodeParameter(posterPath) + "&title=" + encodeParameter(title))));
-
-                metaData.putString(MediaMetadata.KEY_TITLE, title.substring(0, title.length() - 4));
-                String url = myClient.getComputerUrl() + "/movie-api/v1/video.mp4?access_token="
-                        + myClient.getAccessToken() + "&path=" + encodeParameter(myClient.getVideoPath());
-
-                MediaInfo mediaInfo = new MediaInfo.Builder(url)
-                        .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                        .setContentType("videos/mp4")
-                        .setMetadata(metaData)
-                        .build();
+                MediaQueueItem[] queueItems = CastControl.assembleMediaQueue(titles, posterPath, myClient);
 
                 try {
                     CastSession session = castContext.getSessionManager().getCurrentCastSession();
                     RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
-                    if(queueItems != null){
-                        remoteMediaClient.queueLoad(queueItems, 0, 0, null);
-                    } else {
-                        remoteMediaClient.load(mediaInfo);
-                    }
+                    remoteMediaClient.queueLoad(queueItems, 0, 0, null);
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     logger.severe(e.toString());
                     Intent intent = new Intent(MainActivity.this, VideoPlayer.class);
+                    String url = queueItems[0].getMedia().getContentId();
                     intent.putExtra("url", url);
                     startActivity(intent);
                 }
@@ -190,15 +151,6 @@ public class MainActivity extends AppCompatActivity {
                 requestTitles();
             }
         });
-    }
-
-    private String encodeParameter(String parameter) {
-        try{
-            return URLEncoder.encode(parameter, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e){
-            logger.severe(e.toString());
-            return "";
-        }
     }
 
     private Client getPhoneInfo() throws Exception {
@@ -219,8 +171,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updateAccessToken(){
-        Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
+    private void updateAccessToken(boolean quiet){
+        if(!quiet)
+            Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
+
         executorService.submit(new KeycloakAuthenticator(myClient));
     }
 
