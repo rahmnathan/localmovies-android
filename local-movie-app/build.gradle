@@ -28,6 +28,7 @@ android {
 }
 
 repositories {
+    jcenter()
     mavenCentral()
 }
 
