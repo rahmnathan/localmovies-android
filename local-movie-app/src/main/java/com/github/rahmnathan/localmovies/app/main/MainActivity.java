@@ -214,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
                 movieListAdapter.sort(MovieOrder.TITLE);
                 break;
             case R.id.action_history:
+                myClient.resetCurrentPath();
+                myClient.appendToCurrentPath("Movies");
                 movieListAdapter.display(movieHistory.getHistoryList());
                 break;
         }
