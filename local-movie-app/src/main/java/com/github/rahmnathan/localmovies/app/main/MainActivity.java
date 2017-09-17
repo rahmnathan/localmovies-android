@@ -229,6 +229,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.genre_thriller:
                 filterGenre(MovieGenre.THRILLER);
                 break;
+            case R.id.genre_fantasy:
+                filterGenre(MovieGenre.FANTASY);
+                break;
             case R.id.action_history:
                 myClient.resetCurrentPath();
                 myClient.appendToCurrentPath("Movies");

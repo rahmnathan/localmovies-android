@@ -52,6 +52,11 @@
                 android:title="@string/genre_comedy"
                 app:showAsAction="never" />
             <item
+                android:id="@+id/genre_fantasy"
+                android:orderInCategory="100"
+                android:title="@string/genre_fantasy"
+                app:showAsAction="never" />
+            <item
                 android:id="@+id/genre_horror"
                 android:orderInCategory="100"
                 android:title="@string/genre_horror"

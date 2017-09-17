@@ -5,7 +5,8 @@ public enum MovieGenre {
     SCIFI("sci-fi"),
     HORROR("horror"),
     COMEDY("comedy"),
-    THRILLER("thriller");
+    THRILLER("thriller"),
+    FANTASY("fantasy");
 
     private final String formattedName;
 

@@ -14,4 +14,5 @@
     <string name="genre_horror">Horror</string>
     <string name="action_genre">Genre</string>
     <string name="genre_thriller">Thriller</string>
+    <string name="genre_fantasy">Fantasy</string>
 </resources>
