@@ -60,6 +60,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         if (txtTitle == null)
             return new View(context);
         txtTitle.setText(currentTitle);
+        txtTitle.setTextSize(17);
         txtTitle.setGravity(Gravity.CENTER);
         txtTitle.setTextColor(Color.WHITE);
 
@@ -73,8 +74,10 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
 
         year.setTextColor(Color.WHITE);
         year.setGravity(Gravity.CENTER);
+        year.setTextSize(12);
         ratings.setGravity(Gravity.CENTER);
         ratings.setTextColor(Color.WHITE);
+        ratings.setTextSize(12);
         year.setText(String.format("Release Year: %s", movie.getReleaseYear()));
         ratings.setText(String.format("IMDB: %s Meta: %s", movie.getIMDBRating(), movie.getMetaRating()));
 
