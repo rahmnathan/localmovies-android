@@ -20,10 +20,9 @@ class JSONtoMovieInfoMapper {
                     .setIMDBRating(json.getString("imdbrating"))
                     .setTitle(json.getString("title"))
                     .setCreated(json.getLong("dateCreated"))
-                    .setViews(json.getInt("views"));
-
-            if(json.has("image"))
-                builder.setImage(json.getString("image"));
+                    .setGenre(json.getString("genre"))
+                    .setViews(json.getInt("views"))
+                    .setImage(json.getString("image"));
 
             movieInfoList.add(builder.build());
         }

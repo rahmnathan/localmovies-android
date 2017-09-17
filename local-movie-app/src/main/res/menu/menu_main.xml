@@ -3,51 +3,84 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.github.rahmnathan.localmovies.app.main.MainActivity">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_history"
-        android:orderInCategory="100"
-        android:title="@string/action_history"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/action_sort"
         android:orderInCategory="100"
         android:title="@string/action_sort"
         app:showAsAction="never" >
         <menu>
             <item
-                android:id="@+id/action_sortByAdded"
+                android:id="@+id/order_date_added"
                 android:orderInCategory="100"
-                android:title="@string/action_sortByAdded"
+                android:title="@string/order_date_added"
                 app:showAsAction="never" />
             <item
-                android:id="@+id/action_sortByRating"
+                android:id="@+id/order_rating"
                 android:orderInCategory="100"
-                android:title="@string/action_sortByRating"
+                android:title="@string/order_rating"
                 app:showAsAction="never" />
             <item
-                android:id="@+id/action_sortByTitle"
+                android:id="@+id/order_title"
                 android:orderInCategory="100"
-                android:title="@string/action_sortByTitle"
+                android:title="@string/order_title"
                 app:showAsAction="never" />
             <item
-                android:id="@+id/action_sortByViews"
+                android:id="@+id/order_views"
                 android:orderInCategory="100"
-                android:title="@string/action_sortByViews"
+                android:title="@string/order_views"
                 app:showAsAction="never" />
             <item
-                android:id="@+id/action_sortByYear"
+                android:id="@+id/order_year"
                 android:orderInCategory="100"
-                android:title="@string/action_sortByYear"
+                android:title="@string/order_year"
                 app:showAsAction="never" />
         </menu>
     </item>
     <item
+        android:id="@+id/action_genre"
+        android:orderInCategory="100"
+        android:title="@string/action_genre"
+        app:showAsAction="never" >
+        <menu>
+            <item
+                android:id="@+id/action_action"
+                android:orderInCategory="100"
+                android:title="@string/action_action"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/genre_comedy"
+                android:orderInCategory="100"
+                android:title="@string/genre_comedy"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/genre_horror"
+                android:orderInCategory="100"
+                android:title="@string/genre_horror"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/genre_sciFi"
+                android:orderInCategory="100"
+                android:title="@string/genre_sciFi"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/genre_thriller"
+                android:orderInCategory="100"
+                android:title="@string/genre_thriller"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/action_history"
+        android:orderInCategory="100"
+        android:title="@string/action_history"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/media_route_menu_item"
         android:title="@string/app_name"
         app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 </menu>

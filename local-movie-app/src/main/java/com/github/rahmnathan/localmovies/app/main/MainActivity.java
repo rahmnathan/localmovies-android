@@ -42,6 +42,7 @@ import com.github.rahmnathan.localmovies.app.setup.Setup;
 
 public class MainActivity extends AppCompatActivity {
     private MovieListAdapter movieListAdapter;
+    private GridView gridView;
     private Client myClient;
     private ProgressBar progressBar;
     private CastContext castContext;
@@ -57,10 +58,9 @@ public class MainActivity extends AppCompatActivity {
         castContext = CastContext.getSharedInstance(this);
         movieHistory = new MovieHistory(this);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.INVISIBLE);
         movieListAdapter = new MovieListAdapter(this, new ArrayList<>());
-        GridView movieGridView = (GridView) findViewById(R.id.gridView);
-        movieGridView.setAdapter(movieListAdapter);
+        gridView = (GridView) findViewById(R.id.gridView);
+        gridView.setAdapter(movieListAdapter);
 
         // Getting phone info and Triggering initial request of titles from server
 
@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         searchText.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 movieListAdapter.getFilter().filter(cs);
+                gridView.smoothScrollToPosition(0);
             }
 
             @Override
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             getVideos();
         });
 
-        movieGridView.setOnItemClickListener((parent, view, position, id) -> {
+        gridView.setOnItemClickListener((parent, view, position, id) -> {
             String title = movieListAdapter.getTitle(position);
             String posterPath;
             List<String> titles = new ArrayList<>();
@@ -198,20 +199,35 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_settings:
                 startActivity(new Intent(MainActivity.this, Setup.class));
                 break;
-            case R.id.action_sortByAdded:
-                movieListAdapter.sort(MovieOrder.DATE_ADDED);
+            case R.id.order_date_added:
+                sort(MovieOrder.DATE_ADDED);
                 break;
-            case R.id.action_sortByViews:
-                movieListAdapter.sort(MovieOrder.MOST_VIEWS);
+            case R.id.order_views:
+                sort(MovieOrder.MOST_VIEWS);
                 break;
-            case R.id.action_sortByYear:
-                movieListAdapter.sort(MovieOrder.RELEASE_YEAR);
+            case R.id.order_year:
+                sort(MovieOrder.RELEASE_YEAR);
                 break;
-            case R.id.action_sortByRating:
-                movieListAdapter.sort(MovieOrder.RATING);
+            case R.id.order_rating:
+                sort(MovieOrder.RATING);
                 break;
-            case R.id.action_sortByTitle:
-                movieListAdapter.sort(MovieOrder.TITLE);
+            case R.id.order_title:
+                sort(MovieOrder.TITLE);
+                break;
+            case R.id.genre_comedy:
+                filterGenre(MovieGenre.COMEDY);
+                break;
+            case R.id.action_action:
+                filterGenre(MovieGenre.ACTION);
+                break;
+            case R.id.genre_sciFi:
+                filterGenre(MovieGenre.SCIFI);
+                break;
+            case R.id.genre_horror:
+                filterGenre(MovieGenre.HORROR);
+                break;
+            case R.id.genre_thriller:
+                filterGenre(MovieGenre.THRILLER);
                 break;
             case R.id.action_history:
                 myClient.resetCurrentPath();
@@ -220,5 +236,15 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    private void sort(MovieOrder order){
+        movieListAdapter.sort(order);
+        gridView.smoothScrollToPosition(0);
+    }
+
+    private void filterGenre(MovieGenre genre){
+        movieListAdapter.filterGenre(genre);
+        gridView.smoothScrollToPosition(0);
     }
 }

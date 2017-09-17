@@ -44,10 +44,10 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         if (rowView == null)
             rowView = inflater.inflate(R.layout.my_adapter, parent, false);
 
-        TextView txtTitle = (TextView) rowView.findViewById(R.id.textView);
-        ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
-        TextView year = (TextView) rowView.findViewById(R.id.year);
-        TextView ratings = (TextView) rowView.findViewById(R.id.rating);
+        TextView txtTitle = rowView.findViewById(R.id.textView);
+        ImageView imageView = rowView.findViewById(R.id.imageView);
+        TextView year = rowView.findViewById(R.id.year);
+        TextView ratings = rowView.findViewById(R.id.rating);
 
         if (movies.size() <= position)
             return new View(context);
@@ -90,6 +90,15 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         } else {
             return adapterFilter;
         }
+    }
+
+    void filterGenre(MovieGenre genre){
+        List<MovieInfo> filteredList = originalMovieList.stream()
+                .sorted((movie1, movie2) -> movie1.getTitle().compareTo(movie2.getTitle()))
+                .filter(movieInfo -> movieInfo.getGenre().toLowerCase().contains(genre.getFormattedName()))
+                .collect(Collectors.toList());
+
+        display(filteredList);
     }
 
     void clearLists() {

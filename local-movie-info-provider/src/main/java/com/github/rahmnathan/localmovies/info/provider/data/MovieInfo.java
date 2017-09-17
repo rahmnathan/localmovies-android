@@ -9,11 +9,12 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
     private final String metaRating;
     private final String image;
     private final String releaseYear;
+    private final String genre;
     private final Long created;
     private final int views;
 
     private MovieInfo(String title, String IMDBRating, String metaRating, String image, String releaseYear,
-                      Long created, int views) {
+                      Long created, int views, String genre) {
         this.title = title;
         this.IMDBRating = IMDBRating;
         this.metaRating = metaRating;
@@ -21,6 +22,11 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
         this.releaseYear = releaseYear;
         this.created = created;
         this.views = views;
+        this.genre = genre;
+    }
+
+    public String getGenre() {
+        return genre;
     }
 
     public String getReleaseYear() {
@@ -67,11 +73,18 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
         private String metaRating;
         private String image;
         private String releaseYear;
+        private String genre = "";
         private long created;
         private int views;
 
         public static Builder newInstance() {
             return new Builder();
+        }
+
+        public Builder setGenre(String genre) {
+            if(genre != null)
+                this.genre = genre.toLowerCase();
+            return this;
         }
 
         public Builder setCreated(long created) {
@@ -110,7 +123,7 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
         }
 
         public MovieInfo build() {
-            return new MovieInfo(title, IMDBRating, metaRating, image, releaseYear, created, views);
+            return new MovieInfo(title, IMDBRating, metaRating, image, releaseYear, created, views, genre);
         }
     }
 }
