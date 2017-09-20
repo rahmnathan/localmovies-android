@@ -7,8 +7,8 @@ android {
         applicationId "rahm.nathan.localmovies"
         minSdkVersion 24
         targetSdkVersion 26
-        versionName '1.1.9'
-        versionCode 21
+        versionName '1.1.10'
+        versionCode 22
         jackOptions {
             enabled true
         }

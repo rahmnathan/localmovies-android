@@ -13,16 +13,19 @@ class JSONtoMovieInfoMapper {
     static List<MovieInfo> jsonArrayToMovieInfoList(JSONArray jsonList) {
         List<MovieInfo> movieInfoList = new ArrayList<>();
         for (int i = 0; i < jsonList.length(); i++) {
-            JSONObject json = jsonList.getJSONObject(i);
+            JSONObject mediaFile = jsonList.getJSONObject(i);
             MovieInfo.Builder builder = MovieInfo.Builder.newInstance()
-                    .setReleaseYear(json.getString("releaseYear"))
-                    .setMetaRating(json.getString("metaRating"))
-                    .setIMDBRating(json.getString("imdbrating"))
-                    .setTitle(json.getString("title"))
-                    .setCreated(json.getLong("dateCreated"))
-                    .setGenre(json.getString("genre"))
-                    .setViews(json.getInt("views"))
-                    .setImage(json.getString("image"));
+                    .setCreated(mediaFile.getLong("dateCreated"))
+                    .setViews(mediaFile.getInt("views"));
+
+            JSONObject movieInfo = mediaFile.getJSONObject("movieInfo");
+
+            builder.setReleaseYear(movieInfo.getString("releaseYear"))
+                    .setMetaRating(movieInfo.getString("metaRating"))
+                    .setIMDBRating(movieInfo.getString("imdbrating"))
+                    .setTitle(movieInfo.getString("title"))
+                    .setGenre(movieInfo.getString("genre"))
+                    .setImage(movieInfo.getString("image"));
 
             movieInfoList.add(builder.build());
         }
