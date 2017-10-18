@@ -23,8 +23,7 @@ public class LocalMovieFirebaseMessageService extends FirebaseMessagingService {
                         .setContentTitle(remoteMessage.getNotification().getTitle())
                         .setContentText(remoteMessage.getNotification().getBody())
                         .setPriority(NotificationCompat.PRIORITY_MAX)
-                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                        .setContentText("Hello World!");
+                        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
