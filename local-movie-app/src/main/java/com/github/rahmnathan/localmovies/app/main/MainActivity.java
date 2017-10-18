@@ -39,6 +39,7 @@ import java.util.logging.Logger;
 
 import rahmnathan.localmovies.R;
 import com.github.rahmnathan.localmovies.app.setup.Setup;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 public class MainActivity extends AppCompatActivity {
     private MovieListAdapter movieListAdapter;
@@ -57,10 +58,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         castContext = CastContext.getSharedInstance(this);
         movieHistory = new MovieHistory(this);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
         movieListAdapter = new MovieListAdapter(this, new ArrayList<>());
-        gridView = (GridView) findViewById(R.id.gridView);
+        gridView = findViewById(R.id.gridView);
         gridView.setAdapter(movieListAdapter);
+
+        logger.info("ABCDEFG " + FirebaseInstanceId.getInstance().getToken());
 
         // Getting phone info and Triggering initial request of titles from server
 
@@ -74,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, Setup.class));
         }
 
-        EditText searchText = (EditText) findViewById(R.id.searchText);
+        EditText searchText = findViewById(R.id.searchText);
         searchText.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
                 movieListAdapter.getFilter().filter(cs);
@@ -90,17 +93,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button controls = (Button) findViewById(R.id.controls);
+        Button controls = findViewById(R.id.controls);
         controls.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
 
-        Button series = (Button) findViewById(R.id.series);
+        Button series = findViewById(R.id.series);
         series.setOnClickListener(view -> {
             myClient.resetCurrentPath();
             searchText.setText("");
             myClient.appendToCurrentPath("Series");
             getVideos();
         });
-        Button movies = (Button) findViewById(R.id.movies);
+        Button movies = findViewById(R.id.movies);
         movies.setOnClickListener(view -> {
             myClient.resetCurrentPath();
             searchText.setText("");
