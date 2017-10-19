@@ -12,8 +12,8 @@ public class MovieInfoFacade {
     private final MovieInfoProvider movieInfoProvider = new MovieInfoProvider();
     private final Logger logger = Logger.getLogger(MovieInfoFacade.class.getName());
 
-    public List<MovieInfo> getMovieInfo(Client myClient, int page, int resultsPerPage, String pushToken) {
+    public List<MovieInfo> getMovieInfo(Client myClient, int page, int resultsPerPage, String pushToken, String deviceId) {
         logger.log(Level.INFO, "Requesting movies");
-        return movieInfoProvider.getMovieInfo(myClient, page, resultsPerPage, pushToken);
+        return movieInfoProvider.getMovieInfo(myClient, page, resultsPerPage, pushToken, deviceId);
     }
 }

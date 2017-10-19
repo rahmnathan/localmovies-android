@@ -3,6 +3,7 @@ package com.github.rahmnathan.localmovies.app.main;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -49,7 +50,8 @@ class MovieInfoLoader implements Runnable {
         List<MovieInfo> movieInfoList = new ArrayList<>();
         int i = 0;
         do {
-            List<MovieInfo> infoList = movieInfoFacade.getMovieInfo(client, i, itemsPerPage, FirebaseInstanceId.getInstance().getToken());
+            List<MovieInfo> infoList = movieInfoFacade.getMovieInfo(client, i, itemsPerPage,
+                    FirebaseInstanceId.getInstance().getToken(), Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID));
             movieListAdapter.updateList(infoList);
             movieInfoList.addAll(infoList);
             UIHandler.post(movieListAdapter::notifyDataSetChanged);

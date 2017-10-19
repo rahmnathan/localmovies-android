@@ -21,21 +21,21 @@ import java.util.logging.Logger;
 public class MovieInfoProvider {
     private final Logger logger = Logger.getLogger(MovieInfoProvider.class.getName());
 
-    public List<MovieInfo> getMovieInfo(Client client, int page, int resultsPerPage, String pushToken) {
-        JSONArray movieInfoJson = getMovieInfoJson(client, page, resultsPerPage, pushToken);
+    public List<MovieInfo> getMovieInfo(Client client, int page, int resultsPerPage, String pushToken, String deviceId) {
+        JSONArray movieInfoJson = getMovieInfoJson(client, page, resultsPerPage, pushToken, deviceId);
         if (movieInfoJson == null)
             return new ArrayList<>();
 
         return JSONtoMovieInfoMapper.jsonArrayToMovieInfoList(movieInfoJson);
     }
 
-    private JSONArray getMovieInfoJson(Client client, int page, int resultsPerPage, String pushToken) {
+    private JSONArray getMovieInfoJson(Client client, int page, int resultsPerPage, String pushToken, String deviceId) {
         HttpURLConnection urlConnection = null;
         try {
             String restRequest = client.getComputerUrl() + "/movie-api/v1/titlerequest?access_token="
                     + client.getAccessToken() + "&page=" + page + "&resultsPerPage=" + resultsPerPage
                     + "&path=" + URLEncoder.encode(client.getCurrentPath().toString(), StandardCharsets.UTF_8.name())
-                    + "&pushToken=" + pushToken;
+                    + "&pushToken=" + pushToken + "&deviceId=" + deviceId;
             urlConnection = (HttpURLConnection) (new URL(restRequest)).openConnection();
         } catch (IOException e) {
             logger.severe(e.toString());
