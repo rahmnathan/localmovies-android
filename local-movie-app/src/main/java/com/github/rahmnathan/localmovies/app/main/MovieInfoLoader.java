@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.github.rahmnathan.localmovies.client.Client;
 import com.github.rahmnathan.localmovies.info.provider.boundary.MovieInfoFacade;
 import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
+import com.github.rahmnathan.localmovies.info.provider.data.MovieInfoRequest;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
@@ -50,8 +51,15 @@ class MovieInfoLoader implements Runnable {
         List<MovieInfo> movieInfoList = new ArrayList<>();
         int i = 0;
         do {
-            List<MovieInfo> infoList = movieInfoFacade.getMovieInfo(client, i, itemsPerPage,
-                    FirebaseInstanceId.getInstance().getToken(), Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID));
+            MovieInfoRequest movieInfoRequest = MovieInfoRequest.Builder.newInstance()
+                    .setDeviceId(Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID))
+                    .setPage(i)
+                    .setPath(client.getCurrentPath().toString())
+                    .setPushToken(FirebaseInstanceId.getInstance().getToken())
+                    .setResultsPerPage(itemsPerPage)
+                    .build();
+
+            List<MovieInfo> infoList = movieInfoFacade.getMovieInfo(client, movieInfoRequest);
             movieListAdapter.updateList(infoList);
             movieInfoList.addAll(infoList);
             UIHandler.post(movieListAdapter::notifyDataSetChanged);
