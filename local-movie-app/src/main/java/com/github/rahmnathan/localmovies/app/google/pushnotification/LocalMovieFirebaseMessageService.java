@@ -1,8 +1,11 @@
 package com.github.rahmnathan.localmovies.app.google.pushnotification;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
+import com.github.rahmnathan.localmovies.app.main.MainActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -24,7 +27,12 @@ public class LocalMovieFirebaseMessageService extends FirebaseMessagingService {
                         .setContentTitle(data.get("Title"))
                         .setContentText(data.get("Body"))
                         .setPriority(NotificationCompat.PRIORITY_MAX)
+                        .setAutoCancel(true)
                         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mBuilder.setContentIntent(pendingIntent);
 
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
