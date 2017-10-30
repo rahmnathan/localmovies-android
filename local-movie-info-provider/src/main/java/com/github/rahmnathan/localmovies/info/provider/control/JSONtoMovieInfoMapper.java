@@ -16,6 +16,7 @@ class JSONtoMovieInfoMapper {
             JSONObject mediaFile = jsonList.getJSONObject(i);
             MovieInfo.Builder builder = MovieInfo.Builder.newInstance()
                     .setCreated(mediaFile.getLong("dateCreated"))
+                    .setFileName(mediaFile.getString("fileName"))
                     .setViews(mediaFile.getInt("views"));
 
             JSONObject movieInfo = mediaFile.getJSONObject("movieInfo");

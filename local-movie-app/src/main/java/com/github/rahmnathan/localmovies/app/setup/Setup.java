@@ -38,11 +38,11 @@ public class Setup extends Activity {
                 REQUEST_EXTERNAL_STORAGE
         );
 
-        EditText userName = (EditText) findViewById(R.id.userName);
+        EditText userName = findViewById(R.id.userName);
         userName.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
-        EditText password = (EditText) findViewById(R.id.password);
+        EditText password = findViewById(R.id.password);
         password.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
-        EditText url = (EditText) findViewById(R.id.url);
+        EditText url = findViewById(R.id.url);
         url.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
 
         // Populating our text fields with our saved data if it exists
@@ -51,7 +51,7 @@ public class Setup extends Activity {
         password.setText(client.getPassword());
         url.setText(client.getComputerUrl());
 
-        Button set = (Button) findViewById(R.id.set);
+        Button set = findViewById(R.id.set);
         set.setOnClickListener(view -> {
             saveData(userName.getText().toString(), password.getText().toString(), url.getText().toString());
 

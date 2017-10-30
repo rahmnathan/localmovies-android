@@ -7,7 +7,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -112,9 +111,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
-            String title = movieListAdapter.getTitle(position);
             String posterPath;
-            List<String> titles = new ArrayList<>();
+            List<MovieInfo> titles = new ArrayList<>();
+            MovieInfo movie = movieListAdapter.getMovie(position);
             if (myClient.isViewingVideos()) {
                 movieHistory.addHistoryItem(movieListAdapter.getItem(position));
                 // If we're viewing movies or episodes we refresh our token and start the video
@@ -123,14 +122,14 @@ public class MainActivity extends AppCompatActivity {
                     // If we're playing episodes, we queue up the rest of the season
                     posterPath = myClient.getCurrentPath().toString();
                     movieListAdapter.getOriginalMovieList().forEach(movieInfo -> {
-                        if (getEpisodeNumber(movieInfo.getTitle()).compareTo(getEpisodeNumber(title)) > 0
-                                || movieInfo.getTitle().equals(title)) {
-                            titles.add(movieInfo.getTitle());
+                        if (getEpisodeNumber(movieInfo.getTitle()).compareTo(getEpisodeNumber(movie.getTitle())) > 0
+                                || movieInfo.getTitle().equals(movie.getTitle())) {
+                            titles.add(movieInfo);
                         }
                     });
                 } else {
-                    posterPath = myClient.getCurrentPath() + title;
-                    titles.add(title);
+                    posterPath = myClient.getCurrentPath() + movie.getFilename();
+                    titles.add(movie);
                 }
 
                 MediaQueueItem[] queueItems = GoogleCastUtils.assembleMediaQueue(titles, posterPath, myClient);
@@ -148,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             } else {
-                myClient.appendToCurrentPath(title);
+                myClient.appendToCurrentPath(movie.getFilename());
                 getVideos();
             }
         });
@@ -175,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Integer getEpisodeNumber(String title) {
-        return Integer.valueOf(title.split(" ")[1].split("\\.")[0]);
+        return Integer.valueOf(title.split(" ")[1]);
     }
 
     @Override

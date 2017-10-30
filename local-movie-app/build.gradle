@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '25.0.2'
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "rahm.nathan.localmovies"
         minSdkVersion 24
         targetSdkVersion 26
-        versionName '1.2.4'
-        versionCode 27
+        versionName '1.2.5'
+        versionCode 28
         jackOptions {
             enabled true
         }

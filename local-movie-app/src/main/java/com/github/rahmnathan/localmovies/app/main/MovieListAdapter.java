@@ -52,14 +52,10 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         if (movies.size() <= position)
             return new View(context);
         MovieInfo movie = movies.get(position);
-        String currentTitle = movie.getTitle();
-
-        if (currentTitle.contains("."))
-            currentTitle = currentTitle.substring(0, currentTitle.length() - 4);
 
         if (txtTitle == null)
             return new View(context);
-        txtTitle.setText(currentTitle);
+        txtTitle.setText(movie.getTitle());
         txtTitle.setTextSize(17);
         txtTitle.setGravity(Gravity.CENTER);
         txtTitle.setTextColor(Color.WHITE);
@@ -122,8 +118,8 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         return originalMovieList;
     }
 
-    String getTitle(int position) {
-        return movies.get(position).toString();
+    MovieInfo getMovie(int position) {
+        return movies.get(position);
     }
 
     @Override

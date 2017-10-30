@@ -5,6 +5,7 @@ import java.util.Comparator;
 
 public class MovieInfo implements Serializable, Comparator<MovieInfo> {
     private final String title;
+    private final String filename;
     private final String IMDBRating;
     private final String metaRating;
     private final String image;
@@ -14,8 +15,9 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
     private final int views;
 
     private MovieInfo(String title, String IMDBRating, String metaRating, String image, String releaseYear,
-                      Long created, int views, String genre) {
+                      Long created, int views, String genre, String filename) {
         this.title = title;
+        this.filename = filename;
         this.IMDBRating = IMDBRating;
         this.metaRating = metaRating;
         this.image = image;
@@ -23,6 +25,10 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
         this.created = created;
         this.views = views;
         this.genre = genre;
+    }
+
+    public String getFilename() {
+        return filename;
     }
 
     public String getGenre() {
@@ -69,6 +75,7 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
 
     public static class Builder {
         private String title;
+        private String fileName;
         private String IMDBRating;
         private String metaRating;
         private String image;
@@ -84,6 +91,11 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
         public Builder setGenre(String genre) {
             if(genre != null)
                 this.genre = genre.toLowerCase();
+            return this;
+        }
+
+        public Builder setFileName(String fileName) {
+            this.fileName = fileName;
             return this;
         }
 
@@ -123,7 +135,7 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
         }
 
         public MovieInfo build() {
-            return new MovieInfo(title, IMDBRating, metaRating, image, releaseYear, created, views, genre);
+            return new MovieInfo(title, IMDBRating, metaRating, image, releaseYear, created, views, genre, fileName);
         }
     }
 }

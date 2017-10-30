@@ -3,6 +3,7 @@ package com.github.rahmnathan.localmovies.app.google.cast.control;
 import android.net.Uri;
 
 import com.github.rahmnathan.localmovies.client.Client;
+import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaQueueItem;
@@ -19,17 +20,17 @@ import java.util.logging.Logger;
 public class GoogleCastUtils {
     private static final Logger logger = Logger.getLogger(GoogleCastUtils.class.getName());
 
-    public static MediaQueueItem[] assembleMediaQueue(List<String> titles, String posterPath, Client myClient) {
+    public static MediaQueueItem[] assembleMediaQueue(List<MovieInfo> titles, String posterPath, Client myClient) {
         List<MediaQueueItem> mediaQueueItems = new ArrayList<>();
-        titles.forEach(title -> {
+        titles.forEach(movieInfo -> {
             MediaMetadata metaData = new MediaMetadata();
             metaData.addImage(new WebImage(Uri.parse(myClient.getComputerUrl()
                     + "/movie-api/v1/poster?access_token=" + myClient.getAccessToken() + "&path="
                     + encodeParameter(posterPath))));
 
-            metaData.putString(MediaMetadata.KEY_TITLE, title.substring(0, title.length() - 4));
+            metaData.putString(MediaMetadata.KEY_TITLE, movieInfo.getTitle());
             String url = myClient.getComputerUrl() + "/movie-api/v1/video.mp4?access_token="
-                    + myClient.getAccessToken() + "&path=" + encodeParameter(myClient.getCurrentPath() + title);
+                    + myClient.getAccessToken() + "&path=" + encodeParameter(myClient.getCurrentPath() + movieInfo.getFilename());
             MediaInfo mediaInfo = new MediaInfo.Builder(url)
                     .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                     .setContentType(MediaType.MP4_VIDEO.toString())
