@@ -39,13 +39,13 @@ public class MovieInfoProvider {
     private JSONArray getMovieInfoJson(Client client, MovieInfoRequest movieInfoRequest) {
         HttpURLConnection urlConnection = null;
         try {
-            String url = client.getComputerUrl() + "/movie-api/v1/v2/titlerequest?access_token=" + client.getAccessToken();
-            logger.info(url);
+            String url = client.getComputerUrl() + "/movie-api/v1/v2/titlerequest";
             urlConnection = (HttpURLConnection) (new URL(url)).openConnection();
             urlConnection.setRequestMethod("POST");
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);
             urlConnection.setRequestProperty("Content-Type", "application/json");
+            urlConnection.setRequestProperty("Authorization", "bearer " + client.getAccessToken());
             urlConnection.setConnectTimeout(10000);
 
             String movieRequestBody = gson.toJson(movieInfoRequest);
