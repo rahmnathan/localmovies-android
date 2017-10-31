@@ -62,8 +62,6 @@ public class MainActivity extends AppCompatActivity {
         gridView = findViewById(R.id.gridView);
         gridView.setAdapter(movieListAdapter);
 
-        logger.info("ABCDEFG " + FirebaseInstanceId.getInstance().getToken());
-
         // Getting phone info and Triggering initial request of titles from server
 
         try {

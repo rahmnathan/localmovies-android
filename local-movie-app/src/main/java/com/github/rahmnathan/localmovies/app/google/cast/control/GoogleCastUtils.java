@@ -25,11 +25,11 @@ public class GoogleCastUtils {
         titles.forEach(movieInfo -> {
             MediaMetadata metaData = new MediaMetadata();
             metaData.addImage(new WebImage(Uri.parse(myClient.getComputerUrl()
-                    + "/movie-api/v1/poster?access_token=" + myClient.getAccessToken() + "&path="
+                    + "/movie-api/poster?access_token=" + myClient.getAccessToken() + "&path="
                     + encodeParameter(posterPath))));
 
             metaData.putString(MediaMetadata.KEY_TITLE, movieInfo.getTitle());
-            String url = myClient.getComputerUrl() + "/movie-api/v1/video.mp4?access_token="
+            String url = myClient.getComputerUrl() + "/movie-api/video.mp4?access_token="
                     + myClient.getAccessToken() + "&path=" + encodeParameter(myClient.getCurrentPath() + movieInfo.getFilename());
             MediaInfo mediaInfo = new MediaInfo.Builder(url)
                     .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
