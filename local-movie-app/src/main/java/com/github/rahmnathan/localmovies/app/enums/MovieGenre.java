@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.app.main;
+package com.github.rahmnathan.localmovies.app.enums;
 
 public enum MovieGenre {
     ACTION("action"),

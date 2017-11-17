@@ -6,9 +6,9 @@ public class MovieInfoRequest {
     private final String path;
     private final String deviceId;
     private final String pushToken;
-    private final String client = "ANDROID";
+    private static final String client = "ANDROID";
 
-    public MovieInfoRequest(int page, int resultsPerPage, String path, String deviceId, String pushToken) {
+    private MovieInfoRequest(int page, int resultsPerPage, String path, String deviceId, String pushToken) {
         this.page = page;
         this.resultsPerPage = resultsPerPage;
         this.path = path;

@@ -7,21 +7,16 @@ import com.google.gson.Gson;
 
 import org.json.JSONArray;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MovieInfoProvider {
@@ -29,17 +24,15 @@ public class MovieInfoProvider {
     private final Gson gson = new Gson();
 
     public List<MovieInfo> getMovieInfo(Client client, MovieInfoRequest movieInfoRequest) {
-        JSONArray movieInfoJson = getMovieInfoJson(client, movieInfoRequest);
-        if (movieInfoJson == null)
-            return new ArrayList<>();
-
-        return JSONtoMovieInfoMapper.jsonArrayToMovieInfoList(movieInfoJson);
+        Optional<JSONArray> movieInfoJson = getMovieInfoJson(client, movieInfoRequest);
+        return movieInfoJson.map(JSONtoMovieInfoMapper::jsonArrayToMovieInfoList).orElseGet(ArrayList::new);
     }
 
-    private JSONArray getMovieInfoJson(Client client, MovieInfoRequest movieInfoRequest) {
+    private Optional<JSONArray> getMovieInfoJson(Client client, MovieInfoRequest movieInfoRequest) {
         HttpURLConnection urlConnection = null;
+        String url = client.getComputerUrl() + "/movie-api/titlerequest";
+
         try {
-            String url = client.getComputerUrl() + "/movie-api/titlerequest";
             urlConnection = (HttpURLConnection) (new URL(url)).openConnection();
             urlConnection.setRequestMethod("POST");
             urlConnection.setDoOutput(true);
@@ -47,15 +40,17 @@ public class MovieInfoProvider {
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.setRequestProperty("Authorization", "bearer " + client.getAccessToken());
             urlConnection.setConnectTimeout(10000);
+        } catch (IOException e){
+            logger.log(Level.SEVERE, "Failed connecting to movie info service", e);
+        }
 
+        if(urlConnection != null) {
             String movieRequestBody = gson.toJson(movieInfoRequest);
-            try(OutputStreamWriter outputStream = new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8")){
+            try (OutputStreamWriter outputStream = new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8")) {
                 outputStream.write(movieRequestBody);
-            } catch (IOException e){
-                logger.severe(e.toString());
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Failed writing to movie info service", e);
             }
-
-            logger.fine("Response Code: " + urlConnection.getResponseCode());
 
             if (movieInfoRequest.getPage() == 0) {
                 logger.fine("Reading page count");
@@ -65,19 +60,14 @@ public class MovieInfoProvider {
             StringBuilder result = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
                 br.lines().forEachOrdered(result::append);
-                return new JSONArray(result.toString());
             } catch (IOException e) {
-                logger.severe(e.toString());
+                logger.log(Level.SEVERE, "Failed reading from movie info service", e);
             } finally {
                 urlConnection.disconnect();
             }
-        } catch (IOException e) {
-            logger.severe(e.toString());
-        } finally {
-            if(urlConnection != null){
-                urlConnection.disconnect();
-            }
+
+            return Optional.of(new JSONArray(result.toString()));
         }
-        return null;
+        return Optional.empty();
     }
 }

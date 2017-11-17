@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.app.setup;
+package com.github.rahmnathan.localmovies.app.activity;
 
 import android.Manifest;
 import android.app.Activity;
@@ -13,16 +13,16 @@ import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.client.Client;
 
-import com.github.rahmnathan.localmovies.app.main.MainActivity;
 import rahmnathan.localmovies.R;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Setup extends Activity {
-    private final Logger logger = Logger.getLogger(Setup.class.getName());
+public class SetupActivity extends Activity {
+    private final Logger logger = Logger.getLogger(SetupActivity.class.getName());
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static final String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -55,7 +55,7 @@ public class Setup extends Activity {
         set.setOnClickListener(view -> {
             saveData(userName.getText().toString(), password.getText().toString(), url.getText().toString());
 
-            startActivity(new Intent(Setup.this, MainActivity.class));
+            startActivity(new Intent(SetupActivity.this, MainActivity.class));
         });
     }
 
@@ -65,7 +65,7 @@ public class Setup extends Activity {
             os.writeObject(client);
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
-            logger.severe(e.toString());
+            logger.log(Level.SEVERE, "Failed to save client data", e);
         }
     }
 
@@ -73,7 +73,7 @@ public class Setup extends Activity {
         try (ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup"))) {
             return (Client) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            logger.severe(e.toString());
+            logger.log(Level.SEVERE, "Failed to get client data", e);
             return new Client();
         }
     }

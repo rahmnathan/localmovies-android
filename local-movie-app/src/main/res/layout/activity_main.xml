@@ -7,7 +7,7 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:orientation="vertical"
     android:background="@android:color/background_dark"
-    tools:context="com.github.rahmnathan.localmovies.app.main.MainActivity"
+    tools:context="com.github.rahmnathan.localmovies.app.activity.MainActivity"
     android:weightSum="1">
 
     <EditText

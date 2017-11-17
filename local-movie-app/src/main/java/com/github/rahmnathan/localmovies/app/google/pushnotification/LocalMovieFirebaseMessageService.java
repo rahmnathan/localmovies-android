@@ -5,17 +5,15 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
-import com.github.rahmnathan.localmovies.app.main.MainActivity;
+import com.github.rahmnathan.localmovies.app.activity.MainActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Map;
-import java.util.logging.Logger;
 
 import rahmnathan.localmovies.R;
 
 public class LocalMovieFirebaseMessageService extends FirebaseMessagingService {
-    private final Logger logger = Logger.getLogger(LocalMovieFirebaseMessageService.class.getName());
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {

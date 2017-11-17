@@ -15,6 +15,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GoogleCastUtils {
@@ -54,7 +55,7 @@ public class GoogleCastUtils {
         try {
             return URLEncoder.encode(parameter, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            logger.severe(e.toString());
+            logger.log(Level.SEVERE, "Failed to encode parameter: " + parameter, e);
             return "";
         }
     }

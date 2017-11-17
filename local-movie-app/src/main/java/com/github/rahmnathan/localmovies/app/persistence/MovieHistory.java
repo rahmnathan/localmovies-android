@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.app.history;
+package com.github.rahmnathan.localmovies.app.persistence;
 
 import android.content.Context;
 
@@ -11,22 +11,23 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MovieHistory {
     private final Logger logger = Logger.getLogger(MovieHistory.class.getName());
-    private Queue<MovieInfo> movieInfoList;
+    private final Queue<MovieInfo> movieInfoQueue;
     private final Context context;
 
     public MovieHistory(Context context) {
         this.context = context;
-        movieInfoList = getMovieHistory();
+        movieInfoQueue = getMovieHistory();
     }
 
     public List<MovieInfo> getHistoryList(){
         List<MovieInfo> movieInfoList = new ArrayList<>();
-        if(this.movieInfoList != null) {
-            List<MovieInfo> tempList = new ArrayList<>(this.movieInfoList);
+        if(this.movieInfoQueue != null) {
+            List<MovieInfo> tempList = new ArrayList<>(this.movieInfoQueue);
             for(int i = tempList.size() - 1; i >= 0; i--){
                 movieInfoList.add(tempList.get(i));
             }
@@ -36,13 +37,13 @@ public class MovieHistory {
     }
 
     public void addHistoryItem(MovieInfo movieInfo){
-        movieInfoList.add(movieInfo);
+        movieInfoQueue.add(movieInfo);
         saveHistory();
     }
 
     private void saveHistory() {
         try (ObjectOutputStream os = new ObjectOutputStream(context.openFileOutput("history", Context.MODE_PRIVATE))) {
-            os.writeObject(movieInfoList);
+            os.writeObject(movieInfoQueue);
         } catch (IOException e) {
             logger.severe(e.toString());
         }
@@ -52,7 +53,7 @@ public class MovieHistory {
         try (ObjectInputStream objectInputStream = new ObjectInputStream(context.openFileInput("history"))) {
             return (Queue<MovieInfo>) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            logger.severe(e.toString());
+            logger.log(Level.SEVERE, "Failed to get movie history", e);
             return EvictingQueue.create(20);
         }
     }

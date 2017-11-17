@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.app.video.player;
+package com.github.rahmnathan.localmovies.app.activity;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -8,7 +8,7 @@ import android.widget.VideoView;
 
 import rahmnathan.localmovies.R;
 
-public class VideoPlayer extends Activity {
+public class PlayerActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

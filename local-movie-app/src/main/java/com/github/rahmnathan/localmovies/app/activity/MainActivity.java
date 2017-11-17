@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.app.main;
+package com.github.rahmnathan.localmovies.app.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,10 +13,13 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
+import com.github.rahmnathan.localmovies.app.control.MovieInfoLoader;
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
 import com.github.rahmnathan.localmovies.app.google.cast.control.GoogleCastUtils;
-import com.github.rahmnathan.localmovies.app.history.MovieHistory;
-import com.github.rahmnathan.localmovies.app.video.player.VideoPlayer;
+import com.github.rahmnathan.localmovies.app.persistence.MovieHistory;
+import com.github.rahmnathan.localmovies.app.enums.MovieGenre;
+import com.github.rahmnathan.localmovies.app.enums.MovieOrder;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
@@ -37,8 +40,6 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 import rahmnathan.localmovies.R;
-import com.github.rahmnathan.localmovies.app.setup.Setup;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 public class MainActivity extends AppCompatActivity {
     private MovieListAdapter movieListAdapter;
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             executorService.submit(new KeycloakAuthenticator(myClient));
             getVideos();
         } catch (Exception e) {
-            startActivity(new Intent(MainActivity.this, Setup.class));
+            startActivity(new Intent(MainActivity.this, SetupActivity.class));
         }
 
         EditText searchText = findViewById(R.id.searchText);
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     logger.severe(e.toString());
-                    Intent intent = new Intent(MainActivity.this, VideoPlayer.class);
+                    Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
                     String url = queueItems[0].getMedia().getContentId();
                     intent.putExtra("url", url);
                     startActivity(intent);
@@ -178,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         String currentDirectory = myClient.getCurrentPath().peekLast();
-        if (currentDirectory.toLowerCase().equals("series") | currentDirectory.toLowerCase().equals("movies"))
+        if (currentDirectory.toLowerCase().equals("series") || currentDirectory.toLowerCase().equals("movies"))
             System.exit(8);
 
         myClient.popOneDirectory();
@@ -197,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
-                startActivity(new Intent(MainActivity.this, Setup.class));
+                startActivity(new Intent(MainActivity.this, SetupActivity.class));
                 break;
             case R.id.order_date_added:
                 sort(MovieOrder.DATE_ADDED);

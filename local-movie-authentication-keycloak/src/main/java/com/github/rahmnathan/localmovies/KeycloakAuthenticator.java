@@ -14,6 +14,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class KeycloakAuthenticator implements Runnable {
@@ -43,21 +44,21 @@ public class KeycloakAuthenticator implements Runnable {
             urlConnection.setConnectTimeout(5000);
             urlConnection.connect();
         } catch (IOException e) {
-            logger.severe(e.toString());
+            logger.log(Level.SEVERE, "Failed connecting to auth server", e);
         }
 
         if (urlConnection != null) {
             try (DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
                 wr.write(loginInfo);
             } catch (IOException e) {
-                logger.severe(e.toString());
+                logger.log(Level.SEVERE, "Failed writing to auth server", e);
             }
 
             StringBuilder result = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
                 br.lines().forEachOrdered(result::append);
             } catch (IOException e) {
-                logger.severe(e.toString());
+                logger.log(Level.SEVERE, "Failed reading from auth server", e);
             } finally {
                 urlConnection.disconnect();
             }
@@ -76,12 +77,12 @@ public class KeycloakAuthenticator implements Runnable {
         args.put("username", client.getUserName());
         args.put("password", client.getPassword());
         StringBuilder sb = new StringBuilder();
-        args.entrySet().forEach(entry -> {
+        args.forEach((key, value) -> {
             try {
-                sb.append(URLEncoder.encode(entry.getKey(), "UTF-8")).append("=")
-                        .append(URLEncoder.encode(entry.getValue(), "UTF-8")).append("&");
+                sb.append(URLEncoder.encode(key, "UTF-8")).append("=")
+                        .append(URLEncoder.encode(value, "UTF-8")).append("&");
             } catch (UnsupportedEncodingException e) {
-                logger.severe(e.toString());
+                logger.log(Level.SEVERE, "Failed building login info", e);
             }
         });
 

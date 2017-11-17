@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.app.main;
+package com.github.rahmnathan.localmovies.app.adapter;
 
 import android.app.Activity;
 import android.graphics.BitmapFactory;
@@ -15,15 +15,18 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.rahmnathan.localmovies.app.enums.MovieGenre;
+import com.github.rahmnathan.localmovies.app.enums.MovieOrder;
 import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import rahmnathan.localmovies.R;
 
-class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
+public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
 
     private final Activity context;
     private List<MovieInfo> movies;
@@ -31,7 +34,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
     private AdapterFilter adapterFilter;
     private CharSequence chars = "";
 
-    MovieListAdapter(Activity context, List<MovieInfo> movieInfoList) {
+    public MovieListAdapter(Activity context, List<MovieInfo> movieInfoList) {
         super(context, R.layout.my_adapter, movieInfoList);
         this.context = context;
         this.movies = movieInfoList;
@@ -44,7 +47,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         if (rowView == null)
             rowView = inflater.inflate(R.layout.my_adapter, parent, false);
 
-        TextView txtTitle = rowView.findViewById(R.id.textView);
+        TextView title = rowView.findViewById(R.id.textView);
         ImageView imageView = rowView.findViewById(R.id.imageView);
         TextView year = rowView.findViewById(R.id.year);
         TextView ratings = rowView.findViewById(R.id.rating);
@@ -53,12 +56,12 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
             return new View(context);
         MovieInfo movie = movies.get(position);
 
-        if (txtTitle == null)
+        if (title == null)
             return new View(context);
-        txtTitle.setText(movie.getTitle());
-        txtTitle.setTextSize(17);
-        txtTitle.setGravity(Gravity.CENTER);
-        txtTitle.setTextColor(Color.WHITE);
+        title.setText(movie.getTitle());
+        title.setTextSize(17);
+        title.setGravity(Gravity.CENTER);
+        title.setTextColor(Color.WHITE);
 
         String base64Image = movie.getImage();
         if (base64Image != null && !base64Image.equals("") && !base64Image.equals("null")) {
@@ -91,21 +94,21 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         }
     }
 
-    void filterGenre(MovieGenre genre){
+    public void filterGenre(MovieGenre genre){
         List<MovieInfo> filteredList = originalMovieList.stream()
-                .sorted((movie1, movie2) -> movie1.getTitle().compareTo(movie2.getTitle()))
+                .sorted(Comparator.comparing(MovieInfo::getTitle))
                 .filter(movieInfo -> movieInfo.getGenre().toLowerCase().contains(genre.getFormattedName()))
                 .collect(Collectors.toList());
 
         display(filteredList);
     }
 
-    void clearLists() {
+    public void clearLists() {
         movies.clear();
         originalMovieList.clear();
     }
 
-    void updateList(List<MovieInfo> movieInfoList) {
+    public void updateList(List<MovieInfo> movieInfoList) {
         this.movies.addAll(movieInfoList);
         this.originalMovieList.addAll(movieInfoList);
     }
@@ -118,7 +121,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
         return originalMovieList;
     }
 
-    MovieInfo getMovie(int position) {
+    public MovieInfo getMovie(int position) {
         return movies.get(position);
     }
 
@@ -187,7 +190,7 @@ class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
                 break;
             case TITLE:
                 tempList = movies.stream()
-                        .sorted((movie1, movie2) -> movie1.getTitle().compareTo(movie2.getTitle()))
+                        .sorted(Comparator.comparing(MovieInfo::getTitle))
                         .collect(Collectors.toList());
                 break;
         }
