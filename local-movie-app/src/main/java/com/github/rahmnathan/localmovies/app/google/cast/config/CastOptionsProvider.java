@@ -12,6 +12,8 @@ import com.google.android.gms.cast.framework.media.NotificationOptions;
 import java.util.List;
 
 public class CastOptionsProvider implements OptionsProvider {
+    private static final String LOCALMOVIES_RECEIVER_APP_ID = "5F217DDB";
+
     @Override
     public CastOptions getCastOptions(Context appContext) {
         NotificationOptions notificationOptions = new NotificationOptions.Builder()
@@ -24,7 +26,7 @@ public class CastOptionsProvider implements OptionsProvider {
                 .build();
 
         return new CastOptions.Builder()
-                .setReceiverApplicationId(CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID)
+                .setReceiverApplicationId(LOCALMOVIES_RECEIVER_APP_ID)
                 .setCastMediaOptions(mediaOptions)
                 .build();
     }
