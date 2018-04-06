@@ -32,16 +32,16 @@ repositories {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.google.firebase:firebase-core:11.8.0'
-    compile 'com.google.firebase:firebase-messaging:11.8.0'
-    compile 'com.android.support:appcompat-v7:27.1.0'
-    compile 'com.android.support:design:27.1.0'
+    compile 'com.google.firebase:firebase-core:12.0.1'
+    compile 'com.google.firebase:firebase-messaging:12.0.1'
+    compile 'com.android.support:appcompat-v7:27.1.1'
+    compile 'com.android.support:design:27.1.1'
     compile 'com.google.guava:guava:23.0'
     compile project(path: ':local-movie-client')
     compile project(path: ':local-movie-info-provider')
     compile project(path: ':local-movie-authentication-keycloak')
-    compile 'com.android.support:mediarouter-v7:27.1.0'
-    compile 'com.google.android.gms:play-services-cast-framework:11.8.0'
+    compile 'com.android.support:mediarouter-v7:27.1.1'
+    compile 'com.google.android.gms:play-services-cast-framework:12.0.1'
 }
 
 apply plugin: 'com.google.gms.google-services'
