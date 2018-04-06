@@ -22,8 +22,8 @@ public class LocalMovieFirebaseMessageService extends FirebaseMessagingService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.movie_icon)
-                        .setContentTitle(data.get("Title"))
-                        .setContentText(data.get("Body"))
+                        .setContentTitle(data.get("title"))
+                        .setContentText(data.get("body"))
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setAutoCancel(true)
                         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);

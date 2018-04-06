@@ -53,12 +53,13 @@ public class MovieInfoLoader implements Runnable {
         movieListAdapter.clearLists();
         List<MovieInfo> movieInfoList = new ArrayList<>();
         int i = 0;
+        String token = FirebaseInstanceId.getInstance().getToken();
         do {
             MovieInfoRequest movieInfoRequest = MovieInfoRequest.Builder.newInstance()
                     .setDeviceId(deviceId)
                     .setPage(i)
                     .setPath(client.getCurrentPath().toString())
-                    .setPushToken(FirebaseInstanceId.getInstance().getToken())
+                    .setPushToken(token)
                     .setResultsPerPage(itemsPerPage)
                     .build();
 
