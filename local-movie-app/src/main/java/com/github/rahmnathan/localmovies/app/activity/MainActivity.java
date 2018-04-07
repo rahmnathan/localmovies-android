@@ -32,6 +32,7 @@ import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -101,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             String posterPath;
-            List<MovieInfo> titles = new ArrayList<>();
+            List<MovieInfo> titles;
             MovieInfo movie = movieListAdapter.getMovie(position);
             if (myClient.isViewingVideos()) {
                 movieHistory.addHistoryItem(movieListAdapter.getItem(position));
@@ -115,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                             .collect(Collectors.toList());
                 } else {
                     posterPath = myClient.getCurrentPath() + movie.getFilename();
-                    titles.add(movie);
+                    titles = Collections.singletonList(movie);
                 }
 
                 MediaQueueItem[] queueItems = GoogleCastUtils.assembleMediaQueue(titles, posterPath, myClient);
