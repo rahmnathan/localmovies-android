@@ -33,24 +33,22 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 import rahmnathan.localmovies.R;
 
 public class MainActivity extends AppCompatActivity {
+    private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache = new ConcurrentHashMap<>();
+    private final Logger logger = Logger.getLogger(MainActivity.class.getName());
     private MovieListAdapter movieListAdapter;
-    private GridView gridView;
-    private Client myClient;
+    private MovieHistory movieHistory;
     private ProgressBar progressBar;
     private CastContext castContext;
-    private MovieHistory movieHistory;
-    private final Logger logger = Logger.getLogger(MainActivity.class.getName());
-    private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache = new ConcurrentHashMap<>();
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private GridView gridView;
+    private Client myClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +67,8 @@ public class MainActivity extends AppCompatActivity {
             myClient = getPhoneInfo();
             myClient.appendToCurrentPath("Movies");
             Toast.makeText(this, "Logging in", Toast.LENGTH_SHORT).show();
-            executorService.submit(new KeycloakAuthenticator(myClient));
-            getVideos();
+            CompletableFuture<Void> future = CompletableFuture.runAsync(new KeycloakAuthenticator(myClient));
+            future.thenRun(this::getVideos);
         } catch (Exception e) {
             startActivity(new Intent(MainActivity.this, SetupActivity.class));
         }
@@ -116,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
             if (myClient.isViewingVideos()) {
                 movieHistory.addHistoryItem(movieListAdapter.getItem(position));
                 // If we're viewing movies or episodes we refresh our token and start the video
-                executorService.submit(new KeycloakAuthenticator(myClient));
+                CompletableFuture.runAsync(new KeycloakAuthenticator(myClient));
                 if (myClient.isViewingEpisodes()) {
                     // If we're playing episodes, we queue up the rest of the season
                     posterPath = myClient.getCurrentPath().toString();
@@ -168,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
             movieListAdapter.updateList(movieInfoCache.get(myClient.getCurrentPath().toString()));
             movieListAdapter.notifyDataSetChanged();
         } else {
-            executorService.submit(new MovieInfoLoader(progressBar, movieListAdapter, myClient, movieInfoCache, this));
+            CompletableFuture.runAsync(new MovieInfoLoader(progressBar, movieListAdapter, myClient, movieInfoCache, this));
         }
     }
 

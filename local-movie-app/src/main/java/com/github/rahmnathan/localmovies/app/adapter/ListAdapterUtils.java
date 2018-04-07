@@ -29,7 +29,7 @@ class ListAdapterUtils {
                 break;
             case MOST_VIEWS:
                 tempList = movies.stream()
-                        .sorted((movie1, movie2) -> Integer.valueOf(movie2.getViews()).compareTo(movie1.getViews()))
+                        .sorted((movie1, movie2) -> Integer.compare(movie2.getViews(), movie1.getViews()))
                         .collect(Collectors.toList());
                 break;
             case RATING:
