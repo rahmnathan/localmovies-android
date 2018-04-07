@@ -12,72 +12,63 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
-import com.github.rahmnathan.localmovies.app.control.MovieInfoLoader;
+import com.github.rahmnathan.localmovies.app.control.VideoClickListener;
 import com.github.rahmnathan.localmovies.app.control.VideoSearchTextWatcher;
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
-import com.github.rahmnathan.localmovies.app.google.cast.control.GoogleCastUtils;
 import com.github.rahmnathan.localmovies.app.persistence.MovieHistory;
-import com.github.rahmnathan.localmovies.app.enums.MovieGenre;
-import com.github.rahmnathan.localmovies.app.enums.MovieOrder;
-import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
-import com.google.android.gms.cast.framework.CastSession;
-import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.github.rahmnathan.localmovies.KeycloakAuthenticator;
 import com.github.rahmnathan.localmovies.client.Client;
 import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import rahmnathan.localmovies.R;
 
+import static com.github.rahmnathan.localmovies.app.control.MainActivityUtils.getPhoneInfo;
+import static com.github.rahmnathan.localmovies.app.control.MainActivityUtils.sortVideoList;
+import static com.github.rahmnathan.localmovies.app.control.VideoClickListener.getVideos;
+
 public class MainActivity extends AppCompatActivity {
-    private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache = new ConcurrentHashMap<>();
-    private final Logger logger = Logger.getLogger(MainActivity.class.getName());
+    private final ConcurrentMap<String, List<MovieInfo>> movieCache = new ConcurrentHashMap<>();
     private static final String MOVIES = "Movies";
     private static final String SERIES = "Series";
-    private MovieListAdapter movieListAdapter;
-    private MovieHistory movieHistory;
+    private MovieListAdapter listAdapter;
+    private MovieHistory history;
     private ProgressBar progressBar;
-    private CastContext castContext;
     private GridView gridView;
-    private Client myClient;
+    private Client client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        castContext = CastContext.getSharedInstance(this);
-        movieHistory = new MovieHistory(this);
+        history = new MovieHistory(this);
         progressBar = findViewById(R.id.progressBar);
-        movieListAdapter = new MovieListAdapter(this, new ArrayList<>());
+        listAdapter = new MovieListAdapter(this, new ArrayList<>());
         gridView = findViewById(R.id.gridView);
-        gridView.setAdapter(movieListAdapter);
+        gridView.setAdapter(listAdapter);
 
         // Getting phone info and Triggering initial request of titles from server
 
         try {
-            myClient = getPhoneInfo();
-            myClient.appendToCurrentPath(MOVIES);
+            client = getPhoneInfo(openFileInput("setup"));
+            client.appendToCurrentPath(MOVIES);
             Toast.makeText(this, "Logging in", Toast.LENGTH_SHORT).show();
-            CompletableFuture<Void> future = CompletableFuture.runAsync(new KeycloakAuthenticator(myClient));
-            future.thenRun(this::getVideos);
+            CompletableFuture<Void> future = CompletableFuture.runAsync(new KeycloakAuthenticator(client));
+            future.thenRun(this::loadVideos);
         } catch (Exception e) {
             startActivity(new Intent(MainActivity.this, SetupActivity.class));
         }
 
         EditText searchText = findViewById(R.id.searchText);
-        searchText.addTextChangedListener(new VideoSearchTextWatcher(movieListAdapter, gridView));
+        searchText.addTextChangedListener(new VideoSearchTextWatcher(listAdapter, gridView));
 
         Button controls = findViewById(R.id.controls);
         controls.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
@@ -88,88 +79,38 @@ public class MainActivity extends AppCompatActivity {
         Button movies = findViewById(R.id.movies);
         movies.setOnClickListener(view -> getRootVideos(MOVIES, searchText));
 
-        gridView.setOnItemClickListener((parent, view, position, id) -> {
-            String posterPath;
-            List<MovieInfo> titles;
-            MovieInfo movie = movieListAdapter.getMovie(position);
-            if (myClient.isViewingVideos()) {
-                movieHistory.addHistoryItem(movieListAdapter.getItem(position));
-                // If we're viewing movies or episodes we refresh our token and start the video
-                CompletableFuture.runAsync(new KeycloakAuthenticator(myClient));
-                if (myClient.isViewingEpisodes()) {
-                    // If we're playing episodes, we queue up the rest of the season
-                    posterPath = myClient.getCurrentPath().toString();
-                    titles = movieListAdapter.getOriginalMovieList().stream()
-                            .filter(movieInfo -> getEpisodeNumber(movieInfo.getTitle()).compareTo(getEpisodeNumber(movie.getTitle())) > 0 || movieInfo.getTitle().equals(movie.getTitle()))
-                            .collect(Collectors.toList());
-                } else {
-                    posterPath = myClient.getCurrentPath() + movie.getFilename();
-                    titles = Collections.singletonList(movie);
-                }
+        VideoClickListener clickListener = VideoClickListener.Builder.newInstance()
+                .setCastContext(CastContext.getSharedInstance(this))
+                .setContext(this)
+                .setProgressBar(progressBar)
+                .setClient(client)
+                .setMovieListAdapter(listAdapter)
+                .setMovieInfoCache(movieCache)
+                .setMovieHistory(history)
+                .build();
 
-                MediaQueueItem[] queueItems = GoogleCastUtils.assembleMediaQueue(titles, posterPath, myClient);
-                queueVideos(queueItems);
-            } else {
-                myClient.appendToCurrentPath(movie.getFilename());
-                getVideos();
-            }
-        });
-    }
-
-    private void queueVideos(MediaQueueItem[] queueItems){
-        try {
-            CastSession session = castContext.getSessionManager().getCurrentCastSession();
-            RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
-            remoteMediaClient.queueLoad(queueItems, 0, 0, null);
-            Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-            logger.severe(e.toString());
-            Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
-            String url = queueItems[0].getMedia().getContentId();
-            intent.putExtra("url", url);
-            startActivity(intent);
-        }
-    }
-
-    private Client getPhoneInfo() {
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup"))) {
-            Client client = (Client) objectInputStream.readObject();
-            client.resetCurrentPath();
-            return client;
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException();
-        }
+        gridView.setOnItemClickListener(clickListener);
     }
 
     private void getRootVideos(String path, EditText searchText){
-        myClient.resetCurrentPath();
+        client.resetCurrentPath();
         searchText.setText("");
-        myClient.appendToCurrentPath(path);
-        getVideos();
+        client.appendToCurrentPath(path);
+        loadVideos();
     }
 
-    private void getVideos() {
-        if (movieInfoCache.containsKey(myClient.getCurrentPath().toString())) {
-            movieListAdapter.clearLists();
-            movieListAdapter.updateList(movieInfoCache.get(myClient.getCurrentPath().toString()));
-            movieListAdapter.notifyDataSetChanged();
-        } else {
-            CompletableFuture.runAsync(new MovieInfoLoader(progressBar, movieListAdapter, myClient, movieInfoCache, this));
-        }
-    }
-
-    private Integer getEpisodeNumber(String title) {
-        return Integer.valueOf(title.split(" ")[1]);
+    private void loadVideos(){
+        getVideos(movieCache, client, listAdapter, this, progressBar);
     }
 
     @Override
     public void onBackPressed() {
-        String currentDirectory = myClient.getCurrentPath().peekLast();
+        String currentDirectory = client.getCurrentPath().peekLast();
         if (currentDirectory.equalsIgnoreCase(SERIES) || currentDirectory.equalsIgnoreCase(MOVIES))
             System.exit(8);
 
-        myClient.popOneDirectory();
-        getVideos();
+        client.popOneDirectory();
+        loadVideos();
     }
 
     @Override
@@ -182,59 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                startActivity(new Intent(MainActivity.this, SetupActivity.class));
-                break;
-            case R.id.order_date_added:
-                sort(MovieOrder.DATE_ADDED);
-                break;
-            case R.id.order_views:
-                sort(MovieOrder.MOST_VIEWS);
-                break;
-            case R.id.order_year:
-                sort(MovieOrder.RELEASE_YEAR);
-                break;
-            case R.id.order_rating:
-                sort(MovieOrder.RATING);
-                break;
-            case R.id.order_title:
-                sort(MovieOrder.TITLE);
-                break;
-            case R.id.genre_comedy:
-                filterGenre(MovieGenre.COMEDY);
-                break;
-            case R.id.action_action:
-                filterGenre(MovieGenre.ACTION);
-                break;
-            case R.id.genre_sciFi:
-                filterGenre(MovieGenre.SCIFI);
-                break;
-            case R.id.genre_horror:
-                filterGenre(MovieGenre.HORROR);
-                break;
-            case R.id.genre_thriller:
-                filterGenre(MovieGenre.THRILLER);
-                break;
-            case R.id.genre_fantasy:
-                filterGenre(MovieGenre.FANTASY);
-                break;
-            case R.id.action_history:
-                myClient.resetCurrentPath();
-                myClient.appendToCurrentPath(MOVIES);
-                movieListAdapter.display(movieHistory.getHistoryList());
-                break;
-        }
+        sortVideoList(item, listAdapter, gridView, this, client, history);
         return true;
-    }
-
-    private void sort(MovieOrder order){
-        movieListAdapter.sort(order);
-        gridView.smoothScrollToPosition(0);
-    }
-
-    private void filterGenre(MovieGenre genre){
-        movieListAdapter.filterGenre(genre);
-        gridView.smoothScrollToPosition(0);
     }
 }

@@ -2,7 +2,6 @@ package com.github.rahmnathan.localmovies.app.google.cast.config;
 
 import android.content.Context;
 
-import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.android.gms.cast.framework.CastOptions;
 import com.google.android.gms.cast.framework.OptionsProvider;
 import com.google.android.gms.cast.framework.SessionProvider;
