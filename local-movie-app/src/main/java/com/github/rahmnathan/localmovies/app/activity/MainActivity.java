@@ -44,6 +44,8 @@ import rahmnathan.localmovies.R;
 public class MainActivity extends AppCompatActivity {
     private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache = new ConcurrentHashMap<>();
     private final Logger logger = Logger.getLogger(MainActivity.class.getName());
+    private static final String MOVIES = "Movies";
+    private static final String SERIES = "Series";
     private MovieListAdapter movieListAdapter;
     private MovieHistory movieHistory;
     private ProgressBar progressBar;
@@ -66,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             myClient = getPhoneInfo();
-            myClient.appendToCurrentPath("Movies");
+            myClient.appendToCurrentPath(MOVIES);
             Toast.makeText(this, "Logging in", Toast.LENGTH_SHORT).show();
             CompletableFuture<Void> future = CompletableFuture.runAsync(new KeycloakAuthenticator(myClient));
             future.thenRun(this::getVideos);
@@ -81,10 +83,10 @@ public class MainActivity extends AppCompatActivity {
         controls.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
 
         Button series = findViewById(R.id.series);
-        series.setOnClickListener(view -> getRootVideos("Series", searchText));
+        series.setOnClickListener(view -> getRootVideos(SERIES, searchText));
 
         Button movies = findViewById(R.id.movies);
-        movies.setOnClickListener(view -> getRootVideos("Movies", searchText));
+        movies.setOnClickListener(view -> getRootVideos(MOVIES, searchText));
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             String posterPath;
@@ -163,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         String currentDirectory = myClient.getCurrentPath().peekLast();
-        if (currentDirectory.toLowerCase().equals("series") || currentDirectory.toLowerCase().equals("movies"))
+        if (currentDirectory.equalsIgnoreCase(SERIES) || currentDirectory.equalsIgnoreCase(MOVIES))
             System.exit(8);
 
         myClient.popOneDirectory();
@@ -219,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.action_history:
                 myClient.resetCurrentPath();
-                myClient.appendToCurrentPath("Movies");
+                myClient.appendToCurrentPath(MOVIES);
                 movieListAdapter.display(movieHistory.getHistoryList());
                 break;
         }

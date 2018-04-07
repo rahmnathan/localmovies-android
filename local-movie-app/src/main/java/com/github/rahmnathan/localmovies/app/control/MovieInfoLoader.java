@@ -22,19 +22,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MovieInfoLoader implements Runnable {
-    private final Client client;
-    private final ProgressBar progressBar;
-    private final MovieListAdapter movieListAdapter;
-    private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache;
-    private final MovieInfoFacade movieInfoFacade = new MovieInfoFacade();
     private final Logger logger = Logger.getLogger(MovieInfoLoader.class.getName());
-    private final String deviceId;
+    private final MovieInfoFacade movieInfoFacade = new MovieInfoFacade();
     private final Handler UIHandler = new Handler(Looper.getMainLooper());
+    private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache;
+    private final MovieListAdapter movieListAdapter;
+    private final ProgressBar progressBar;
+    private final String deviceId;
     private final Context context;
+    private final Client client;
 
     public MovieInfoLoader(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
                     ConcurrentMap<String, List<MovieInfo>> movieInfoCache, Context context) {
-        deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.movieInfoCache = movieInfoCache;
         this.client = myClient;
         this.movieListAdapter = movieListAdapter;

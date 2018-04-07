@@ -1,11 +1,7 @@
 package com.github.rahmnathan.localmovies.app.adapter;
 
 import android.app.Activity;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
-import android.util.Base64;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

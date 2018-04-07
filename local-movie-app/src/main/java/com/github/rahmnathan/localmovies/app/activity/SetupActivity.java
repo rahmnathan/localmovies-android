@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 public class SetupActivity extends Activity {
     private final Logger logger = Logger.getLogger(SetupActivity.class.getName());
+    private static final String SETUP_FILE = "setup";
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static final String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -61,7 +62,7 @@ public class SetupActivity extends Activity {
 
     private void saveData(String userName, String password, String url) {
         Client client = new Client(url, userName, password);
-        try (ObjectOutputStream os = new ObjectOutputStream(openFileOutput("setup", MODE_PRIVATE))) {
+        try (ObjectOutputStream os = new ObjectOutputStream(openFileOutput(SETUP_FILE, MODE_PRIVATE))) {
             os.writeObject(client);
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
@@ -70,7 +71,7 @@ public class SetupActivity extends Activity {
     }
 
     private Client getPhoneInfo() {
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput("setup"))) {
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(openFileInput(SETUP_FILE))) {
             return (Client) objectInputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             logger.log(Level.SEVERE, "Failed to get client data", e);
