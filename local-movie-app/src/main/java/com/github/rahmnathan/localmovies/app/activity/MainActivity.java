@@ -3,8 +3,6 @@ package com.github.rahmnathan.localmovies.app.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -15,6 +13,7 @@ import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
 import com.github.rahmnathan.localmovies.app.control.MovieInfoLoader;
+import com.github.rahmnathan.localmovies.app.control.VideoSearchTextWatcher;
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
 import com.github.rahmnathan.localmovies.app.google.cast.control.GoogleCastUtils;
 import com.github.rahmnathan.localmovies.app.persistence.MovieHistory;
@@ -76,20 +75,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         EditText searchText = findViewById(R.id.searchText);
-        searchText.addTextChangedListener(new TextWatcher() {
-            public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-                movieListAdapter.getFilter().filter(cs);
-                gridView.smoothScrollToPosition(0);
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable arg0) {
-            }
-        });
+        searchText.addTextChangedListener(new VideoSearchTextWatcher(movieListAdapter, gridView));
 
         Button controls = findViewById(R.id.controls);
         controls.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
