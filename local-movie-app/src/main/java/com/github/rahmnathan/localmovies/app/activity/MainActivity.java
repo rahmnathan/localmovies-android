@@ -37,6 +37,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import rahmnathan.localmovies.R;
 
@@ -93,19 +94,10 @@ public class MainActivity extends AppCompatActivity {
         controls.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
 
         Button series = findViewById(R.id.series);
-        series.setOnClickListener(view -> {
-            myClient.resetCurrentPath();
-            searchText.setText("");
-            myClient.appendToCurrentPath("Series");
-            getVideos();
-        });
+        series.setOnClickListener(view -> getRootVideos("Series", searchText));
+
         Button movies = findViewById(R.id.movies);
-        movies.setOnClickListener(view -> {
-            myClient.resetCurrentPath();
-            searchText.setText("");
-            myClient.appendToCurrentPath("Movies");
-            getVideos();
-        });
+        movies.setOnClickListener(view -> getRootVideos("Movies", searchText));
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             String posterPath;
@@ -118,36 +110,36 @@ public class MainActivity extends AppCompatActivity {
                 if (myClient.isViewingEpisodes()) {
                     // If we're playing episodes, we queue up the rest of the season
                     posterPath = myClient.getCurrentPath().toString();
-                    movieListAdapter.getOriginalMovieList().forEach(movieInfo -> {
-                        if (getEpisodeNumber(movieInfo.getTitle()).compareTo(getEpisodeNumber(movie.getTitle())) > 0
-                                || movieInfo.getTitle().equals(movie.getTitle())) {
-                            titles.add(movieInfo);
-                        }
-                    });
+                    titles = movieListAdapter.getOriginalMovieList().stream()
+                            .filter(movieInfo -> getEpisodeNumber(movieInfo.getTitle()).compareTo(getEpisodeNumber(movie.getTitle())) > 0 || movieInfo.getTitle().equals(movie.getTitle()))
+                            .collect(Collectors.toList());
                 } else {
                     posterPath = myClient.getCurrentPath() + movie.getFilename();
                     titles.add(movie);
                 }
 
                 MediaQueueItem[] queueItems = GoogleCastUtils.assembleMediaQueue(titles, posterPath, myClient);
-
-                try {
-                    CastSession session = castContext.getSessionManager().getCurrentCastSession();
-                    RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
-                    remoteMediaClient.queueLoad(queueItems, 0, 0, null);
-                    Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_LONG).show();
-                } catch (Exception e) {
-                    logger.severe(e.toString());
-                    Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
-                    String url = queueItems[0].getMedia().getContentId();
-                    intent.putExtra("url", url);
-                    startActivity(intent);
-                }
+                queueVideos(queueItems);
             } else {
                 myClient.appendToCurrentPath(movie.getFilename());
                 getVideos();
             }
         });
+    }
+
+    private void queueVideos(MediaQueueItem[] queueItems){
+        try {
+            CastSession session = castContext.getSessionManager().getCurrentCastSession();
+            RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
+            remoteMediaClient.queueLoad(queueItems, 0, 0, null);
+            Toast.makeText(MainActivity.this, "Casting", Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            logger.severe(e.toString());
+            Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+            String url = queueItems[0].getMedia().getContentId();
+            intent.putExtra("url", url);
+            startActivity(intent);
+        }
     }
 
     private Client getPhoneInfo() {
@@ -158,6 +150,13 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException();
         }
+    }
+
+    private void getRootVideos(String path, EditText searchText){
+        myClient.resetCurrentPath();
+        searchText.setText("");
+        myClient.appendToCurrentPath(path);
+        getVideos();
     }
 
     private void getVideos() {
