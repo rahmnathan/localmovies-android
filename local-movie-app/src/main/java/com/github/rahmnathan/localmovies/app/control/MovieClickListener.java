@@ -26,8 +26,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class VideoClickListener implements AdapterView.OnItemClickListener {
-    private static final Logger logger = Logger.getLogger(VideoClickListener.class.getName());
+public class MovieClickListener implements AdapterView.OnItemClickListener {
+    private static final Logger logger = Logger.getLogger(MovieClickListener.class.getName());
     private ConcurrentMap<String, List<Movie>> movieCache;
     private MovieListAdapter listAdapter;
     private ProgressBar progressBar;
@@ -36,7 +36,7 @@ public class VideoClickListener implements AdapterView.OnItemClickListener {
     private Context context;
     private Client client;
 
-    private VideoClickListener(){
+    private MovieClickListener(){
         // Use the builder
     }
 
@@ -89,7 +89,7 @@ public class VideoClickListener implements AdapterView.OnItemClickListener {
             movieListAdapter.updateList(movieInfoCache.get(myClient.getCurrentPath().toString()));
             movieListAdapter.notifyDataSetChanged();
         } else {
-            CompletableFuture.runAsync(new MovieInfoLoader(progressBar, movieListAdapter, myClient, movieInfoCache, context));
+            CompletableFuture.runAsync(new MovieLoader(progressBar, movieListAdapter, myClient, movieInfoCache, context));
         }
     }
 
@@ -98,7 +98,7 @@ public class VideoClickListener implements AdapterView.OnItemClickListener {
     }
 
     public static class Builder {
-        private VideoClickListener clickListener = new VideoClickListener();
+        private MovieClickListener clickListener = new MovieClickListener();
 
         public static Builder newInstance(){
             return new Builder();
@@ -139,9 +139,9 @@ public class VideoClickListener implements AdapterView.OnItemClickListener {
             return this;
         }
 
-        public VideoClickListener build(){
-            VideoClickListener result = clickListener;
-            clickListener = new VideoClickListener();
+        public MovieClickListener build(){
+            MovieClickListener result = clickListener;
+            clickListener = new MovieClickListener();
 
             return result;
         }

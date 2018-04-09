@@ -6,11 +6,11 @@ import android.widget.GridView;
 
 import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
 
-public class VideoSearchTextWatcher implements TextWatcher {
+public class MovieSearchTextWatcher implements TextWatcher {
     private final MovieListAdapter listAdapter;
     private final GridView gridView;
 
-    public VideoSearchTextWatcher(MovieListAdapter listAdapter, GridView gridView) {
+    public MovieSearchTextWatcher(MovieListAdapter listAdapter, GridView gridView) {
         this.listAdapter = listAdapter;
         this.gridView = gridView;
     }

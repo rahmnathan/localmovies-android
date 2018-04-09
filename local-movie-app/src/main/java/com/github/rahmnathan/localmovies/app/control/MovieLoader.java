@@ -21,8 +21,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MovieInfoLoader implements Runnable {
-    private final Logger logger = Logger.getLogger(MovieInfoLoader.class.getName());
+public class MovieLoader implements Runnable {
+    private final Logger logger = Logger.getLogger(MovieLoader.class.getName());
     private final MovieFacade movieFacade = new MovieFacade();
     private final Handler UIHandler = new Handler(Looper.getMainLooper());
     private final ConcurrentMap<String, List<Movie>> movieInfoCache;
@@ -32,8 +32,8 @@ public class MovieInfoLoader implements Runnable {
     private final Context context;
     private final Client client;
 
-    MovieInfoLoader(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
-                           ConcurrentMap<String, List<Movie>> movieInfoCache, Context context) {
+    MovieLoader(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
+                ConcurrentMap<String, List<Movie>> movieInfoCache, Context context) {
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.movieInfoCache = movieInfoCache;
         this.client = myClient;

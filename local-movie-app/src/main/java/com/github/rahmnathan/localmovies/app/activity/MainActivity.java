@@ -12,8 +12,8 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
-import com.github.rahmnathan.localmovies.app.control.VideoClickListener;
-import com.github.rahmnathan.localmovies.app.control.VideoSearchTextWatcher;
+import com.github.rahmnathan.localmovies.app.control.MovieClickListener;
+import com.github.rahmnathan.localmovies.app.control.MovieSearchTextWatcher;
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
 import com.github.rahmnathan.localmovies.app.persistence.MovieHistory;
 import com.google.android.gms.cast.framework.CastButtonFactory;
@@ -32,7 +32,7 @@ import rahmnathan.localmovies.R;
 
 import static com.github.rahmnathan.localmovies.app.control.MainActivityUtils.getPhoneInfo;
 import static com.github.rahmnathan.localmovies.app.control.MainActivityUtils.sortVideoList;
-import static com.github.rahmnathan.localmovies.app.control.VideoClickListener.getVideos;
+import static com.github.rahmnathan.localmovies.app.control.MovieClickListener.getVideos;
 
 public class MainActivity extends AppCompatActivity {
     private final ConcurrentMap<String, List<Movie>> movieCache = new ConcurrentHashMap<>();
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         EditText searchText = findViewById(R.id.searchText);
-        searchText.addTextChangedListener(new VideoSearchTextWatcher(listAdapter, gridView));
+        searchText.addTextChangedListener(new MovieSearchTextWatcher(listAdapter, gridView));
 
         Button controls = findViewById(R.id.controls);
         controls.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         Button movies = findViewById(R.id.movies);
         movies.setOnClickListener(view -> getRootVideos(MOVIES, searchText));
 
-        VideoClickListener clickListener = VideoClickListener.Builder.newInstance()
+        MovieClickListener clickListener = MovieClickListener.Builder.newInstance()
                 .setCastContext(CastContext.getSharedInstance(this))
                 .setContext(this)
                 .setProgressBar(progressBar)
