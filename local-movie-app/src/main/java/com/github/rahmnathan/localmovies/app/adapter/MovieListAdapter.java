@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.github.rahmnathan.localmovies.app.enums.MovieGenre;
 import com.github.rahmnathan.localmovies.app.enums.MovieOrder;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
+import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -22,18 +22,18 @@ import java.util.stream.Collectors;
 
 import rahmnathan.localmovies.R;
 
-public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filterable {
+public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable {
 
     private final ListAdapterUtils adapterUtils = new ListAdapterUtils();
-    private final List<MovieInfo> originalMovieList = new ArrayList<>();
+    private final List<Movie> originalMovieList = new ArrayList<>();
     private final AdapterFilter adapterFilter = new AdapterFilter();
     private final Activity context;
-    private List<MovieInfo> movies;
+    private List<Movie> movies;
     private CharSequence chars = "";
 
-    public MovieListAdapter(Activity context, List<MovieInfo> movieInfoList) {
-        super(context, R.layout.my_adapter, movieInfoList);
-        this.movies = movieInfoList;
+    public MovieListAdapter(Activity context, List<Movie> movieList) {
+        super(context, R.layout.my_adapter, movieList);
+        this.movies = movieList;
         this.context = context;
     }
 
@@ -50,7 +50,7 @@ public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filtera
         TextView yearView = rowView.findViewById(R.id.year);
         TextView ratingView = rowView.findViewById(R.id.rating);
 
-        MovieInfo movie = movies.get(position);
+        Movie movie = movies.get(position);
         adapterUtils.mapTitle(movie.getTitle(), titleView);
         adapterUtils.mapImage(movie.getImage(), imageView);
         adapterUtils.mapYear(movie.getReleaseYear(), yearView);
@@ -66,8 +66,8 @@ public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filtera
     }
 
     public void filterGenre(MovieGenre genre){
-        List<MovieInfo> filteredList = originalMovieList.stream()
-                .sorted(Comparator.comparing(MovieInfo::getTitle))
+        List<Movie> filteredList = originalMovieList.stream()
+                .sorted(Comparator.comparing(Movie::getTitle))
                 .filter(movieInfo -> movieInfo.getGenre().toLowerCase().contains(genre.getFormattedName()))
                 .collect(Collectors.toList());
 
@@ -79,20 +79,20 @@ public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filtera
         originalMovieList.clear();
     }
 
-    public void updateList(List<MovieInfo> movieInfoList) {
-        this.movies.addAll(movieInfoList);
-        this.originalMovieList.addAll(movieInfoList);
+    public void updateList(List<Movie> movieList) {
+        this.movies.addAll(movieList);
+        this.originalMovieList.addAll(movieList);
     }
 
     public CharSequence getChars() {
         return chars;
     }
 
-    public List<MovieInfo> getOriginalMovieList() {
+    public List<Movie> getOriginalMovieList() {
         return originalMovieList;
     }
 
-    public MovieInfo getMovie(int position) {
+    public Movie getMovie(int position) {
         return movies.get(position);
     }
 
@@ -125,12 +125,12 @@ public class MovieListAdapter extends ArrayAdapter<MovieInfo> implements Filtera
         @Override
         @SuppressWarnings("unchecked")
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-            movies = (List<MovieInfo>) filterResults.values;
+            movies = (List<Movie>) filterResults.values;
             notifyDataSetChanged();
         }
     }
 
-    public void display(List<MovieInfo> newMovies){
+    public void display(List<Movie> newMovies){
         adapterUtils.display(movies, newMovies);
         notifyDataSetChanged();
     }

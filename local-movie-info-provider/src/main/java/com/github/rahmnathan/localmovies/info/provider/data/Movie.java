@@ -3,7 +3,7 @@ package com.github.rahmnathan.localmovies.info.provider.data;
 import java.io.Serializable;
 import java.util.Comparator;
 
-public class MovieInfo implements Serializable, Comparator<MovieInfo> {
+public class Movie implements Serializable, Comparator<Movie> {
     private final String title;
     private final String filename;
     private final String IMDBRating;
@@ -14,8 +14,8 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
     private final Long created;
     private final int views;
 
-    private MovieInfo(String title, String IMDBRating, String metaRating, String image, String releaseYear,
-                      Long created, int views, String genre, String filename) {
+    private Movie(String title, String IMDBRating, String metaRating, String image, String releaseYear,
+                  Long created, int views, String genre, String filename) {
         this.title = title;
         this.filename = filename;
         this.IMDBRating = IMDBRating;
@@ -69,7 +69,7 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
     }
 
     @Override
-    public int compare(MovieInfo info1, MovieInfo info2) {
+    public int compare(Movie info1, Movie info2) {
         return info1.getTitle().compareTo(info2.getTitle());
     }
 
@@ -134,8 +134,8 @@ public class MovieInfo implements Serializable, Comparator<MovieInfo> {
             return this;
         }
 
-        public MovieInfo build() {
-            return new MovieInfo(title, IMDBRating, metaRating, image, releaseYear, created, views, genre, fileName);
+        public Movie build() {
+            return new Movie(title, IMDBRating, metaRating, image, releaseYear, created, views, genre, fileName);
         }
     }
 }

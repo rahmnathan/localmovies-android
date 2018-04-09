@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.rahmnathan.localmovies.app.enums.MovieOrder;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
+import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,7 +17,7 @@ import rahmnathan.localmovies.R;
 
 class ListAdapterUtils {
 
-    void sort(List<MovieInfo> movies, MovieOrder order) {
+    void sort(List<Movie> movies, MovieOrder order) {
         switch (order) {
             case DATE_ADDED:
                 movies.sort((movie1, movie2) -> movie2.getCreated().compareTo(movie1.getCreated()));
@@ -32,7 +32,7 @@ class ListAdapterUtils {
                 movies.sort((movie1, movie2) -> movie2.getReleaseYear().compareTo(movie1.getReleaseYear()));
                 break;
             case TITLE:
-                movies.sort(Comparator.comparing(MovieInfo::getTitle));
+                movies.sort(Comparator.comparing(Movie::getTitle));
                 break;
         }
     }
@@ -67,7 +67,7 @@ class ListAdapterUtils {
         year.setTextSize(12);
     }
 
-    void display(List<MovieInfo> movies, List<MovieInfo> newMovies){
+    void display(List<Movie> movies, List<Movie> newMovies){
         movies.clear();
         movies.addAll(newMovies);
     }

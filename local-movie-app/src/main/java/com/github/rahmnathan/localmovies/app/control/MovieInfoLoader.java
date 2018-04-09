@@ -10,9 +10,9 @@ import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
 import com.github.rahmnathan.localmovies.client.Client;
-import com.github.rahmnathan.localmovies.info.provider.boundary.MovieInfoFacade;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieInfoRequest;
+import com.github.rahmnathan.localmovies.info.provider.boundary.MovieFacade;
+import com.github.rahmnathan.localmovies.info.provider.data.Movie;
+import com.github.rahmnathan.localmovies.info.provider.data.MovieRequest;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
@@ -23,17 +23,17 @@ import java.util.logging.Logger;
 
 public class MovieInfoLoader implements Runnable {
     private final Logger logger = Logger.getLogger(MovieInfoLoader.class.getName());
-    private final MovieInfoFacade movieInfoFacade = new MovieInfoFacade();
+    private final MovieFacade movieFacade = new MovieFacade();
     private final Handler UIHandler = new Handler(Looper.getMainLooper());
-    private final ConcurrentMap<String, List<MovieInfo>> movieInfoCache;
+    private final ConcurrentMap<String, List<Movie>> movieInfoCache;
     private final MovieListAdapter movieListAdapter;
     private final ProgressBar progressBar;
     private final String deviceId;
     private final Context context;
     private final Client client;
 
-    public MovieInfoLoader(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
-                    ConcurrentMap<String, List<MovieInfo>> movieInfoCache, Context context) {
+    MovieInfoLoader(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
+                           ConcurrentMap<String, List<Movie>> movieInfoCache, Context context) {
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.movieInfoCache = movieInfoCache;
         this.client = myClient;
@@ -51,11 +51,11 @@ public class MovieInfoLoader implements Runnable {
         int itemsPerPage = 30;
         UIHandler.post(() -> progressBar.setVisibility(View.VISIBLE));
         movieListAdapter.clearLists();
-        List<MovieInfo> movieInfoList = new ArrayList<>();
+        List<Movie> movieList = new ArrayList<>();
         int i = 0;
         String token = FirebaseInstanceId.getInstance().getToken();
         do {
-            MovieInfoRequest movieInfoRequest = MovieInfoRequest.Builder.newInstance()
+            MovieRequest movieRequest = MovieRequest.Builder.newInstance()
                     .setDeviceId(deviceId)
                     .setPage(i)
                     .setPath(client.getCurrentPath().toString())
@@ -63,9 +63,9 @@ public class MovieInfoLoader implements Runnable {
                     .setResultsPerPage(itemsPerPage)
                     .build();
 
-            List<MovieInfo> infoList = movieInfoFacade.getMovieInfo(client, movieInfoRequest);
+            List<Movie> infoList = movieFacade.getMovieInfo(client, movieRequest);
             movieListAdapter.updateList(infoList);
-            movieInfoList.addAll(infoList);
+            movieList.addAll(infoList);
             UIHandler.post(movieListAdapter::notifyDataSetChanged);
             i++;
             if (!movieListAdapter.getChars().equals("")) {
@@ -74,6 +74,6 @@ public class MovieInfoLoader implements Runnable {
         } while (i <= (client.getMovieCount() / itemsPerPage));
 
         UIHandler.post(() -> progressBar.setVisibility(View.GONE));
-        movieInfoCache.putIfAbsent(client.getCurrentPath().toString(), movieInfoList);
+        movieInfoCache.putIfAbsent(client.getCurrentPath().toString(), movieList);
     }
 }

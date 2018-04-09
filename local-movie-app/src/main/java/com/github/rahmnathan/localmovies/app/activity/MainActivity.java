@@ -20,14 +20,13 @@ import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.github.rahmnathan.localmovies.KeycloakAuthenticator;
 import com.github.rahmnathan.localmovies.client.Client;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
+import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Logger;
 
 import rahmnathan.localmovies.R;
 
@@ -36,7 +35,7 @@ import static com.github.rahmnathan.localmovies.app.control.MainActivityUtils.so
 import static com.github.rahmnathan.localmovies.app.control.VideoClickListener.getVideos;
 
 public class MainActivity extends AppCompatActivity {
-    private final ConcurrentMap<String, List<MovieInfo>> movieCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, List<Movie>> movieCache = new ConcurrentHashMap<>();
     private static final String MOVIES = "Movies";
     private static final String SERIES = "Series";
     private MovieListAdapter listAdapter;

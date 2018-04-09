@@ -13,7 +13,7 @@ import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
 import com.github.rahmnathan.localmovies.app.google.cast.control.GoogleCastUtils;
 import com.github.rahmnathan.localmovies.app.persistence.MovieHistory;
 import com.github.rahmnathan.localmovies.client.Client;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
+import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 public class VideoClickListener implements AdapterView.OnItemClickListener {
     private static final Logger logger = Logger.getLogger(VideoClickListener.class.getName());
-    private ConcurrentMap<String, List<MovieInfo>> movieCache;
+    private ConcurrentMap<String, List<Movie>> movieCache;
     private MovieListAdapter listAdapter;
     private ProgressBar progressBar;
     private CastContext castContext;
@@ -43,8 +43,8 @@ public class VideoClickListener implements AdapterView.OnItemClickListener {
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         String posterPath;
-        List<MovieInfo> titles;
-        MovieInfo movie = listAdapter.getMovie(position);
+        List<Movie> titles;
+        Movie movie = listAdapter.getMovie(position);
         if (client.isViewingVideos()) {
             history.addHistoryItem(listAdapter.getItem(position));
             // If we're viewing movies or episodes we refresh our token and start the video
@@ -83,7 +83,7 @@ public class VideoClickListener implements AdapterView.OnItemClickListener {
         }
     }
 
-    public static void getVideos(ConcurrentMap<String, List<MovieInfo>> movieInfoCache, Client myClient, MovieListAdapter movieListAdapter, Context context, ProgressBar progressBar) {
+    public static void getVideos(ConcurrentMap<String, List<Movie>> movieInfoCache, Client myClient, MovieListAdapter movieListAdapter, Context context, ProgressBar progressBar) {
         if (movieInfoCache.containsKey(myClient.getCurrentPath().toString())) {
             movieListAdapter.clearLists();
             movieListAdapter.updateList(movieInfoCache.get(myClient.getCurrentPath().toString()));
@@ -104,7 +104,7 @@ public class VideoClickListener implements AdapterView.OnItemClickListener {
             return new Builder();
         }
 
-        public Builder setMovieInfoCache(ConcurrentMap<String, List<MovieInfo>> movieInfoCache) {
+        public Builder setMovieInfoCache(ConcurrentMap<String, List<Movie>> movieInfoCache) {
             clickListener.movieCache = movieInfoCache;
             return this;
         }

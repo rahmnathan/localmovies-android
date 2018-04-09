@@ -1,6 +1,6 @@
 package com.github.rahmnathan.localmovies.info.provider.data;
 
-public class MovieInfoRequest {
+public class MovieRequest {
     private final int page;
     private final int resultsPerPage;
     private final String path;
@@ -8,7 +8,7 @@ public class MovieInfoRequest {
     private final String pushToken;
     private static final String client = "ANDROID";
 
-    private MovieInfoRequest(int page, int resultsPerPage, String path, String deviceId, String pushToken) {
+    private MovieRequest(int page, int resultsPerPage, String path, String deviceId, String pushToken) {
         this.page = page;
         this.resultsPerPage = resultsPerPage;
         this.path = path;
@@ -76,8 +76,8 @@ public class MovieInfoRequest {
             return this;
         }
 
-        public MovieInfoRequest build(){
-            return new MovieInfoRequest(page, resultsPerPage, path, deviceId, pushToken);
+        public MovieRequest build(){
+            return new MovieRequest(page, resultsPerPage, path, deviceId, pushToken);
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.github.rahmnathan.localmovies.info.provider.control;
 
-import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
+import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,13 +8,13 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-class JSONtoMovieInfoMapper {
+class JSONtoMovieMapper {
 
-    static List<MovieInfo> jsonArrayToMovieInfoList(JSONArray jsonList) {
-        List<MovieInfo> movieInfoList = new ArrayList<>();
+    static List<Movie> jsonArrayToMovieInfoList(JSONArray jsonList) {
+        List<Movie> movieList = new ArrayList<>();
         for (int i = 0; i < jsonList.length(); i++) {
             JSONObject mediaFile = jsonList.getJSONObject(i);
-            MovieInfo.Builder builder = MovieInfo.Builder.newInstance()
+            Movie.Builder builder = Movie.Builder.newInstance()
                     .setCreated(mediaFile.getLong("dateCreated"))
                     .setFileName(mediaFile.getString("fileName"))
                     .setViews(mediaFile.getInt("views"));
@@ -28,8 +28,8 @@ class JSONtoMovieInfoMapper {
                     .setGenre(movieInfo.getString("genre"))
                     .setImage(movieInfo.getString("image"));
 
-            movieInfoList.add(builder.build());
+            movieList.add(builder.build());
         }
-        return movieInfoList;
+        return movieList;
     }
 }

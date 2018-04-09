@@ -1,8 +1,8 @@
 package com.github.rahmnathan.localmovies.info.provider.control;
 
 import com.github.rahmnathan.localmovies.client.Client;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieInfoRequest;
+import com.github.rahmnathan.localmovies.info.provider.data.Movie;
+import com.github.rahmnathan.localmovies.info.provider.data.MovieRequest;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -19,16 +19,16 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MovieInfoProvider {
-    private final Logger logger = Logger.getLogger(MovieInfoProvider.class.getName());
+public class MovieProvider {
+    private final Logger logger = Logger.getLogger(MovieProvider.class.getName());
     private final Gson gson = new Gson();
 
-    public List<MovieInfo> getMovieInfo(Client client, MovieInfoRequest movieInfoRequest) {
-        Optional<JSONArray> movieInfoJson = getMovieInfoJson(client, movieInfoRequest);
-        return movieInfoJson.map(JSONtoMovieInfoMapper::jsonArrayToMovieInfoList).orElseGet(ArrayList::new);
+    public List<Movie> getMovieInfo(Client client, MovieRequest movieRequest) {
+        Optional<JSONArray> movieInfoJson = getMovieInfoJson(client, movieRequest);
+        return movieInfoJson.map(JSONtoMovieMapper::jsonArrayToMovieInfoList).orElseGet(ArrayList::new);
     }
 
-    private Optional<JSONArray> getMovieInfoJson(Client client, MovieInfoRequest movieInfoRequest) {
+    private Optional<JSONArray> getMovieInfoJson(Client client, MovieRequest movieRequest) {
         HttpURLConnection urlConnection = null;
         String url = client.getComputerUrl() + "/movie-api/titlerequest";
 
@@ -45,14 +45,14 @@ public class MovieInfoProvider {
         }
 
         if(urlConnection != null) {
-            String movieRequestBody = gson.toJson(movieInfoRequest);
+            String movieRequestBody = gson.toJson(movieRequest);
             try (OutputStreamWriter outputStream = new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8")) {
                 outputStream.write(movieRequestBody);
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Failed writing to movie info service", e);
             }
 
-            if (movieInfoRequest.getPage() == 0) {
+            if (movieRequest.getPage() == 0) {
                 logger.fine("Reading page count");
                 client.setMovieCount(Integer.valueOf(urlConnection.getHeaderField("Count")));
             }

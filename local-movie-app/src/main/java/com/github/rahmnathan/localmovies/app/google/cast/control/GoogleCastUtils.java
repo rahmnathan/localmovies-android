@@ -3,7 +3,7 @@ package com.github.rahmnathan.localmovies.app.google.cast.control;
 import android.net.Uri;
 
 import com.github.rahmnathan.localmovies.client.Client;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieInfo;
+import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaQueueItem;
@@ -16,43 +16,38 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class GoogleCastUtils {
     private static final Logger logger = Logger.getLogger(GoogleCastUtils.class.getName());
 
-    public static MediaQueueItem[] assembleMediaQueue(List<MovieInfo> titles, String posterPath, Client myClient) {
-        List<MediaQueueItem> mediaQueueItems = titles.stream()
-                .map(title -> buildMediaQueue(title, posterPath, myClient))
-                .collect(Collectors.toList());
-
-        MediaQueueItem[] queueItems = new MediaQueueItem[mediaQueueItems.size()];
-        mediaQueueItems.toArray(queueItems);
-        return queueItems;
+    public static MediaQueueItem[] assembleMediaQueue(List<Movie> movies, String posterPath, Client myClient) {
+        return movies.stream()
+                .map(title -> buildMediaQueueItem(title, posterPath, myClient))
+                .toArray(MediaQueueItem[]::new);
     }
 
-    private static MediaQueueItem buildMediaQueue(MovieInfo movieInfo, String posterPath, Client myClient){
+    private static MediaQueueItem buildMediaQueueItem(Movie movie, String posterPath, Client myClient){
         WebImage image = new WebImage(Uri.parse(myClient.getComputerUrl()
                 + "/movie-api/poster?access_token=" + myClient.getAccessToken()
                 + "&path=" + encodeParameter(posterPath)));
 
         String movieUrl = myClient.getComputerUrl()
                 + "/movie-api/video.mp4?access_token=" + myClient.getAccessToken()
-                + "&path=" + encodeParameter(myClient.getCurrentPath() + movieInfo.getFilename());
+                + "&path=" + encodeParameter(myClient.getCurrentPath() + movie.getFilename());
 
         MediaMetadata metaData = new MediaMetadata();
-        metaData.putString(MediaMetadata.KEY_TITLE, movieInfo.getTitle());
+        metaData.putString(MediaMetadata.KEY_TITLE, movie.getTitle());
         metaData.addImage(image);
 
         MediaInfo mediaInfo = new MediaInfo.Builder(movieUrl)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                .setContentType(MediaType.MP4_VIDEO.toString())
+                .setContentType(MediaType.ANY_VIDEO_TYPE.toString())
                 .setMetadata(metaData)
                 .build();
 
         return new MediaQueueItem.Builder(mediaInfo)
                 .setAutoplay(true)
-                .setPreloadTime(20)
+                .setPreloadTime(30)
                 .build();
     }
 
