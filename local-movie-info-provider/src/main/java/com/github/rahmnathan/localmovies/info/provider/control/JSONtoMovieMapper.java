@@ -19,7 +19,7 @@ class JSONtoMovieMapper {
                     .setFileName(mediaFile.getString("fileName"))
                     .setViews(mediaFile.getInt("views"));
 
-            JSONObject movieInfo = mediaFile.getJSONObject("movieInfo");
+            JSONObject movieInfo = mediaFile.getJSONObject("movie");
 
             builder.setReleaseYear(movieInfo.getString("releaseYear"))
                     .setMetaRating(movieInfo.getString("metaRating"))
