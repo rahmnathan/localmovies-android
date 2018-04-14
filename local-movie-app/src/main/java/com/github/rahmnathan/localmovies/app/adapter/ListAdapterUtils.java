@@ -26,7 +26,7 @@ class ListAdapterUtils {
                 movies.sort((movie1, movie2) -> Integer.compare(movie2.getViews(), movie1.getViews()));
                 break;
             case RATING:
-                movies.sort((movie1, movie2) -> String.valueOf(movie2.getIMDBRating()).compareTo(String.valueOf(movie1.getIMDBRating())));
+                movies.sort((movie1, movie2) -> String.valueOf(movie2.getImdbRating()).compareTo(String.valueOf(movie1.getImdbRating())));
                 break;
             case RELEASE_YEAR:
                 movies.sort((movie1, movie2) -> movie2.getReleaseYear().compareTo(movie1.getReleaseYear()));

@@ -54,7 +54,7 @@ public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable 
         adapterUtils.mapTitle(movie.getTitle(), titleView);
         adapterUtils.mapImage(movie.getImage(), imageView);
         adapterUtils.mapYear(movie.getReleaseYear(), yearView);
-        adapterUtils.mapRatings(movie.getIMDBRating(), movie.getMetaRating(), ratingView);
+        adapterUtils.mapRatings(movie.getImdbRating(), movie.getMetaRating(), ratingView);
 
         return rowView;
     }

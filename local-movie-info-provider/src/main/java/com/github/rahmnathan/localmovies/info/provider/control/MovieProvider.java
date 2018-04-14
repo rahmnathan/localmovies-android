@@ -25,7 +25,7 @@ public class MovieProvider {
 
     public List<Movie> getMovieInfo(Client client, MovieRequest movieRequest) {
         Optional<JSONArray> movieInfoJson = getMovieInfoJson(client, movieRequest);
-        return movieInfoJson.map(JSONtoMovieMapper::jsonArrayToMovieInfoList).orElseGet(ArrayList::new);
+        return movieInfoJson.map(JSONtoMovieMapper.INSTANCE::jsonArrayToMovieInfoList).orElseGet(ArrayList::new);
     }
 
     private Optional<JSONArray> getMovieInfoJson(Client client, MovieRequest movieRequest) {
