@@ -14,6 +14,8 @@ import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 
 import rahmnathan.localmovies.R;
 
+import static android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+
 public class DescriptionPopUpActivity extends Activity {
     private final ListAdapterUtils adapterUtils = new ListAdapterUtils();
     public static final String MOVIE = "movie";
@@ -22,6 +24,8 @@ public class DescriptionPopUpActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.description_popup);
+        getWindow().addFlags(FLAG_DIM_BEHIND);
+        getWindow().setDimAmount(0.8f);
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
