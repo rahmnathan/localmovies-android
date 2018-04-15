@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -32,6 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import rahmnathan.localmovies.R;
 
+import static com.github.rahmnathan.localmovies.app.activity.DetailedMovieDescriptionActivity.MOVIE;
 import static com.github.rahmnathan.localmovies.app.control.MainActivityUtils.getPhoneInfo;
 import static com.github.rahmnathan.localmovies.app.control.MainActivityUtils.sortVideoList;
 import static com.github.rahmnathan.localmovies.app.control.MovieClickListener.getVideos;
@@ -92,7 +91,9 @@ public class MainActivity extends AppCompatActivity {
 
         gridView.setOnItemClickListener(clickListener);
         gridView.setOnItemLongClickListener((parent, view, position, id) -> {
-            startActivity(new Intent(this, DetailedMovieDescriptionActivity.class));
+            Intent intent = new Intent(this, DetailedMovieDescriptionActivity.class);
+            intent.putExtra(MOVIE, listAdapter.getMovie(position));
+            startActivity(intent);
             return true;
         });
     }

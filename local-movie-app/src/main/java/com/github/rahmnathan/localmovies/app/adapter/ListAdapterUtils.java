@@ -15,7 +15,7 @@ import java.util.List;
 
 import rahmnathan.localmovies.R;
 
-class ListAdapterUtils {
+public class ListAdapterUtils {
 
     void sort(List<Movie> movies, MovieOrder order) {
         switch (order) {
@@ -37,9 +37,9 @@ class ListAdapterUtils {
         }
     }
 
-    void mapTitle(String title, TextView titleView){
+    public void mapTitle(String title, TextView titleView, int fontSize){
         titleView.setText(title);
-        titleView.setTextSize(17);
+        titleView.setTextSize(fontSize);
         titleView.setGravity(Gravity.CENTER);
         titleView.setTextColor(Color.WHITE);
     }
@@ -51,7 +51,7 @@ class ListAdapterUtils {
         ratings.setText(String.format("IMDB: %s Meta: %s", imdbRating, metaRating));
     }
 
-    void mapImage(String base64Image, ImageView imageView){
+    public void mapImage(String base64Image, ImageView imageView){
         if (base64Image != null && !base64Image.equals("") && !base64Image.equals("null")) {
             byte[] image = Base64.decode(base64Image, Base64.DEFAULT);
             imageView.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length));
@@ -60,11 +60,11 @@ class ListAdapterUtils {
         }
     }
 
-    void mapYear(String releaseYear, TextView year){
+    public void mapYear(String releaseYear, TextView year, int fontSize){
         year.setText(String.format("Release Year: %s", releaseYear));
         year.setTextColor(Color.WHITE);
         year.setGravity(Gravity.CENTER);
-        year.setTextSize(12);
+        year.setTextSize(fontSize);
     }
 
     void display(List<Movie> movies, List<Movie> newMovies){

@@ -51,9 +51,9 @@ public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable 
         TextView ratingView = rowView.findViewById(R.id.rating);
 
         Movie movie = movies.get(position);
-        adapterUtils.mapTitle(movie.getTitle(), titleView);
+        adapterUtils.mapTitle(movie.getTitle(), titleView, 17);
         adapterUtils.mapImage(movie.getImage(), imageView);
-        adapterUtils.mapYear(movie.getReleaseYear(), yearView);
+        adapterUtils.mapYear(movie.getReleaseYear(), yearView, 12);
         adapterUtils.mapRatings(movie.getImdbRating(), movie.getMetaRating(), ratingView);
 
         return rowView;
