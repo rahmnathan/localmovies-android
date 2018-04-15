@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import rahmnathan.localmovies.R;
 
-import static com.github.rahmnathan.localmovies.app.activity.DetailedMovieDescriptionActivity.MOVIE;
+import static com.github.rahmnathan.localmovies.app.activity.DescriptionPopUpActivity.MOVIE;
 import static com.github.rahmnathan.localmovies.app.control.MainActivityUtils.getPhoneInfo;
 import static com.github.rahmnathan.localmovies.app.control.MainActivityUtils.sortVideoList;
 import static com.github.rahmnathan.localmovies.app.control.MovieClickListener.getVideos;
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         gridView.setOnItemClickListener(clickListener);
         gridView.setOnItemLongClickListener((parent, view, position, id) -> {
-            Intent intent = new Intent(this, DetailedMovieDescriptionActivity.class);
+            Intent intent = new Intent(this, DescriptionPopUpActivity.class);
             intent.putExtra(MOVIE, listAdapter.getMovie(position));
             startActivity(intent);
             return true;

@@ -14,7 +14,7 @@ import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 
 import rahmnathan.localmovies.R;
 
-public class DetailedMovieDescriptionActivity extends Activity {
+public class DescriptionPopUpActivity extends Activity {
     private final ListAdapterUtils adapterUtils = new ListAdapterUtils();
     public static final String MOVIE = "movie";
 
