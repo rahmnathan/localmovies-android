@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -89,6 +91,10 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         gridView.setOnItemClickListener(clickListener);
+        gridView.setOnItemLongClickListener((parent, view, position, id) -> {
+            startActivity(new Intent(this, DetailedMovieDescriptionActivity.class));
+            return true;
+        });
     }
 
     private void getRootVideos(String path, EditText searchText){
