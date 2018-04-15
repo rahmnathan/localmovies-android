@@ -21,6 +21,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#000000"
         android:layout_below="@+id/detailedPoster"
+        android:layout_marginHorizontal="10dp"
         android:layout_centerHorizontal="true"/>
 
     <TextView
@@ -30,6 +31,7 @@
         android:text="Plot"
         android:id="@+id/detailedPlot"
         android:gravity="bottom"
+        android:layout_marginHorizontal="10dp"
         android:layout_below="@+id/detailedTitle"
         android:layout_centerHorizontal="true"/>
 
@@ -40,6 +42,8 @@
         android:text="Actors"
         android:id="@+id/detailedActors"
         android:gravity="bottom"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="10dp"
         android:layout_below="@+id/detailedPlot"
         android:layout_centerHorizontal="true"/>
 
@@ -50,6 +54,7 @@
         android:id="@+id/detailedYear"
         android:text="Year"
         android:gravity="bottom"
+        android:layout_marginTop="10dp"
         android:layout_below="@+id/detailedActors"
         android:layout_centerHorizontal="true"/>
 

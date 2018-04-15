@@ -27,7 +27,7 @@ public class DetailedMovieDescriptionActivity extends Activity {
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels;
         int width = displayMetrics.widthPixels;
-        getWindow().setLayout(Double.valueOf(width * .7).intValue(), Double.valueOf(height * .7).intValue());
+        getWindow().setLayout(Double.valueOf(width * .75).intValue(), Double.valueOf(height * .75).intValue());
 
         Bundle bundle = getIntent().getExtras();
         if(bundle != null) {
@@ -48,8 +48,8 @@ public class DetailedMovieDescriptionActivity extends Activity {
 
                 mapTextView(metaRatingView, String.format("Metacritic Rating: %s", movie.getMetaRating()), 16);
                 mapTextView(imdbRatingView, String.format("IMDB Rating: %s", movie.getImdbRating()), 16);
-                mapTextView(plotView, "Sample Plot", 14);
-                mapTextView(actorView, String.format("Cast: %s", "Sample actor list"), 14);
+                mapTextView(plotView, movie.getPlot(), 14);
+                mapTextView(actorView, String.format("Starring: %s", movie.getActors()), 14);
             }
         }
     }
