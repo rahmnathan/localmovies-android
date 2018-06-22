@@ -23,10 +23,12 @@ import java.util.logging.Logger;
 
 public class MovieLoader implements Runnable {
     private final Logger logger = Logger.getLogger(MovieLoader.class.getName());
-    private final MovieFacade movieFacade = new MovieFacade();
     private final Handler UIHandler = new Handler(Looper.getMainLooper());
     private final ConcurrentMap<String, List<Movie>> movieInfoCache;
+    private final MovieFacade movieFacade = new MovieFacade();
     private final MovieListAdapter movieListAdapter;
+    private static final int ITEMS_PER_PAGE = 30;
+    private volatile boolean running = true;
     private final ProgressBar progressBar;
     private final String deviceId;
     private final Context context;
@@ -35,45 +37,60 @@ public class MovieLoader implements Runnable {
     MovieLoader(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
                 ConcurrentMap<String, List<Movie>> movieInfoCache, Context context) {
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        this.movieInfoCache = movieInfoCache;
-        this.client = myClient;
         this.movieListAdapter = movieListAdapter;
+        this.movieInfoCache = movieInfoCache;
         this.progressBar = progressBar;
+        this.client = myClient;
         this.context = context;
     }
 
     public void run() {
         logger.log(Level.INFO, "Dynamically loading titles");
+        UIHandler.post(() -> progressBar.setVisibility(View.VISIBLE));
+        String token = FirebaseInstanceId.getInstance().getToken();
+
         if (client.getAccessToken() == null) {
             UIHandler.post(() -> Toast.makeText(context, "Login failed - Check credentials", Toast.LENGTH_LONG).show());
             return;
         }
-        int itemsPerPage = 30;
-        UIHandler.post(() -> progressBar.setVisibility(View.VISIBLE));
+
         movieListAdapter.clearLists();
-        List<Movie> movieList = new ArrayList<>();
-        int i = 0;
-        String token = FirebaseInstanceId.getInstance().getToken();
+        int page = 0;
         do {
             MovieRequest movieRequest = MovieRequest.Builder.newInstance()
-                    .setDeviceId(deviceId)
-                    .setPage(i)
                     .setPath(client.getCurrentPath().toString())
+                    .setResultsPerPage(ITEMS_PER_PAGE)
+                    .setDeviceId(deviceId)
                     .setPushToken(token)
-                    .setResultsPerPage(itemsPerPage)
+                    .setPage(page)
                     .build();
 
             List<Movie> infoList = movieFacade.getMovieInfo(client, movieRequest);
+
+            if (!running) break;
+
             movieListAdapter.updateList(infoList);
-            movieList.addAll(infoList);
             UIHandler.post(movieListAdapter::notifyDataSetChanged);
-            i++;
             if (!movieListAdapter.getChars().equals("")) {
                 UIHandler.post(() -> movieListAdapter.getFilter().filter(movieListAdapter.getChars()));
             }
-        } while (i <= (client.getMovieCount() / itemsPerPage));
+
+            page++;
+        } while (page <= (client.getMovieCount() / ITEMS_PER_PAGE));
+
+        if (running) {
+            movieInfoCache.putIfAbsent(client.getCurrentPath().toString(), new ArrayList<>(movieListAdapter.getOriginalMovieList()));
+        }
 
         UIHandler.post(() -> progressBar.setVisibility(View.GONE));
-        movieInfoCache.putIfAbsent(client.getCurrentPath().toString(), movieList);
+        running = false;
+    }
+
+    public boolean isRunning(){
+        return running;
+    }
+
+    public void terminate(){
+        running = false;
     }
 }

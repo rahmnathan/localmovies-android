@@ -30,6 +30,7 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
     private static final Logger logger = Logger.getLogger(MovieClickListener.class.getName());
     private ConcurrentMap<String, List<Movie>> movieCache;
     private MovieListAdapter listAdapter;
+    private static volatile MovieLoader movieLoader;
     private ProgressBar progressBar;
     private CastContext castContext;
     private MovieHistory history;
@@ -84,12 +85,17 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
     }
 
     public static void getVideos(ConcurrentMap<String, List<Movie>> movieInfoCache, Client myClient, MovieListAdapter movieListAdapter, Context context, ProgressBar progressBar) {
+        if(movieLoader != null && movieLoader.isRunning()){
+            movieLoader.terminate();
+        }
+
         if (movieInfoCache.containsKey(myClient.getCurrentPath().toString())) {
             movieListAdapter.clearLists();
             movieListAdapter.updateList(movieInfoCache.get(myClient.getCurrentPath().toString()));
             movieListAdapter.notifyDataSetChanged();
         } else {
-            CompletableFuture.runAsync(new MovieLoader(progressBar, movieListAdapter, myClient, movieInfoCache, context));
+            movieLoader = new MovieLoader(progressBar, movieListAdapter, myClient, movieInfoCache, context);
+            CompletableFuture.runAsync(movieLoader);
         }
     }
 
