@@ -29,6 +29,7 @@ public class MovieLoader implements Runnable {
     private final MovieListAdapter movieListAdapter;
     private static final int ITEMS_PER_PAGE = 30;
     private volatile boolean running = true;
+    private static boolean locked = false;
     private final ProgressBar progressBar;
     private final String deviceId;
     private final Context context;
@@ -46,6 +47,17 @@ public class MovieLoader implements Runnable {
 
     public void run() {
         logger.log(Level.INFO, "Dynamically loading titles");
+
+        while(locked){
+            logger.info("waiting for lock to release");
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e){
+                logger.info("Exception waiting for lock: " + e.toString());
+            }
+        }
+
         UIHandler.post(() -> progressBar.setVisibility(View.VISIBLE));
         String token = FirebaseInstanceId.getInstance().getToken();
 
@@ -54,6 +66,7 @@ public class MovieLoader implements Runnable {
             return;
         }
 
+        locked = true;
         movieListAdapter.clearLists();
         int page = 0;
         do {
@@ -83,6 +96,7 @@ public class MovieLoader implements Runnable {
         }
 
         UIHandler.post(() -> progressBar.setVisibility(View.GONE));
+        locked = false;
         running = false;
     }
 
