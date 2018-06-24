@@ -30,11 +30,11 @@ public class MovieProvider {
 
     private Optional<JSONArray> getMovieInfoJson(Client client, MovieRequest movieRequest) {
         HttpURLConnection urlConnection = null;
-        String url = client.getComputerUrl() + "/movie-api/titlerequest";
+        String url = client.getComputerUrl() + "/localmovies/v2/movies";
 
         try {
             urlConnection = (HttpURLConnection) (new URL(url)).openConnection();
-            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestMethod("GET");
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);
             urlConnection.setRequestProperty("Content-Type", "application/json");

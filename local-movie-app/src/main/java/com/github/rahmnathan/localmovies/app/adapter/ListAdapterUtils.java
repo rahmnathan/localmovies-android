@@ -12,6 +12,7 @@ import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import rahmnathan.localmovies.R;
 
@@ -20,7 +21,7 @@ public class ListAdapterUtils {
     void sort(List<Movie> movies, MovieOrder order) {
         switch (order) {
             case DATE_ADDED:
-                movies.sort((movie1, movie2) -> movie2.getCreated().compareTo(movie1.getCreated()));
+                movies.sort((movie1, movie2) -> Objects.requireNonNull(movie2.getCreated()).compareTo(movie1.getCreated()));
                 break;
             case MOST_VIEWS:
                 movies.sort((movie1, movie2) -> Integer.compare(movie2.getViews(), movie1.getViews()));

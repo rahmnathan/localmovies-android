@@ -61,8 +61,7 @@ public class MainActivity extends AppCompatActivity {
             client = getPhoneInfo(openFileInput("setup"));
             client.appendToCurrentPath(MOVIES);
             Toast.makeText(this, "Logging in", Toast.LENGTH_SHORT).show();
-            CompletableFuture<Void> future = CompletableFuture.runAsync(new KeycloakAuthenticator(client));
-            future.thenRun(this::loadVideos);
+            CompletableFuture.runAsync(new KeycloakAuthenticator(client)).thenRun(this::loadVideos);
         } catch (Exception e) {
             startActivity(new Intent(MainActivity.this, SetupActivity.class));
         }

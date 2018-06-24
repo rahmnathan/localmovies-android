@@ -28,11 +28,11 @@ public class GoogleCastUtils {
 
     private static MediaQueueItem buildMediaQueueItem(Movie movie, String posterPath, Client myClient){
         WebImage image = new WebImage(Uri.parse(myClient.getComputerUrl()
-                + "/movie-api/poster?access_token=" + myClient.getAccessToken()
+                + "/localmovies/v2/movie/poster?access_token=" + myClient.getAccessToken()
                 + "&path=" + encodeParameter(posterPath)));
 
         String movieUrl = myClient.getComputerUrl()
-                + "/movie-api/video.mp4?access_token=" + myClient.getAccessToken()
+                + "/localmovies/v2/movie/stream.mp4?access_token=" + myClient.getAccessToken()
                 + "&path=" + encodeParameter(myClient.getCurrentPath() + movie.getFilename());
 
         MediaMetadata metaData = new MediaMetadata();
