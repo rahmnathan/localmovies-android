@@ -17,14 +17,13 @@ import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MovieLoader implements Runnable {
     private final Logger logger = Logger.getLogger(MovieLoader.class.getName());
     private final Handler UIHandler = new Handler(Looper.getMainLooper());
-    private final ConcurrentMap<String, List<Movie>> movieInfoCache;
+    private final MoviePersistenceManager persistenceManager;
     private final MovieFacade movieFacade = new MovieFacade();
     private final MovieListAdapter movieListAdapter;
     private static final int ITEMS_PER_PAGE = 30;
@@ -36,10 +35,10 @@ public class MovieLoader implements Runnable {
     private final Client client;
 
     MovieLoader(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
-                ConcurrentMap<String, List<Movie>> movieInfoCache, Context context) {
+                MoviePersistenceManager persistenceManager, Context context) {
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.movieListAdapter = movieListAdapter;
-        this.movieInfoCache = movieInfoCache;
+        this.persistenceManager = persistenceManager;
         this.progressBar = progressBar;
         this.client = myClient;
         this.context = context;
@@ -92,7 +91,7 @@ public class MovieLoader implements Runnable {
         } while (page <= (client.getMovieCount() / ITEMS_PER_PAGE));
 
         if (running) {
-            movieInfoCache.putIfAbsent(client.getCurrentPath().toString(), new ArrayList<>(movieListAdapter.getOriginalMovieList()));
+            persistenceManager.addAll(client.getCurrentPath().toString(), new ArrayList<>(movieListAdapter.getOriginalMovieList()));
         }
 
         UIHandler.post(() -> progressBar.setVisibility(View.GONE));

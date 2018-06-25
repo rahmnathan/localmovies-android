@@ -25,7 +25,8 @@ internal object JSONtoMovieMapper {
                     image = movieInfo.getString("image"),
                     views = mediaFile.getInt("views"),
                     actors = movieInfo.getString("actors"),
-                    plot =  movieInfo.getString("plot")
+                    plot =  movieInfo.getString("plot"),
+                    path = mediaFile.getString("path")
             )
             movieList.add(movie)
         }

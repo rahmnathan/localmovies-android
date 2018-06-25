@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
 import com.github.rahmnathan.localmovies.app.control.MovieClickListener;
+import com.github.rahmnathan.localmovies.app.control.MoviePersistenceManager;
 import com.github.rahmnathan.localmovies.app.control.MovieSearchTextWatcher;
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
 import com.github.rahmnathan.localmovies.app.persistence.MovieHistory;
@@ -37,6 +38,7 @@ import static com.github.rahmnathan.localmovies.app.control.MovieClickListener.g
 
 public class MainActivity extends AppCompatActivity {
     private final ConcurrentMap<String, List<Movie>> movieCache = new ConcurrentHashMap<>();
+    private MoviePersistenceManager persistenceManager;
     private static final String MOVIES = "Movies";
     private static final String SERIES = "Series";
     private MovieListAdapter listAdapter;
@@ -54,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         listAdapter = new MovieListAdapter(this, new ArrayList<>());
         gridView = findViewById(R.id.gridView);
         gridView.setAdapter(listAdapter);
+
+        persistenceManager = new MoviePersistenceManager(movieCache, this);
 
         // Getting phone info and Triggering initial request of titles from server
 
@@ -84,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                 .setProgressBar(progressBar)
                 .setClient(client)
                 .setMovieListAdapter(listAdapter)
-                .setMovieInfoCache(movieCache)
+                .setMovieInfoCache(persistenceManager)
                 .setMovieHistory(history)
                 .build();
 
@@ -105,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadVideos(){
-        getVideos(movieCache, client, listAdapter, this, progressBar);
+        getVideos(persistenceManager, client, listAdapter, this, progressBar);
     }
 
     @Override

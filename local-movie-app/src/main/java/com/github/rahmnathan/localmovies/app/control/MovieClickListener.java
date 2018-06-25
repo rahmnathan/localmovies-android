@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 
 public class MovieClickListener implements AdapterView.OnItemClickListener {
     private static final Logger logger = Logger.getLogger(MovieClickListener.class.getName());
-    private ConcurrentMap<String, List<Movie>> movieCache;
-    private MovieListAdapter listAdapter;
+    private MoviePersistenceManager persistenceManager;
     private static volatile MovieLoader movieLoader;
+    private MovieListAdapter listAdapter;
     private ProgressBar progressBar;
     private CastContext castContext;
     private MovieHistory history;
@@ -65,7 +65,7 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
             queueVideos(queueItems);
         } else {
             client.appendToCurrentPath(movie.getFilename());
-            getVideos(movieCache, client, listAdapter, context, progressBar);
+            getVideos(persistenceManager, client, listAdapter, context, progressBar);
         }
     }
 
@@ -84,17 +84,17 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
         }
     }
 
-    public static void getVideos(ConcurrentMap<String, List<Movie>> movieInfoCache, Client myClient, MovieListAdapter movieListAdapter, Context context, ProgressBar progressBar) {
+    public static void getVideos(MoviePersistenceManager persistenceManager, Client myClient, MovieListAdapter movieListAdapter, Context context, ProgressBar progressBar) {
         if(movieLoader != null && movieLoader.isRunning()){
             movieLoader.terminate();
         }
 
-        if (movieInfoCache.containsKey(myClient.getCurrentPath().toString())) {
+        if (persistenceManager.contains(myClient.getCurrentPath().toString())) {
             movieListAdapter.clearLists();
-            movieListAdapter.updateList(movieInfoCache.get(myClient.getCurrentPath().toString()));
+            movieListAdapter.updateList(persistenceManager.getMoviesAtPath(myClient.getCurrentPath().toString()));
             movieListAdapter.notifyDataSetChanged();
         } else {
-            movieLoader = new MovieLoader(progressBar, movieListAdapter, myClient, movieInfoCache, context);
+            movieLoader = new MovieLoader(progressBar, movieListAdapter, myClient, persistenceManager, context);
             CompletableFuture.runAsync(movieLoader);
         }
     }
@@ -110,8 +110,8 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
             return new Builder();
         }
 
-        public Builder setMovieInfoCache(ConcurrentMap<String, List<Movie>> movieInfoCache) {
-            clickListener.movieCache = movieInfoCache;
+        public Builder setMovieInfoCache(MoviePersistenceManager persistenceManager) {
+            clickListener.persistenceManager = persistenceManager;
             return this;
         }
 

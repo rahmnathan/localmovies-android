@@ -34,7 +34,7 @@ public class MovieProvider {
 
         try {
             urlConnection = (HttpURLConnection) (new URL(url)).openConnection();
-            urlConnection.setRequestMethod("GET");
+            urlConnection.setRequestMethod("POST");
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);
             urlConnection.setRequestProperty("Content-Type", "application/json");
