@@ -5,7 +5,7 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {MovieListEntity.class}, version = 1)
+@Database(entities = {MovieEntity.class}, version = 1)
 public abstract class MovieDatabase extends RoomDatabase {
     public abstract MovieDAO movieDAO();
 
@@ -15,8 +15,7 @@ public abstract class MovieDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (MovieDatabase.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            MovieDatabase.class, "movie_database").build();
+                    INSTANCE = Room.databaseBuilder(context, MovieDatabase.class, "movie_database").build();
                 }
             }
         }

@@ -13,20 +13,14 @@ public class MovieTypeConverters {
     private static final Gson gson = new Gson();
 
     @TypeConverter
-    public List<Movie> toMovieList(String json){
+    public Movie toMovieList(String json){
         if(json == null) return null;
-
-        Type type = new TypeToken<List<Movie>>(){}.getType();
-
-        return gson.fromJson(json, type);
+        return gson.fromJson(json, Movie.class);
     }
 
     @TypeConverter
-    public String fromMovieList(List<Movie> movies){
-        if(movies == null) return null;
-
-        Type type = new TypeToken<List<Movie>>(){}.getType();
-
-        return gson.toJson(movies, type);
+    public String fromMovieList(Movie movie){
+        if(movie == null) return null;
+        return gson.toJson(movie);
     }
 }

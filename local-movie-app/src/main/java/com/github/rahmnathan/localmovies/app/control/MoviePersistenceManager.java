@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -18,20 +19,23 @@ public class MoviePersistenceManager {
     private final ConcurrentMap<String, List<Movie>> movieInfoCache;
     private MovieDAO movieDAO;
 
-    public MoviePersistenceManager(ConcurrentMap<String, List<Movie>> movieInfoCache, Context context) {
+    public MoviePersistenceManager(ConcurrentMap<String, List<Movie>> movieInfoCache, Context context, ExecutorService executorService) {
         this.movieInfoCache = movieInfoCache;
 
         CompletableFuture.runAsync(() -> {
             MovieDatabase db = MovieDatabase.getDatabase(context);
             movieDAO = db.movieDAO();
 
-            List<MovieListEntity> movieListEntities = movieDAO.getAll();
+            List<MovieEntity> movieEntities = movieDAO.getAll();
 
-            movieListEntities.forEach(movieListEntity -> {
-                logger.info("Loading MovieListEntities into memory: " + movieListEntity.getPath());
-                movieInfoCache.put(movieListEntity.getPath(), movieListEntity.getMovies());
+            movieEntities.forEach(movieEntity -> {
+                logger.info("Loading MovieEntities into memory - Path: " + movieEntity.getDirectoryPath() + " Filename: " + movieEntity.getMovie().getFilename());
+                List<Movie> movies = movieInfoCache.getOrDefault(movieEntity.getDirectoryPath(), new ArrayList<>());
+                movies.add(movieEntity.getMovie());
+                movieInfoCache.putIfAbsent(movieEntity.getDirectoryPath(), movies);
             });
-        });
+
+        }, executorService);
     }
 
     public boolean contains(String key){
@@ -41,29 +45,30 @@ public class MoviePersistenceManager {
     public void addAll(String path, List<Movie> movies){
         movieInfoCache.putIfAbsent(path, movies);
         logger.info("Adding movielistentities to database: " + path);
-        movieDAO.insert(new MovieListEntity(path, movies));
+        List<MovieEntity> movieEntities = movies.stream().map(movie -> new MovieEntity(path, movie)).collect(Collectors.toList());
+        movieDAO.insertAll(movieEntities);
     }
 
     public List<Movie> getMoviesAtPath(String path){
         return movieInfoCache.getOrDefault(path, new ArrayList<>());
     }
 
-    public void deleteMovie(String path){
-        LocalMediaPath mediaPath = new LocalMediaPath();
-        mediaPath.addAll(Arrays.asList(path.split("/")));
-        mediaPath.remove();
-        List<Movie> movies = movieInfoCache.getOrDefault(mediaPath.toString(), new ArrayList<>());
-        Movie movie = movies.stream().filter(i -> i.getPath().equalsIgnoreCase(path)).collect(Collectors.toList()).get(0);
-        movieDAO.delete(new MovieListEntity(path, movies));
-        movies.remove(movie);
-    }
-
-    public void addMovie(Movie movie){
-        LocalMediaPath mediaPath = new LocalMediaPath();
-        mediaPath.addAll(Arrays.asList(movie.getPath().split("/")));
-        mediaPath.remove();
-        List<Movie> movies = movieInfoCache.getOrDefault(mediaPath.toString(), new ArrayList<>());
-        movies.add(movie);
-        movieDAO.insert(new MovieListEntity(mediaPath.toString(), movies));
-    }
+//    public void deleteMovie(String path){
+//        LocalMediaPath mediaPath = new LocalMediaPath();
+//        mediaPath.addAll(Arrays.asList(path.split("/")));
+//        mediaPath.remove();
+//        List<Movie> movies = movieInfoCache.getOrDefault(mediaPath.toString(), new ArrayList<>());
+//        Movie movie = movies.stream().filter(i -> i.getPath().equalsIgnoreCase(path)).collect(Collectors.toList()).get(0);
+//        movieDAO.delete(new MovieEntity(path, movies));
+//        movies.remove(movie);
+//    }
+//
+//    public void addMovie(Movie movie){
+//        LocalMediaPath mediaPath = new LocalMediaPath();
+//        mediaPath.addAll(Arrays.asList(movie.getPath().split("/")));
+//        mediaPath.remove();
+//        List<Movie> movies = movieInfoCache.getOrDefault(mediaPath.toString(), new ArrayList<>());
+//        movies.add(movie);
+//        movieDAO.insert(new MovieEntity(mediaPath.toString(), movies));
+//    }
 }

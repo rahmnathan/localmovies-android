@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import rahmnathan.localmovies.R;
 
@@ -38,7 +40,8 @@ import static com.github.rahmnathan.localmovies.app.control.MovieClickListener.g
 
 public class MainActivity extends AppCompatActivity {
     private final ConcurrentMap<String, List<Movie>> movieCache = new ConcurrentHashMap<>();
-    private MoviePersistenceManager persistenceManager;
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private volatile MoviePersistenceManager persistenceManager;
     private static final String MOVIES = "Movies";
     private static final String SERIES = "Series";
     private MovieListAdapter listAdapter;
@@ -57,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         gridView = findViewById(R.id.gridView);
         gridView.setAdapter(listAdapter);
 
-        persistenceManager = new MoviePersistenceManager(movieCache, this);
+        persistenceManager = new MoviePersistenceManager(movieCache, this, executorService);
 
         // Getting phone info and Triggering initial request of titles from server
 
@@ -65,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
             client = getPhoneInfo(openFileInput("setup"));
             client.appendToCurrentPath(MOVIES);
             Toast.makeText(this, "Logging in", Toast.LENGTH_SHORT).show();
-            CompletableFuture.runAsync(new KeycloakAuthenticator(client)).thenRun(this::loadVideos);
+            CompletableFuture.runAsync(new KeycloakAuthenticator(client), executorService).thenRun(this::loadVideos);
         } catch (Exception e) {
             startActivity(new Intent(MainActivity.this, SetupActivity.class));
         }

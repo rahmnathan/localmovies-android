@@ -28,18 +28,14 @@ public class MovieLoader implements Runnable {
     private final MovieListAdapter movieListAdapter;
     private static final int ITEMS_PER_PAGE = 30;
     private volatile boolean running = true;
-    private static boolean locked = false;
-    private final ProgressBar progressBar;
     private final String deviceId;
     private final Context context;
     private final Client client;
 
-    MovieLoader(ProgressBar progressBar, MovieListAdapter movieListAdapter, Client myClient,
-                MoviePersistenceManager persistenceManager, Context context) {
+    MovieLoader(MovieListAdapter movieListAdapter, Client myClient, MoviePersistenceManager persistenceManager, Context context) {
         this.deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         this.movieListAdapter = movieListAdapter;
         this.persistenceManager = persistenceManager;
-        this.progressBar = progressBar;
         this.client = myClient;
         this.context = context;
     }
@@ -47,17 +43,6 @@ public class MovieLoader implements Runnable {
     public void run() {
         logger.log(Level.INFO, "Dynamically loading titles");
 
-        while(locked){
-            logger.info("waiting for lock to release");
-
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e){
-                logger.info("Exception waiting for lock: " + e.toString());
-            }
-        }
-
-        UIHandler.post(() -> progressBar.setVisibility(View.VISIBLE));
         String token = FirebaseInstanceId.getInstance().getToken();
 
         if (client.getAccessToken() == null) {
@@ -65,7 +50,6 @@ public class MovieLoader implements Runnable {
             return;
         }
 
-        locked = true;
         movieListAdapter.clearLists();
         int page = 0;
         do {
@@ -94,8 +78,6 @@ public class MovieLoader implements Runnable {
             persistenceManager.addAll(client.getCurrentPath().toString(), new ArrayList<>(movieListAdapter.getOriginalMovieList()));
         }
 
-        UIHandler.post(() -> progressBar.setVisibility(View.GONE));
-        locked = false;
         running = false;
     }
 

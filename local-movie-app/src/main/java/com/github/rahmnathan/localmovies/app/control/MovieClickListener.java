@@ -2,6 +2,8 @@ package com.github.rahmnathan.localmovies.app.control;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ProgressBar;
@@ -23,11 +25,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class MovieClickListener implements AdapterView.OnItemClickListener {
     private static final Logger logger = Logger.getLogger(MovieClickListener.class.getName());
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final Handler UIHandler = new Handler(Looper.getMainLooper());
     private MoviePersistenceManager persistenceManager;
     private static volatile MovieLoader movieLoader;
     private MovieListAdapter listAdapter;
@@ -92,10 +98,13 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
         if (persistenceManager.contains(myClient.getCurrentPath().toString())) {
             movieListAdapter.clearLists();
             movieListAdapter.updateList(persistenceManager.getMoviesAtPath(myClient.getCurrentPath().toString()));
-            movieListAdapter.notifyDataSetChanged();
+            UIHandler.post(movieListAdapter::notifyDataSetChanged);
+            UIHandler.post(() -> progressBar.setVisibility(View.INVISIBLE));
         } else {
-            movieLoader = new MovieLoader(progressBar, movieListAdapter, myClient, persistenceManager, context);
-            CompletableFuture.runAsync(movieLoader);
+            UIHandler.post(() -> progressBar.setVisibility(View.VISIBLE));
+            movieLoader = new MovieLoader(movieListAdapter, myClient, persistenceManager, context);
+            CompletableFuture.runAsync(movieLoader, executorService)
+                    .thenRun(() -> UIHandler.post(() -> progressBar.setVisibility(View.GONE)));
         }
     }
 
