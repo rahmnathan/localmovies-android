@@ -5,7 +5,7 @@ android {
     buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "rahm.nathan.localmovies"
-        minSdkVersion 24
+        minSdkVersion 26
         targetSdkVersion 27
         versionName '1.5.1'
         versionCode 51
@@ -45,7 +45,6 @@ dependencies {
     compile project(path: ':local-movie-authentication-keycloak')
     compile 'com.android.support:mediarouter-v7:27.1.1'
     compile 'com.google.android.gms:play-services-cast-framework:15.0.1'
-
     def room_version = "1.1.1"
     implementation "android.arch.persistence.room:runtime:$room_version"
     annotationProcessor "android.arch.persistence.room:compiler:$room_version"

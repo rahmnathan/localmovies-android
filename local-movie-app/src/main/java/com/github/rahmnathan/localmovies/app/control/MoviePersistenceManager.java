@@ -53,15 +53,34 @@ public class MoviePersistenceManager {
         return movieInfoCache.getOrDefault(path, new ArrayList<>());
     }
 
-//    public void deleteMovie(String path){
-//        LocalMediaPath mediaPath = new LocalMediaPath();
-//        mediaPath.addAll(Arrays.asList(path.split("/")));
-//        mediaPath.remove();
-//        List<Movie> movies = movieInfoCache.getOrDefault(mediaPath.toString(), new ArrayList<>());
-//        Movie movie = movies.stream().filter(i -> i.getPath().equalsIgnoreCase(path)).collect(Collectors.toList()).get(0);
-//        movieDAO.delete(new MovieEntity(path, movies));
-//        movies.remove(movie);
-//    }
+    public void deleteMovie(String path){
+        String parentPath = getParentPath(path);
+        String filename = getFilename(path);
+
+        List<Movie> movies = movieInfoCache.getOrDefault(parentPath, new ArrayList<>());
+        movies.removeIf(movie -> movie.getFilename().equalsIgnoreCase(filename));
+        MovieEntity entity = movieDAO.getByPathAndFilename(parentPath, filename);
+
+        if(entity != null)
+            movieDAO.delete(entity);
+    }
+
+    private static String getParentPath(String path){
+        String[] directoryList = path.split("/");
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < directoryList.length - 1; i++){
+            sb.append(directoryList[i]).append("/");
+        }
+
+        return sb.toString();
+    }
+
+    private static String getFilename(String path){
+        String[] directoryList = path.split("/");
+        return directoryList[directoryList.length - 1];
+    }
+
+
 //
 //    public void addMovie(Movie movie){
 //        LocalMediaPath mediaPath = new LocalMediaPath();

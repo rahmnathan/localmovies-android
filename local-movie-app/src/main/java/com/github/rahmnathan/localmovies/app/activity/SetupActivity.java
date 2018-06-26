@@ -2,6 +2,7 @@ package com.github.rahmnathan.localmovies.app.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -22,7 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SetupActivity extends Activity {
-    private final Logger logger = Logger.getLogger(SetupActivity.class.getName());
+    private static final Logger logger = Logger.getLogger(SetupActivity.class.getName());
     private static final String SETUP_FILE = "setup";
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static final String[] PERMISSIONS_STORAGE = {
@@ -54,17 +55,17 @@ public class SetupActivity extends Activity {
 
         Button set = findViewById(R.id.set);
         set.setOnClickListener(view -> {
-            saveData(userName.getText().toString(), password.getText().toString(), url.getText().toString());
+            Client client1 = new Client(url.getText().toString(), userName.getText().toString(), password.getText().toString());
+            saveData(client1, this);
 
             startActivity(new Intent(SetupActivity.this, MainActivity.class));
         });
     }
 
-    private void saveData(String userName, String password, String url) {
-        Client client = new Client(url, userName, password);
-        try (ObjectOutputStream os = new ObjectOutputStream(openFileOutput(SETUP_FILE, MODE_PRIVATE))) {
+    public static void saveData(Client client, Context context) {
+        try (ObjectOutputStream os = new ObjectOutputStream(context.openFileOutput(SETUP_FILE, MODE_PRIVATE))) {
             os.writeObject(client);
-            Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to save client data", e);
         }

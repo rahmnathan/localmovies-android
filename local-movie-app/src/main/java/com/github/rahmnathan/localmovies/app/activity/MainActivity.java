@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
 import com.github.rahmnathan.localmovies.app.control.MovieClickListener;
+import com.github.rahmnathan.localmovies.app.control.MovieEventLoader;
 import com.github.rahmnathan.localmovies.app.control.MoviePersistenceManager;
 import com.github.rahmnathan.localmovies.app.control.MovieSearchTextWatcher;
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
@@ -68,7 +69,9 @@ public class MainActivity extends AppCompatActivity {
             client = getPhoneInfo(openFileInput("setup"));
             client.appendToCurrentPath(MOVIES);
             Toast.makeText(this, "Logging in", Toast.LENGTH_SHORT).show();
-            CompletableFuture.runAsync(new KeycloakAuthenticator(client), executorService).thenRun(this::loadVideos);
+            CompletableFuture.runAsync(new KeycloakAuthenticator(client), executorService)
+                    .thenRun(this::loadVideos)
+                    .thenRun(new MovieEventLoader(listAdapter, client, persistenceManager, this));
         } catch (Exception e) {
             startActivity(new Intent(MainActivity.this, SetupActivity.class));
         }

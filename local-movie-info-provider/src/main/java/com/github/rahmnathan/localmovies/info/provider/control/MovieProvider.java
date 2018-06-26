@@ -2,6 +2,7 @@ package com.github.rahmnathan.localmovies.info.provider.control;
 
 import com.github.rahmnathan.localmovies.client.Client;
 import com.github.rahmnathan.localmovies.info.provider.data.Movie;
+import com.github.rahmnathan.localmovies.info.provider.data.MovieEvent;
 import com.github.rahmnathan.localmovies.info.provider.data.MovieRequest;
 import com.google.gson.Gson;
 
@@ -26,6 +27,11 @@ public class MovieProvider {
     public List<Movie> getMovieInfo(Client client, MovieRequest movieRequest) {
         Optional<JSONArray> movieInfoJson = getMovieInfoJson(client, movieRequest);
         return movieInfoJson.map(JSONtoMovieMapper.INSTANCE::jsonArrayToMovieInfoList).orElseGet(ArrayList::new);
+    }
+
+    public List<MovieEvent> getMovieEvents(Client client) {
+        Optional<JSONArray> movieInfoJson = getMovieEventJson(client);
+        return movieInfoJson.map(JSONtoMovieMapper.INSTANCE::jsonArrayToMovieEventList).orElseGet(ArrayList::new);
     }
 
     private Optional<JSONArray> getMovieInfoJson(Client client, MovieRequest movieRequest) {
@@ -57,6 +63,34 @@ public class MovieProvider {
                 client.setMovieCount(Integer.valueOf(urlConnection.getHeaderField("Count")));
             }
 
+            StringBuilder result = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
+                br.lines().forEachOrdered(result::append);
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Failed reading from movie info service", e);
+            } finally {
+                urlConnection.disconnect();
+            }
+
+            return Optional.of(new JSONArray(result.toString()));
+        }
+        return Optional.empty();
+    }
+
+    private Optional<JSONArray> getMovieEventJson(Client client) {
+        HttpURLConnection urlConnection = null;
+        String url = client.getComputerUrl() + "/localmovies/v2/movie/events?timestamp=" + client.getLastUpdate();
+
+        try {
+            urlConnection = (HttpURLConnection) (new URL(url)).openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setRequestProperty("Authorization", "bearer " + client.getAccessToken());
+            urlConnection.setConnectTimeout(10000);
+        } catch (IOException e){
+            logger.log(Level.SEVERE, "Failed connecting to movie info service", e);
+        }
+
+        if(urlConnection != null) {
             StringBuilder result = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
                 br.lines().forEachOrdered(result::append);

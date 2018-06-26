@@ -1,15 +1,18 @@
 package com.github.rahmnathan.localmovies.client;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 public class Client implements Serializable {
     private final LocalMediaPath mainPath = new LocalMediaPath();
-    private LocalMediaPath currentPath = mainPath;
     private String computerUrl = "https://localmovies.hopto.org";
+    private LocalMediaPath currentPath = mainPath;
+    private Integer movieCount;
+    private String accessToken;
+    private long lastUpdate = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
     private String userName;
     private String password;
-    private String accessToken;
-    private Integer movieCount;
 
     public Client(String computerUrl, String userName, String password) {
         this.computerUrl = computerUrl;
@@ -18,6 +21,14 @@ public class Client implements Serializable {
     }
 
     public Client() {
+    }
+
+    public long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(long lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 
     public boolean isViewingEpisodes(){

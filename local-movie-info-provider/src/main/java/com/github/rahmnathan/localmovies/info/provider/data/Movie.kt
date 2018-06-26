@@ -3,7 +3,7 @@ package com.github.rahmnathan.localmovies.info.provider.data
 import java.io.Serializable
 import java.util.Comparator
 
-class Movie(val title: String, val imdbRating: String, val metaRating: String, val image: String, val releaseYear: String,
+public class Movie(val title: String, val imdbRating: String, val metaRating: String, val image: String, val releaseYear: String,
             val created: Long?, val views: Int, val genre: String, val filename: String, val actors: String, val plot: String,
             val path: String) : Serializable, Comparator<Movie> {
 
