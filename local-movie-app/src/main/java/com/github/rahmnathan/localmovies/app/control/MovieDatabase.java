@@ -11,7 +11,7 @@ public abstract class MovieDatabase extends RoomDatabase {
 
     private static MovieDatabase INSTANCE;
 
-    static MovieDatabase getDatabase(final Context context) {
+    public static MovieDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (MovieDatabase.class) {
                 if (INSTANCE == null) {

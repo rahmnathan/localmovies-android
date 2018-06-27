@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.github.rahmnathan.localmovies.app.control.MovieDAO;
+import com.github.rahmnathan.localmovies.app.control.MovieDatabase;
 import com.github.rahmnathan.localmovies.client.Client;
 
 import rahmnathan.localmovies.R;
@@ -19,6 +21,7 @@ import rahmnathan.localmovies.R;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,6 +62,16 @@ public class SetupActivity extends Activity {
             saveData(client1, this);
 
             startActivity(new Intent(SetupActivity.this, MainActivity.class));
+        });
+
+        Button clearMovies = findViewById(R.id.clearMovies);
+        clearMovies.setOnClickListener(view -> {
+            CompletableFuture.runAsync(() -> {
+                MovieDAO movieDAO = MovieDatabase.getDatabase(this).movieDAO();
+                movieDAO.deleteAll();
+
+                startActivity(new Intent(SetupActivity.this, MainActivity.class));
+            });
         });
     }
 

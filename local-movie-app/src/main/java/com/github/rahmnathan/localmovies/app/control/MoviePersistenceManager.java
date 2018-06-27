@@ -79,15 +79,4 @@ public class MoviePersistenceManager {
         String[] directoryList = path.split("/");
         return directoryList[directoryList.length - 1];
     }
-
-
-//
-//    public void addMovie(Movie movie){
-//        LocalMediaPath mediaPath = new LocalMediaPath();
-//        mediaPath.addAll(Arrays.asList(movie.getPath().split("/")));
-//        mediaPath.remove();
-//        List<Movie> movies = movieInfoCache.getOrDefault(mediaPath.toString(), new ArrayList<>());
-//        movies.add(movie);
-//        movieDAO.insert(new MovieEntity(mediaPath.toString(), movies));
-//    }
 }

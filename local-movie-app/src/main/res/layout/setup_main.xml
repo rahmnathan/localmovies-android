@@ -67,4 +67,12 @@
         android:backgroundTint="#4c4c4c"
         android:layout_gravity="center_horizontal" />
 
+    <Button
+        android:id="@+id/clearMovies"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:backgroundTint="#4c4c4c"
+        android:text="Clear Movies" />
+
 </LinearLayout>
