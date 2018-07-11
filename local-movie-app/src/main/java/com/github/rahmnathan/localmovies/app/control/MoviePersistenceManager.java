@@ -2,12 +2,11 @@ package com.github.rahmnathan.localmovies.app.control;
 
 import android.content.Context;
 
-import com.github.rahmnathan.localmovies.client.LocalMediaPath;
 import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -38,10 +37,6 @@ public class MoviePersistenceManager {
         }, executorService);
     }
 
-    public boolean contains(String key){
-        return movieInfoCache.containsKey(key);
-    }
-
     public void addAll(String path, List<Movie> movies){
         movieInfoCache.putIfAbsent(path, movies);
         logger.info("Adding movielistentities to database: " + path);
@@ -49,8 +44,8 @@ public class MoviePersistenceManager {
         movieDAO.insertAll(movieEntities);
     }
 
-    public List<Movie> getMoviesAtPath(String path){
-        return movieInfoCache.getOrDefault(path, new ArrayList<>());
+    public Optional<List<Movie>> getMoviesAtPath(String path){
+        return Optional.ofNullable(movieInfoCache.get(path));
     }
 
     public void deleteMovie(String path){

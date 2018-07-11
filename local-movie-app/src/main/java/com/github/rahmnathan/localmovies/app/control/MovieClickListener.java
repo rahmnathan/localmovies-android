@@ -23,8 +23,8 @@ import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
@@ -95,9 +95,10 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
             movieLoader.terminate();
         }
 
-        if (persistenceManager.contains(myClient.getCurrentPath().toString())) {
+        Optional<List<Movie>> optionalMovies = persistenceManager.getMoviesAtPath(myClient.getCurrentPath().toString());
+        if (optionalMovies.isPresent()) {
             movieListAdapter.clearLists();
-            movieListAdapter.updateList(persistenceManager.getMoviesAtPath(myClient.getCurrentPath().toString()));
+            movieListAdapter.updateList(optionalMovies.get());
             UIHandler.post(movieListAdapter::notifyDataSetChanged);
             UIHandler.post(() -> progressBar.setVisibility(View.INVISIBLE));
         } else {

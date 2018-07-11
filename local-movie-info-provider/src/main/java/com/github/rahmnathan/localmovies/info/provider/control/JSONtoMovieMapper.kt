@@ -42,10 +42,13 @@ internal object JSONtoMovieMapper {
         val movieList = ArrayList<MovieEvent>()
         for (i in 0 until jsonList.length()) {
             val mediaFileEvent = jsonList.getJSONObject(i)
-            val mediaFile = mediaFileEvent.getJSONObject("mediaFile")
-
-            val movie = mediaFileToMovie(mediaFile)
-            movieList.add(MovieEvent(mediaFileEvent.getString("event"), movie, mediaFileEvent.getString("relativePath")))
+            if(!mediaFileEvent.isNull("mediaFile")) {
+                val mediaFile = mediaFileEvent.getJSONObject("mediaFile")
+                val movie = mediaFileToMovie(mediaFile)
+                movieList.add(MovieEvent(mediaFileEvent.getString("event"), movie, mediaFileEvent.getString("relativePath")))
+            } else {
+                movieList.add(MovieEvent(mediaFileEvent.getString("event"), mediaFileEvent.getString("relativePath")))
+            }
         }
         return movieList
     }

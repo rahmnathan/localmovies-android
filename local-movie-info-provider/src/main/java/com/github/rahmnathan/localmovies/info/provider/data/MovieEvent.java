@@ -11,6 +11,12 @@ public class MovieEvent {
         this.movie = movie;
     }
 
+    public MovieEvent(String event, String relativePath){
+        this.relativePath = relativePath;
+        this.event = event;
+        this.movie = null;
+    }
+
     public String getRelativePath() {
         return relativePath;
     }
