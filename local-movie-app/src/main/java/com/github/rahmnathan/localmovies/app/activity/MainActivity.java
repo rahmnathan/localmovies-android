@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private MovieHistory history;
     private ProgressBar progressBar;
     private GridView gridView;
-    private Client client;
+    public static Client client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
