@@ -21,6 +21,7 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +64,7 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
                         .filter(movieInfo -> getEpisodeNumber(movieInfo.getTitle()).compareTo(getEpisodeNumber(movie.getTitle())) > 0 || movieInfo.getTitle().equals(movie.getTitle()))
                         .collect(Collectors.toList());
             } else {
-                posterPath = client.getCurrentPath() + movie.getFilename();
+                posterPath = client.getCurrentPath() + File.separator + movie.getFilename();
                 titles = Collections.singletonList(movie);
             }
 

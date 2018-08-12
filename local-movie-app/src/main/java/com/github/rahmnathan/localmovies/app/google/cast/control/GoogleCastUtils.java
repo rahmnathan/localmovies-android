@@ -10,6 +10,7 @@ import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.common.images.WebImage;
 import com.google.common.net.MediaType;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +34,7 @@ public class GoogleCastUtils {
 
         String movieUrl = myClient.getComputerUrl()
                 + "/localmovies/v2/movie/stream.mp4?access_token=" + myClient.getAccessToken()
-                + "&path=" + encodeParameter(myClient.getCurrentPath() + movie.getFilename());
+                + "&path=" + encodeParameter(myClient.getCurrentPath() + File.separator + movie.getFilename());
 
         MediaMetadata metaData = new MediaMetadata();
         metaData.putString(MediaMetadata.KEY_TITLE, movie.getTitle());
