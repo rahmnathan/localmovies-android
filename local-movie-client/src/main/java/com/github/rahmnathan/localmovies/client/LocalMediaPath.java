@@ -9,6 +9,6 @@ public class LocalMediaPath extends ArrayDeque<String> {
         StringBuilder sb = new StringBuilder();
         this.forEach(directory -> sb.append(directory).append("/"));
 
-        return sb.toString();
+        return sb.toString().substring(0, sb.length()-1);
     }
 }
