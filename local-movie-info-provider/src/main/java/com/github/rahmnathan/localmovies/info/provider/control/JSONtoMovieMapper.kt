@@ -25,8 +25,8 @@ internal object JSONtoMovieMapper {
         return Movie(
                 releaseYear = movieInfo.getString("releaseYear"),
                 metaRating = movieInfo.getString("metaRating"),
-                imdbRating = movieInfo.getString("imdbrating"),
-                created = mediaFile.getLong("dateCreated"),
+                imdbRating = movieInfo.getString("imdbRating"),
+                created = mediaFile.getLong("created"),
                 filename = mediaFile.getString("fileName"),
                 title = movieInfo.getString("title"),
                 genre = movieInfo.getString("genre"),

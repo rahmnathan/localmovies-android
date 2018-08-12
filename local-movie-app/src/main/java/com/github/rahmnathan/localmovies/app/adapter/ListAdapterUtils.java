@@ -67,9 +67,4 @@ public class ListAdapterUtils {
         year.setGravity(Gravity.CENTER);
         year.setTextSize(fontSize);
     }
-
-    void display(List<Movie> movies, List<Movie> newMovies){
-        movies.clear();
-        movies.addAll(newMovies);
-    }
 }

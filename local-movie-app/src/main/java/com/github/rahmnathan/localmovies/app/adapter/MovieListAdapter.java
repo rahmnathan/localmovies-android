@@ -131,7 +131,8 @@ public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable 
     }
 
     public void display(List<Movie> newMovies){
-        adapterUtils.display(movies, newMovies);
+        movies.clear();
+        movies.addAll(newMovies);
         notifyDataSetChanged();
     }
 
