@@ -10,7 +10,7 @@ public class Client implements Serializable {
     private LocalMediaPath currentPath = mainPath;
     private Integer movieCount;
     private String accessToken;
-    private long lastUpdate = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+    private Long lastUpdate;
     private String userName;
     private String password;
 
@@ -23,7 +23,7 @@ public class Client implements Serializable {
     public Client() {
     }
 
-    public long getLastUpdate() {
+    public Long getLastUpdate() {
         return lastUpdate;
     }
 

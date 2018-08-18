@@ -77,6 +77,6 @@ public class MovieEventLoader implements Runnable {
             sb.append(directoryList[i]).append("/");
         }
 
-        return sb.toString();
+        return sb.toString().substring(0, sb.length() - 1);
     }
 }

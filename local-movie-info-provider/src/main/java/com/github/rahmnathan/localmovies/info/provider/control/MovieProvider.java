@@ -79,6 +79,9 @@ public class MovieProvider {
 
     private Optional<JSONArray> getMovieEventJson(Client client) {
         HttpURLConnection urlConnection = null;
+        if(client.getLastUpdate() == null){
+            client.setLastUpdate(System.currentTimeMillis());
+        }
         String url = client.getComputerUrl() + "/localmovies/v2/movie/events?timestamp=" + client.getLastUpdate();
 
         try {
