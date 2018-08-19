@@ -5,6 +5,7 @@ import android.content.Context;
 import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -42,6 +43,14 @@ public class MoviePersistenceManager {
         logger.info("Adding movielistentities to database: " + path);
         List<MovieEntity> movieEntities = movies.stream().map(movie -> new MovieEntity(path, movie)).collect(Collectors.toList());
         movieDAO.insertAll(movieEntities);
+    }
+
+    public void addOne(String path, Movie movie){
+        List<Movie> movies = movieInfoCache.getOrDefault(path, new ArrayList<>());
+        movies.add(movie);
+        movieInfoCache.put(path, movies);
+
+        movieDAO.insertAll(Collections.singletonList(new MovieEntity(path, movie)));
     }
 
     public Optional<List<Movie>> getMoviesAtPath(String path){

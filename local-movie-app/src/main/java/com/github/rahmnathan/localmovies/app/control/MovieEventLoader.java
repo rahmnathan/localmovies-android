@@ -48,9 +48,7 @@ public class MovieEventLoader implements Runnable {
         events.forEach(event -> {
             if(event.getEvent().equalsIgnoreCase("CREATE")){
                 Movie movie = event.getMovie();
-                List<Movie> movies = persistenceManager.getMoviesAtPath(getParentPath(event.getRelativePath())).orElse(new ArrayList<>());
-                movies.add(movie);
-                persistenceManager.addAll(getParentPath(event.getRelativePath()), Collections.singletonList(movie));
+                persistenceManager.addOne(getParentPath(event.getRelativePath()), movie);
                 movieListAdapter.clearLists();
                 movieListAdapter.updateList(persistenceManager.getMoviesAtPath(client.getCurrentPath().toString()).orElse(new ArrayList<>()));
                 UIHandler.post(movieListAdapter::notifyDataSetChanged);
