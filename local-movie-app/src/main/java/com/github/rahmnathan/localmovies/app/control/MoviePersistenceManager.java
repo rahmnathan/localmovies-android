@@ -76,7 +76,7 @@ public class MoviePersistenceManager {
             sb.append(directoryList[i]).append("/");
         }
 
-        return sb.toString();
+        return sb.toString().substring(0, sb.length() - 1);
     }
 
     private static String getFilename(String path){

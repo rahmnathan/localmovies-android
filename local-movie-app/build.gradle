@@ -7,8 +7,8 @@ android {
         applicationId "rahm.nathan.localmovies"
         minSdkVersion 26
         targetSdkVersion 27
-        versionName '1.5.9'
-        versionCode 59
+        versionName '1.6.0'
+        versionCode 60
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
