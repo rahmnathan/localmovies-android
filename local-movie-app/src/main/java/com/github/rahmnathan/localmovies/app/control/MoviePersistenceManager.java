@@ -4,7 +4,9 @@ import android.content.Context;
 
 import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -70,17 +72,14 @@ public class MoviePersistenceManager {
     }
 
     private static String getParentPath(String path){
-        String[] directoryList = path.split("/");
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < directoryList.length - 1; i++){
-            sb.append(directoryList[i]).append("/");
-        }
-
-        return sb.toString().substring(0, sb.length() - 1);
+        String[] dirs = path.split(File.separator);
+        return Arrays.stream(dirs)
+                .limit(dirs.length - 1)
+                .collect(Collectors.joining(File.separator));
     }
 
     private static String getFilename(String path){
-        String[] directoryList = path.split("/");
+        String[] directoryList = path.split(File.separator);
         return directoryList[directoryList.length - 1];
     }
 }

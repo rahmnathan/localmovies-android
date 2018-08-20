@@ -12,11 +12,13 @@ import com.github.rahmnathan.localmovies.info.provider.boundary.MovieFacade;
 import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 import com.github.rahmnathan.localmovies.info.provider.data.MovieEvent;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class MovieEventLoader implements Runnable {
     private final Logger logger = Logger.getLogger(MovieEventLoader.class.getName());
@@ -69,12 +71,9 @@ public class MovieEventLoader implements Runnable {
     }
 
     private static String getParentPath(String path){
-        String[] directoryList = path.split("/");
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < directoryList.length - 1; i++){
-            sb.append(directoryList[i]).append("/");
-        }
-
-        return sb.toString().substring(0, sb.length() - 1);
+        String[] dirs = path.split(File.separator);
+        return Arrays.stream(dirs)
+                .limit(dirs.length - 1)
+                .collect(Collectors.joining(File.separator));
     }
 }
