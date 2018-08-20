@@ -6,11 +6,11 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.widget.Toast;
 
-import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
-import com.github.rahmnathan.localmovies.client.Client;
-import com.github.rahmnathan.localmovies.info.provider.boundary.MovieFacade;
-import com.github.rahmnathan.localmovies.info.provider.data.Movie;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieRequest;
+import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter;
+import com.github.rahmnathan.localmovies.app.data.Client;
+import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MovieFacade;
+import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.MovieRequest;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.info.provider.data
+package com.github.rahmnathan.localmovies.app.data
 
 import java.io.Serializable
 import java.util.Comparator

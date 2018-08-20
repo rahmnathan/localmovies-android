@@ -2,8 +2,8 @@ package com.github.rahmnathan.localmovies.app.google.cast.control;
 
 import android.net.Uri;
 
-import com.github.rahmnathan.localmovies.client.Client;
-import com.github.rahmnathan.localmovies.info.provider.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Client;
+import com.github.rahmnathan.localmovies.app.data.Movie;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaQueueItem;

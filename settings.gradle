@@ -1,1 +1,1 @@
-include ':local-movie-app', ':local-movie-info-provider', ':local-movie-client', ':local-movie-authentication-keycloak'
+include ':local-movie-app'

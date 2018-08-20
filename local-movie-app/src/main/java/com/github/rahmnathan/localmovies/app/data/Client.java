@@ -1,8 +1,6 @@
-package com.github.rahmnathan.localmovies.client;
+package com.github.rahmnathan.localmovies.app.data;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 public class Client implements Serializable {
     private final LocalMediaPath mainPath = new LocalMediaPath();

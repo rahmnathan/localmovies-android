@@ -2,7 +2,7 @@ package com.github.rahmnathan.localmovies.app.control;
 
 import android.arch.persistence.room.TypeConverter;
 
-import com.github.rahmnathan.localmovies.info.provider.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Movie;
 import com.google.gson.Gson;
 
 public class MovieTypeConverters {

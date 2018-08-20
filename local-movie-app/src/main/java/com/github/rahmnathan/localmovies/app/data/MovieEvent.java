@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.info.provider.data;
+package com.github.rahmnathan.localmovies.app.data;
 
 public class MovieEvent {
     private final String relativePath;

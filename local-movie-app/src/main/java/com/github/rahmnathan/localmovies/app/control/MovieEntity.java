@@ -4,7 +4,7 @@ import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
-import com.github.rahmnathan.localmovies.info.provider.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Movie;
 
 @Entity
 public class MovieEntity {

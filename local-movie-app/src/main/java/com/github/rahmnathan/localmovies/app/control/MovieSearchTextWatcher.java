@@ -4,7 +4,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.GridView;
 
-import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
+import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter;
 
 public class MovieSearchTextWatcher implements TextWatcher {
     private final MovieListAdapter listAdapter;

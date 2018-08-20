@@ -1,12 +1,13 @@
-package com.github.rahmnathan.localmovies.info.provider.control;
+package com.github.rahmnathan.localmovies.app.adapter.external.localmovie;
 
-import com.github.rahmnathan.localmovies.client.Client;
-import com.github.rahmnathan.localmovies.info.provider.data.Movie;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieEvent;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieRequest;
+import com.github.rahmnathan.localmovies.app.data.Client;
+import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.MovieEvent;
+import com.github.rahmnathan.localmovies.app.data.MovieRequest;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -72,7 +73,11 @@ public class MovieProvider {
                 urlConnection.disconnect();
             }
 
-            return Optional.of(new JSONArray(result.toString()));
+            try {
+                return Optional.of(new JSONArray(result.toString()));
+            } catch (JSONException e){
+                logger.log(Level.SEVERE,"Failure unmarhalling json.", e);
+            }
         }
         return Optional.empty();
     }
@@ -103,7 +108,11 @@ public class MovieProvider {
                 urlConnection.disconnect();
             }
 
-            return Optional.of(new JSONArray(result.toString()));
+            try {
+                return Optional.of(new JSONArray(result.toString()));
+            } catch (JSONException e){
+                logger.log(Level.SEVERE, "Failure unmarshalling json.", e);
+            }
         }
         return Optional.empty();
     }

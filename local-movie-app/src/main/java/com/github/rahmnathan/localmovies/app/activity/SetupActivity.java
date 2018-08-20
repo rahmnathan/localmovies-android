@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.control.MovieDAO;
 import com.github.rahmnathan.localmovies.app.control.MovieDatabase;
-import com.github.rahmnathan.localmovies.client.Client;
+import com.github.rahmnathan.localmovies.app.data.Client;
 
 import rahmnathan.localmovies.R;
 

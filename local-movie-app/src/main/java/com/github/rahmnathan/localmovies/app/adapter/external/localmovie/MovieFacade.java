@@ -1,10 +1,9 @@
-package com.github.rahmnathan.localmovies.info.provider.boundary;
+package com.github.rahmnathan.localmovies.app.adapter.external.localmovie;
 
-import com.github.rahmnathan.localmovies.client.Client;
-import com.github.rahmnathan.localmovies.info.provider.control.MovieProvider;
-import com.github.rahmnathan.localmovies.info.provider.data.Movie;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieEvent;
-import com.github.rahmnathan.localmovies.info.provider.data.MovieRequest;
+import com.github.rahmnathan.localmovies.app.data.Client;
+import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.MovieEvent;
+import com.github.rahmnathan.localmovies.app.data.MovieRequest;
 
 import java.util.List;
 import java.util.logging.Level;

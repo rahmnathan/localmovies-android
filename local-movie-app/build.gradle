@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 27
@@ -40,14 +41,13 @@ dependencies {
     compile 'com.android.support:appcompat-v7:27.1.1'
     compile 'com.android.support:design:27.1.1'
     compile 'com.google.guava:guava:23.0'
-    compile project(path: ':local-movie-client')
-    compile project(path: ':local-movie-info-provider')
-    compile project(path: ':local-movie-authentication-keycloak')
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
     compile 'com.android.support:mediarouter-v7:27.1.1'
     compile 'com.google.android.gms:play-services-cast-framework:16.0.1'
     def room_version = "1.1.1"
     implementation "android.arch.persistence.room:runtime:$room_version"
     annotationProcessor "android.arch.persistence.room:compiler:$room_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 apply plugin: 'com.google.gms.google-services'

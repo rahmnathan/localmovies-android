@@ -2,7 +2,7 @@ package com.github.rahmnathan.localmovies.app.persistence;
 
 import android.content.Context;
 
-import com.github.rahmnathan.localmovies.info.provider.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Movie;
 import com.google.common.collect.EvictingQueue;
 
 import java.io.IOException;

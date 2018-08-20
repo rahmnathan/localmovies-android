@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.client;
+package com.github.rahmnathan.localmovies.app.data;
 
 import java.util.ArrayDeque;
 

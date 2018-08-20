@@ -1,8 +1,6 @@
-package com.github.rahmnathan.localmovies.info.provider.control
+package com.github.rahmnathan.localmovies.app.adapter.external.localmovie
 
-import com.github.rahmnathan.localmovies.info.provider.data.Movie
-import com.github.rahmnathan.localmovies.info.provider.data.MovieEvent
-
+import com.github.rahmnathan.localmovies.app.data.Movie
 import java.util.ArrayList
 
 import org.json.JSONArray
@@ -38,16 +36,16 @@ internal object JSONtoMovieMapper {
         )
     }
 
-    fun jsonArrayToMovieEventList(jsonList: JSONArray): List<MovieEvent> {
-        val movieList = ArrayList<MovieEvent>()
+    fun jsonArrayToMovieEventList(jsonList: JSONArray): List<com.github.rahmnathan.localmovies.app.data.MovieEvent> {
+        val movieList = ArrayList<com.github.rahmnathan.localmovies.app.data.MovieEvent>()
         for (i in 0 until jsonList.length()) {
             val mediaFileEvent = jsonList.getJSONObject(i)
             if(!mediaFileEvent.isNull("mediaFile")) {
                 val mediaFile = mediaFileEvent.getJSONObject("mediaFile")
                 val movie = mediaFileToMovie(mediaFile)
-                movieList.add(MovieEvent(mediaFileEvent.getString("event"), movie, mediaFileEvent.getString("relativePath")))
+                movieList.add(com.github.rahmnathan.localmovies.app.data.MovieEvent(mediaFileEvent.getString("event"), movie, mediaFileEvent.getString("relativePath")))
             } else {
-                movieList.add(MovieEvent(mediaFileEvent.getString("event"), mediaFileEvent.getString("relativePath")))
+                movieList.add(com.github.rahmnathan.localmovies.app.data.MovieEvent(mediaFileEvent.getString("event"), mediaFileEvent.getString("relativePath")))
             }
         }
         return movieList

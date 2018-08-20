@@ -2,7 +2,7 @@ package com.github.rahmnathan.localmovies.app.control;
 
 import android.content.Context;
 
-import com.github.rahmnathan.localmovies.info.provider.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Movie;
 
 import java.io.File;
 import java.util.ArrayList;

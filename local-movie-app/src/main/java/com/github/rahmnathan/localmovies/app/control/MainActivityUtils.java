@@ -6,11 +6,11 @@ import android.view.MenuItem;
 import android.widget.GridView;
 
 import com.github.rahmnathan.localmovies.app.activity.SetupActivity;
-import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
-import com.github.rahmnathan.localmovies.app.enums.MovieGenre;
-import com.github.rahmnathan.localmovies.app.enums.MovieOrder;
+import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter;
+import com.github.rahmnathan.localmovies.app.data.MovieGenre;
+import com.github.rahmnathan.localmovies.app.data.MovieOrder;
 import com.github.rahmnathan.localmovies.app.persistence.MovieHistory;
-import com.github.rahmnathan.localmovies.client.Client;
+import com.github.rahmnathan.localmovies.app.data.Client;
 
 import java.io.IOException;
 import java.io.InputStream;

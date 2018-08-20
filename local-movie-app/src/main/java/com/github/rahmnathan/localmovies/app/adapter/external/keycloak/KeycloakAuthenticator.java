@@ -1,7 +1,8 @@
-package com.github.rahmnathan.localmovies;
+package com.github.rahmnathan.localmovies.app.adapter.external.keycloak;
 
-import com.github.rahmnathan.localmovies.client.Client;
+import com.github.rahmnathan.localmovies.app.data.Client;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -63,9 +64,13 @@ public class KeycloakAuthenticator implements Runnable {
                 urlConnection.disconnect();
             }
 
-            JSONObject response = new JSONObject(result.toString());
-            if (response.has("access_token")) {
-                client.setAccessToken(response.getString("access_token"));
+            try {
+                JSONObject response = new JSONObject(result.toString());
+                if (response.has("access_token")) {
+                    client.setAccessToken(response.getString("access_token"));
+                }
+            } catch (JSONException e){
+                logger.log(Level.SEVERE, "Failure acquiring access token.", e);
             }
         }
     }

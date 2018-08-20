@@ -11,18 +11,18 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
+import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter;
 import com.github.rahmnathan.localmovies.app.control.MovieClickListener;
 import com.github.rahmnathan.localmovies.app.control.MovieEventLoader;
 import com.github.rahmnathan.localmovies.app.control.MoviePersistenceManager;
 import com.github.rahmnathan.localmovies.app.control.MovieSearchTextWatcher;
+import com.github.rahmnathan.localmovies.app.data.Movie;
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
 import com.github.rahmnathan.localmovies.app.persistence.MovieHistory;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
-import com.github.rahmnathan.localmovies.KeycloakAuthenticator;
-import com.github.rahmnathan.localmovies.client.Client;
-import com.github.rahmnathan.localmovies.info.provider.data.Movie;
+import com.github.rahmnathan.localmovies.app.adapter.external.keycloak.KeycloakAuthenticator;
+import com.github.rahmnathan.localmovies.app.data.Client;
 
 import java.util.ArrayList;
 import java.util.List;

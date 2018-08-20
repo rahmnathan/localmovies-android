@@ -9,13 +9,13 @@ import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.github.rahmnathan.localmovies.KeycloakAuthenticator;
+import com.github.rahmnathan.localmovies.app.adapter.external.keycloak.KeycloakAuthenticator;
 import com.github.rahmnathan.localmovies.app.activity.PlayerActivity;
-import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
+import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter;
+import com.github.rahmnathan.localmovies.app.data.Movie;
 import com.github.rahmnathan.localmovies.app.google.cast.control.GoogleCastUtils;
 import com.github.rahmnathan.localmovies.app.persistence.MovieHistory;
-import com.github.rahmnathan.localmovies.client.Client;
-import com.github.rahmnathan.localmovies.info.provider.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Client;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;

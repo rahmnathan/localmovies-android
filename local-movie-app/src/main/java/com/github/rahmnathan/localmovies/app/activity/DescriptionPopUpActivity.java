@@ -9,8 +9,8 @@ import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.rahmnathan.localmovies.app.adapter.ListAdapterUtils;
-import com.github.rahmnathan.localmovies.info.provider.data.Movie;
+import com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils;
+import com.github.rahmnathan.localmovies.app.data.Movie;
 
 import rahmnathan.localmovies.R;
 
