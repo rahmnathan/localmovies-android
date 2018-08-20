@@ -41,7 +41,7 @@ import static com.github.rahmnathan.localmovies.app.control.MovieClickListener.g
 
 public class MainActivity extends AppCompatActivity {
     private final ConcurrentMap<String, List<Movie>> movieCache = new ConcurrentHashMap<>();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private volatile MoviePersistenceManager persistenceManager;
     private static final String MOVIES = "Movies";
     private static final String SERIES = "Series";

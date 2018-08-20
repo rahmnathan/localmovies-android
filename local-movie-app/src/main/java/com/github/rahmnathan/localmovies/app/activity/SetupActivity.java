@@ -65,14 +65,12 @@ public class SetupActivity extends Activity {
         });
 
         Button clearMovies = findViewById(R.id.clearMovies);
-        clearMovies.setOnClickListener(view -> {
-            CompletableFuture.runAsync(() -> {
-                MovieDAO movieDAO = MovieDatabase.getDatabase(this).movieDAO();
-                movieDAO.deleteAll();
+        clearMovies.setOnClickListener(view -> CompletableFuture.runAsync(() -> {
+            MovieDAO movieDAO = MovieDatabase.getDatabase(this).movieDAO();
+            movieDAO.deleteAll();
 
-                startActivity(new Intent(SetupActivity.this, MainActivity.class));
-            });
-        });
+            startActivity(new Intent(SetupActivity.this, MainActivity.class));
+        }));
     }
 
     public static void saveData(Client client, Context context) {

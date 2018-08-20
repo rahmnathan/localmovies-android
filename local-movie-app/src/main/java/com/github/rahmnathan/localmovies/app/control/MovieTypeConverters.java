@@ -4,10 +4,6 @@ import android.arch.persistence.room.TypeConverter;
 
 import com.github.rahmnathan.localmovies.info.provider.data.Movie;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.lang.reflect.Type;
-import java.util.List;
 
 public class MovieTypeConverters {
     private static final Gson gson = new Gson();

@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.adapter.MovieListAdapter;
