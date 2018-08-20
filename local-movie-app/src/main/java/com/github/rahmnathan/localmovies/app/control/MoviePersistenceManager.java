@@ -3,6 +3,9 @@ package com.github.rahmnathan.localmovies.app.control;
 import android.content.Context;
 
 import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.persistence.MovieDAO;
+import com.github.rahmnathan.localmovies.app.persistence.MovieDatabase;
+import com.github.rahmnathan.localmovies.app.persistence.MovieEntity;
 
 import java.io.File;
 import java.util.ArrayList;

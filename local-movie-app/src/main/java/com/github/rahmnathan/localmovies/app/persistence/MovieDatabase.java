@@ -1,13 +1,13 @@
-package com.github.rahmnathan.localmovies.app.control;
+package com.github.rahmnathan.localmovies.app.persistence;
 
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {MovieEntity.class}, version = 1)
+@Database(entities = {com.github.rahmnathan.localmovies.app.persistence.MovieEntity.class}, version = 1)
 public abstract class MovieDatabase extends RoomDatabase {
-    public abstract MovieDAO movieDAO();
+    public abstract com.github.rahmnathan.localmovies.app.persistence.MovieDAO movieDAO();
 
     private static MovieDatabase INSTANCE;
 

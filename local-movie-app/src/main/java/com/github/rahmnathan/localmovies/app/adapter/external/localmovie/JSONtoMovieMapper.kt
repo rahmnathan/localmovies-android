@@ -43,9 +43,9 @@ internal object JSONtoMovieMapper {
             if(!mediaFileEvent.isNull("mediaFile")) {
                 val mediaFile = mediaFileEvent.getJSONObject("mediaFile")
                 val movie = mediaFileToMovie(mediaFile)
-                movieList.add(com.github.rahmnathan.localmovies.app.data.MovieEvent(mediaFileEvent.getString("event"), movie, mediaFileEvent.getString("relativePath")))
+                movieList.add(com.github.rahmnathan.localmovies.app.data.MovieEvent(mediaFileEvent.getString("event"), mediaFileEvent.getString("relativePath"), movie))
             } else {
-                movieList.add(com.github.rahmnathan.localmovies.app.data.MovieEvent(mediaFileEvent.getString("event"), mediaFileEvent.getString("relativePath")))
+                movieList.add(com.github.rahmnathan.localmovies.app.data.MovieEvent(mediaFileEvent.getString("event"), mediaFileEvent.getString("relativePath"), null))
             }
         }
         return movieList

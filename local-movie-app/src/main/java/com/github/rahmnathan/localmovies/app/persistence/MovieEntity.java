@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.app.control;
+package com.github.rahmnathan.localmovies.app.persistence;
 
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;

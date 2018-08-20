@@ -12,9 +12,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.github.rahmnathan.localmovies.app.control.MovieDAO;
-import com.github.rahmnathan.localmovies.app.control.MovieDatabase;
 import com.github.rahmnathan.localmovies.app.data.Client;
+import com.github.rahmnathan.localmovies.app.persistence.MovieDAO;
+import com.github.rahmnathan.localmovies.app.persistence.MovieDatabase;
 
 import rahmnathan.localmovies.R;
 
