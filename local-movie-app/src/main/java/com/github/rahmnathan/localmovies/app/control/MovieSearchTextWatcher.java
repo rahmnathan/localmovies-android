@@ -8,16 +8,13 @@ import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter;
 
 public class MovieSearchTextWatcher implements TextWatcher {
     private final MovieListAdapter listAdapter;
-    private final GridView gridView;
 
-    public MovieSearchTextWatcher(MovieListAdapter listAdapter, GridView gridView) {
+    public MovieSearchTextWatcher(MovieListAdapter listAdapter) {
         this.listAdapter = listAdapter;
-        this.gridView = gridView;
     }
 
     public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
         listAdapter.getFilter().filter(cs);
-        gridView.smoothScrollToPosition(0);
     }
 
     @Override

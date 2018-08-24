@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         EditText searchText = findViewById(R.id.searchText);
-        searchText.addTextChangedListener(new MovieSearchTextWatcher(listAdapter, gridView));
+        searchText.addTextChangedListener(new MovieSearchTextWatcher(listAdapter));
 
         Button controls = findViewById(R.id.controls);
         controls.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
