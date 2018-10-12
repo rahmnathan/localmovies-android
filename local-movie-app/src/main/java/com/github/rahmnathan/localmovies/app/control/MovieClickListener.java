@@ -20,6 +20,7 @@ import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.io.File;
 import java.util.Collections;
@@ -106,7 +107,8 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
             UIHandler.post(() -> progressBar.setVisibility(View.VISIBLE));
             movieLoader = new MovieLoader(movieListAdapter, myClient, persistenceManager, context);
             CompletableFuture.runAsync(movieLoader, executorService)
-                    .thenRun(() -> UIHandler.post(() -> progressBar.setVisibility(View.GONE)));
+                    .thenRun(() -> UIHandler.post(() -> progressBar.setVisibility(View.GONE)))
+                    .thenRun(() -> FirebaseMessaging.getInstance().subscribeToTopic("movies"));
         }
     }
 

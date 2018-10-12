@@ -3,16 +3,12 @@ package com.github.rahmnathan.localmovies.app.control
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings
-import android.provider.Settings.Secure.getString
 import android.widget.Toast
 
 import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter
 import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MovieFacade
-import com.github.rahmnathan.localmovies.app.data.Movie
 import com.github.rahmnathan.localmovies.app.data.MovieRequest
-import com.google.firebase.iid.FirebaseInstanceId
 
 import java.util.ArrayList
 import java.util.logging.Level
@@ -25,13 +21,9 @@ class MovieLoader internal constructor(private val movieListAdapter: MovieListAd
     private val movieFacade = MovieFacade()
     @Volatile
     var isRunning = true
-        private set
-    private val deviceId: String = getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 
     override fun run() {
         logger.log(Level.INFO, "Dynamically loading titles")
-
-        val token = FirebaseInstanceId.getInstance().token
 
         if (client.accessToken == null) {
             UIHandler.post { Toast.makeText(context, "Login failed - Check credentials", Toast.LENGTH_LONG).show() }
@@ -44,9 +36,7 @@ class MovieLoader internal constructor(private val movieListAdapter: MovieListAd
             val movieRequest = MovieRequest(
                     page = page,
                     resultsPerPage = ITEMS_PER_PAGE,
-                    deviceId = deviceId,
-                    path = client.currentPath.toString(),
-                    pushToken = token.orEmpty()
+                    path = client.currentPath.toString()
             )
 
             val infoList = movieFacade.getMovieInfo(client, movieRequest)

@@ -8,8 +8,8 @@ android {
         applicationId "rahm.nathan.localmovies"
         minSdkVersion 26
         targetSdkVersion 27
-        versionName '1.6.5'
-        versionCode 65
+        versionName '1.6.6'
+        versionCode 66
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -34,20 +34,20 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
-    compile 'com.google.firebase:firebase-core:16.0.3'
-    compile 'com.google.firebase:firebase-messaging:17.3.2'
-    compile 'com.android.support:appcompat-v7:27.1.1'
-    compile 'com.android.support:design:27.1.1'
-    compile 'com.google.guava:guava:24.1-jre'
-    compile 'com.google.code.gson:gson:2.8.5'
-    compile 'com.android.support:mediarouter-v7:27.1.1'
-    compile 'com.google.android.gms:play-services-cast-framework:16.0.2'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.google.firebase:firebase-core:16.0.4'
+    implementation 'com.google.firebase:firebase-messaging:17.3.3'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.google.guava:guava:24.1-jre'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.android.support:mediarouter-v7:27.1.1'
+    implementation 'com.google.android.gms:play-services-cast-framework:16.0.3'
     def room_version = "1.1.1"
     implementation "android.arch.persistence.room:runtime:$room_version"
     annotationProcessor "android.arch.persistence.room:compiler:$room_version"
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 apply plugin: 'com.google.gms.google-services'

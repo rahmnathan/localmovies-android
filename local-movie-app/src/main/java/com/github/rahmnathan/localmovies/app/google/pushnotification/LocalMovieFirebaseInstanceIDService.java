@@ -17,6 +17,6 @@ public class LocalMovieFirebaseInstanceIDService extends FirebaseInstanceIdServi
     public void onTokenRefresh() {
         // Get updated InstanceID token.
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-        logger.info("Refreshed token: " + refreshedToken);
+        logger.info("Firebase token: " + refreshedToken);
     }
 }
