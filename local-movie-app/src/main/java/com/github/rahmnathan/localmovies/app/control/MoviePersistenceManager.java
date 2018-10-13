@@ -7,10 +7,7 @@ import com.github.rahmnathan.localmovies.app.persistence.MovieDAO;
 import com.github.rahmnathan.localmovies.app.persistence.MovieDatabase;
 import com.github.rahmnathan.localmovies.app.persistence.MovieEntity;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -18,6 +15,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static com.github.rahmnathan.localmovies.app.control.MediaPathUtils.getFilename;
+import static com.github.rahmnathan.localmovies.app.control.MediaPathUtils.getParentPath;
 
 public class MoviePersistenceManager {
     private final Logger logger = Logger.getLogger(MoviePersistenceManager.class.getName());
@@ -50,39 +50,28 @@ public class MoviePersistenceManager {
         movieDAO.insertAll(movieEntities);
     }
 
-    public void addOne(String path, Movie movie){
+    void addOne(String path, Movie movie){
         List<Movie> movies = movieInfoCache.getOrDefault(path, new ArrayList<>());
         movies.add(movie);
         movieInfoCache.put(path, movies);
-
-        movieDAO.insertAll(Collections.singletonList(new MovieEntity(path, movie)));
+        movieDAO.insert(new MovieEntity(path, movie));
     }
 
-    public Optional<List<Movie>> getMoviesAtPath(String path){
+    Optional<List<Movie>> getMoviesAtPath(String path){
         return Optional.ofNullable(movieInfoCache.get(path));
     }
 
-    public void deleteMovie(String path){
+    void deleteMovie(String path){
         String parentPath = getParentPath(path);
         String filename = getFilename(path);
 
-        List<Movie> movies = movieInfoCache.getOrDefault(parentPath, new ArrayList<>());
-        movies.removeIf(movie -> movie.getFilename().equalsIgnoreCase(filename));
-        MovieEntity entity = movieDAO.getByPathAndFilename(parentPath, filename);
+        List<Movie> cachedMovies = movieInfoCache.get(parentPath);
+        if(cachedMovies != null)
+            cachedMovies.removeIf(movie -> movie.getFilename().equalsIgnoreCase(filename));
 
-        if(entity != null)
-            movieDAO.delete(entity);
+        MovieEntity movieEntity = movieDAO.getByPathAndFilename(parentPath, filename);
+        if(movieEntity != null)
+            movieDAO.delete(movieEntity);
     }
 
-    private static String getParentPath(String path){
-        String[] dirs = path.split(File.separator);
-        return Arrays.stream(dirs)
-                .limit(dirs.length - 1)
-                .collect(Collectors.joining(File.separator));
-    }
-
-    private static String getFilename(String path){
-        String[] directoryList = path.split(File.separator);
-        return directoryList[directoryList.length - 1];
-    }
 }

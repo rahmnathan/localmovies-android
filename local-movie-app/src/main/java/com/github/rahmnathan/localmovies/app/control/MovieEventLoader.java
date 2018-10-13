@@ -12,13 +12,12 @@ import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MovieFa
 import com.github.rahmnathan.localmovies.app.data.Movie;
 import com.github.rahmnathan.localmovies.app.data.MovieEvent;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
+
+import static com.github.rahmnathan.localmovies.app.control.MediaPathUtils.getParentPath;
 
 public class MovieEventLoader implements Runnable {
     private final Logger logger = Logger.getLogger(MovieEventLoader.class.getName());
@@ -68,12 +67,5 @@ public class MovieEventLoader implements Runnable {
 
         client.setLastUpdate(System.currentTimeMillis());
         SetupActivity.saveData(client, context);
-    }
-
-    private static String getParentPath(String path){
-        String[] dirs = path.split(File.separator);
-        return Arrays.stream(dirs)
-                .limit(dirs.length - 1)
-                .collect(Collectors.joining(File.separator));
     }
 }

@@ -21,16 +21,16 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MovieProvider {
+class MovieProvider {
     private final Logger logger = Logger.getLogger(MovieProvider.class.getName());
     private final Gson gson = new Gson();
 
-    public List<Movie> getMovieInfo(Client client, MovieRequest movieRequest) {
+    List<Movie> getMovieInfo(Client client, MovieRequest movieRequest) {
         Optional<JSONArray> movieInfoJson = getMovieInfoJson(client, movieRequest);
         return movieInfoJson.map(JSONtoMovieMapper.INSTANCE::jsonArrayToMovieInfoList).orElseGet(ArrayList::new);
     }
 
-    public List<MovieEvent> getMovieEvents(Client client) {
+    List<MovieEvent> getMovieEvents(Client client) {
         Optional<JSONArray> movieInfoJson = getMovieEventJson(client);
         return movieInfoJson.map(JSONtoMovieMapper.INSTANCE::jsonArrayToMovieEventList).orElseGet(ArrayList::new);
     }
