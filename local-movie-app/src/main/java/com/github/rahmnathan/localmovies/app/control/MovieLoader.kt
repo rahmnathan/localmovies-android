@@ -4,10 +4,10 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MovieFacade.getMovieInfo
 
 import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter
 import com.github.rahmnathan.localmovies.app.data.Client
-import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MovieFacade
 import com.github.rahmnathan.localmovies.app.data.MovieRequest
 
 import java.util.ArrayList
@@ -18,7 +18,6 @@ class MovieLoader internal constructor(private val movieListAdapter: MovieListAd
                                        private val persistenceManager: MoviePersistenceManager, private val context: Context) : Runnable {
     private val logger = Logger.getLogger(MovieLoader::class.java.name)
     private val UIHandler = Handler(Looper.getMainLooper())
-    private val movieFacade = MovieFacade()
     @Volatile
     var isRunning = true
 
@@ -39,7 +38,7 @@ class MovieLoader internal constructor(private val movieListAdapter: MovieListAd
                     path = client.currentPath.toString()
             )
 
-            val infoList = movieFacade.getMovieInfo(client, movieRequest)
+            val infoList = getMovieInfo(client, movieRequest)
 
             if (!isRunning) break
 

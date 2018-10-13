@@ -22,9 +22,13 @@ import java.util.stream.Collectors;
 
 import rahmnathan.localmovies.R;
 
+import static com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils.mapImageToView;
+import static com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils.mapRatingsToView;
+import static com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils.mapTitleToView;
+import static com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils.mapYearToView;
+
 public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable {
 
-    private final ListAdapterUtils adapterUtils = new ListAdapterUtils();
     private final List<Movie> originalMovieList = new ArrayList<>();
     private final AdapterFilter adapterFilter = new AdapterFilter();
     private final Activity context;
@@ -51,10 +55,10 @@ public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable 
         TextView ratingView = rowView.findViewById(R.id.rating);
 
         Movie movie = movies.get(position);
-        adapterUtils.mapTitle(movie.getTitle(), titleView, 17);
-        adapterUtils.mapImage(movie.getImage(), imageView);
-        adapterUtils.mapYear(movie.getReleaseYear(), yearView, 12);
-        adapterUtils.mapRatings(movie.getImdbRating(), movie.getMetaRating(), ratingView);
+        mapTitleToView(movie.getTitle(), titleView, 17);
+        mapImageToView(movie.getImage(), imageView);
+        mapYearToView(movie.getReleaseYear(), yearView, 12);
+        mapRatingsToView(movie.getImdbRating(), movie.getMetaRating(), ratingView);
 
         return rowView;
     }
@@ -137,7 +141,7 @@ public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable 
     }
 
     public void sort(MovieOrder order) {
-        adapterUtils.sort(movies, order);
+        ListAdapterUtils.sort(movies, order);
         notifyDataSetChanged();
     }
 }

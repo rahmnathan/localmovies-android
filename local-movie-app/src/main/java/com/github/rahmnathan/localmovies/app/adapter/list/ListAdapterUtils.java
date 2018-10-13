@@ -18,7 +18,7 @@ import rahmnathan.localmovies.R;
 
 public class ListAdapterUtils {
 
-    void sort(List<Movie> movies, MovieOrder order) {
+    static void sort(List<Movie> movies, MovieOrder order) {
         switch (order) {
             case DATE_ADDED:
                 movies.sort((movie1, movie2) -> Objects.requireNonNull(movie2.getCreated()).compareTo(movie1.getCreated()));
@@ -38,21 +38,21 @@ public class ListAdapterUtils {
         }
     }
 
-    public void mapTitle(String title, TextView titleView, int fontSize){
+    public static void mapTitleToView(String title, TextView titleView, int fontSize){
         titleView.setText(title);
         titleView.setTextSize(fontSize);
         titleView.setGravity(Gravity.CENTER);
         titleView.setTextColor(Color.WHITE);
     }
 
-    void mapRatings(String imdbRating, String metaRating, TextView ratings){
+    static void mapRatingsToView(String imdbRating, String metaRating, TextView ratings){
         ratings.setGravity(Gravity.CENTER);
         ratings.setTextColor(Color.WHITE);
         ratings.setTextSize(12);
         ratings.setText(String.format("IMDB: %s Meta: %s", imdbRating, metaRating));
     }
 
-    public void mapImage(String base64Image, ImageView imageView){
+    public static void mapImageToView(String base64Image, ImageView imageView){
         if (base64Image != null && !base64Image.equals("") && !base64Image.equals("null")) {
             byte[] image = Base64.decode(base64Image, Base64.DEFAULT);
             imageView.setImageBitmap(BitmapFactory.decodeByteArray(image, 0, image.length));
@@ -61,7 +61,7 @@ public class ListAdapterUtils {
         }
     }
 
-    public void mapYear(String releaseYear, TextView year, int fontSize){
+    public static void mapYearToView(String releaseYear, TextView year, int fontSize){
         year.setText(String.format("Release Year: %s", releaseYear));
         year.setTextColor(Color.WHITE);
         year.setGravity(Gravity.CENTER);

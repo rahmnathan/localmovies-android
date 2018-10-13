@@ -8,7 +8,6 @@ import android.widget.Toast;
 import com.github.rahmnathan.localmovies.app.activity.SetupActivity;
 import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter;
 import com.github.rahmnathan.localmovies.app.data.Client;
-import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MovieFacade;
 import com.github.rahmnathan.localmovies.app.data.Movie;
 import com.github.rahmnathan.localmovies.app.data.MovieEvent;
 
@@ -17,13 +16,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MovieFacade.getMovieEvents;
 import static com.github.rahmnathan.localmovies.app.control.MediaPathUtils.getParentPath;
 
 public class MovieEventLoader implements Runnable {
     private final Logger logger = Logger.getLogger(MovieEventLoader.class.getName());
     private final Handler UIHandler = new Handler(Looper.getMainLooper());
     private final MoviePersistenceManager persistenceManager;
-    private final MovieFacade movieFacade = new MovieFacade();
     private final MovieListAdapter movieListAdapter;
     private final Context context;
     private final Client client;
@@ -35,7 +34,6 @@ public class MovieEventLoader implements Runnable {
         this.context = context;
     }
 
-
     @Override
     public void run() {
         logger.log(Level.INFO, "Dynamically loading titles");
@@ -45,7 +43,7 @@ public class MovieEventLoader implements Runnable {
             return;
         }
 
-        List<MovieEvent> events = movieFacade.getMovieEvents(client);
+        List<MovieEvent> events = getMovieEvents(client);
         events.forEach(event -> {
             if(event.getEvent().equalsIgnoreCase("CREATE")){
                 Movie movie = event.getMovie();

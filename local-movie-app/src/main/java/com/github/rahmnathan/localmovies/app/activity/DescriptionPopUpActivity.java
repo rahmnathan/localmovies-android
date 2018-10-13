@@ -9,15 +9,16 @@ import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils;
 import com.github.rahmnathan.localmovies.app.data.Movie;
 
 import rahmnathan.localmovies.R;
 
 import static android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+import static com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils.mapImageToView;
+import static com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils.mapTitleToView;
+import static com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils.mapYearToView;
 
 public class DescriptionPopUpActivity extends Activity {
-    private final ListAdapterUtils adapterUtils = new ListAdapterUtils();
     public static final String MOVIE = "movie";
 
     @Override
@@ -46,19 +47,19 @@ public class DescriptionPopUpActivity extends Activity {
                 TextView plotView = findViewById(R.id.detailedPlot);
                 TextView actorView = findViewById(R.id.detailedActors);
 
-                adapterUtils.mapImage(movie.getImage(), imageView);
-                adapterUtils.mapTitle(movie.getTitle(), titleView, 22);
-                adapterUtils.mapYear(movie.getReleaseYear(), yearView, 16);
+                mapImageToView(movie.getImage(), imageView);
+                mapTitleToView(movie.getTitle(), titleView, 22);
+                mapYearToView(movie.getReleaseYear(), yearView, 16);
 
-                mapTextView(metaRatingView, String.format("Metacritic Rating: %s", movie.getMetaRating()), 16);
-                mapTextView(imdbRatingView, String.format("IMDB Rating: %s", movie.getImdbRating()), 16);
-                mapTextView(plotView, movie.getPlot(), 14);
-                mapTextView(actorView, String.format("Starring: %s", movie.getActors()), 14);
+                mapTextToView(metaRatingView, String.format("Metacritic Rating: %s", movie.getMetaRating()), 16);
+                mapTextToView(imdbRatingView, String.format("IMDB Rating: %s", movie.getImdbRating()), 16);
+                mapTextToView(plotView, movie.getPlot(), 14);
+                mapTextToView(actorView, String.format("Starring: %s", movie.getActors()), 14);
             }
         }
     }
 
-    private void mapTextView(TextView textView, String value, int fontSize){
+    private void mapTextToView(TextView textView, String value, int fontSize){
         textView.setTextColor(Color.WHITE);
         textView.setGravity(Gravity.CENTER);
         textView.setTextSize(fontSize);
