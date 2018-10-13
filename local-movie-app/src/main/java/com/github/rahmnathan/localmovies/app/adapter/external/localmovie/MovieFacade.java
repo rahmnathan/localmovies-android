@@ -18,32 +18,37 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MovieFacade {
     private static final Logger logger = Logger.getLogger(MovieFacade.class.getName());
+    private static final String X_CORRELATION_ID = "x-correlation-id";
     private static final Gson GSON = new Gson();
 
     public static List<Movie> getMovieInfo(Client client, MovieRequest movieRequest) {
-        logger.info("Requesting movies.");
-        Optional<JSONArray> movieInfoJson = getMovieInfoJson(client, movieRequest);
+        String xCorrelationId = UUID.randomUUID().toString();
+        logger.info("Requesting movies with x-correlation-id: " + xCorrelationId);
+        Optional<JSONArray> movieInfoJson = getMovieInfoJson(client, movieRequest, xCorrelationId);
         return movieInfoJson.map(JSONtoMovieMapper.INSTANCE::jsonArrayToMovieInfoList).orElseGet(ArrayList::new);
     }
 
     public static List<MovieEvent> getMovieEvents(Client client) {
-        logger.info("Requesting movie events.");
-        Optional<JSONArray> movieInfoJson = getMovieEventJson(client);
+        String xCorrelationId = UUID.randomUUID().toString();
+        logger.info("Requesting movie events with x-correlation-id: " + xCorrelationId);
+        Optional<JSONArray> movieInfoJson = getMovieEventJson(client, xCorrelationId);
         return movieInfoJson.map(JSONtoMovieMapper.INSTANCE::jsonArrayToMovieEventList).orElseGet(ArrayList::new);
     }
 
-    private static Optional<JSONArray> getMovieInfoJson(Client client, MovieRequest movieRequest) {
+    private static Optional<JSONArray> getMovieInfoJson(Client client, MovieRequest movieRequest, String xCorrelationId) {
         HttpURLConnection urlConnection = null;
         String url = client.getComputerUrl() + "/localmovies/v2/movies";
 
         try {
             urlConnection = (HttpURLConnection) (new URL(url)).openConnection();
             urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestProperty(X_CORRELATION_ID, xCorrelationId);
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);
             urlConnection.setRequestProperty("Content-Type", "application/json");
@@ -84,7 +89,7 @@ public class MovieFacade {
         return Optional.empty();
     }
 
-    private static Optional<JSONArray> getMovieEventJson(Client client) {
+    private static Optional<JSONArray> getMovieEventJson(Client client, String xCorrelationId) {
         HttpURLConnection urlConnection = null;
         if(client.getLastUpdate() == null){
             client.setLastUpdate(System.currentTimeMillis());
@@ -94,6 +99,7 @@ public class MovieFacade {
         try {
             urlConnection = (HttpURLConnection) (new URL(url)).openConnection();
             urlConnection.setRequestMethod("GET");
+            urlConnection.setRequestProperty(X_CORRELATION_ID, xCorrelationId);
             urlConnection.setRequestProperty("Authorization", "bearer " + client.getAccessToken());
             urlConnection.setConnectTimeout(10000);
         } catch (IOException e){
