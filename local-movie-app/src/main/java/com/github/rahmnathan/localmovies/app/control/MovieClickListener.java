@@ -55,7 +55,6 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
         List<Movie> titles;
         Movie movie = listAdapter.getMovie(position);
         if (client.isViewingVideos()) {
-            history.addHistoryItem(listAdapter.getItem(position));
             // If we're viewing movies or episodes we refresh our token and start the video
             CompletableFuture.runAsync(new KeycloakAuthenticator(client));
             if (client.isViewingEpisodes()) {
@@ -75,6 +74,8 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
             client.appendToCurrentPath(movie.getFilename());
             getVideos(persistenceManager, client, listAdapter, context, progressBar);
         }
+
+        history.addHistoryItem(listAdapter.getItem(position));
     }
 
     private void queueVideos(MediaQueueItem[] queueItems){
