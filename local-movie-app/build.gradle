@@ -8,8 +8,8 @@ android {
         applicationId "rahm.nathan.localmovies"
         minSdkVersion 26
         targetSdkVersion 27
-        versionName '1.7.2'
-        versionCode 72
+        versionName '1.7.3'
+        versionCode 73
 
         javaCompileOptions {
             annotationProcessorOptions {
