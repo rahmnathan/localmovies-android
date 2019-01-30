@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +44,7 @@ public class MovieFacade {
 
     private static Optional<JSONArray> getMovieInfoJson(Client client, MovieRequest movieRequest, String xCorrelationId) {
         HttpURLConnection urlConnection = null;
-        String url = client.getComputerUrl() + "/localmovies/v2/movies";
+        String url = client.getComputerUrl() + "/localmovie/v2/media";
 
         try {
             urlConnection = (HttpURLConnection) (new URL(url)).openConnection();
@@ -60,7 +61,7 @@ public class MovieFacade {
 
         if(urlConnection != null) {
             String movieRequestBody = GSON.toJson(movieRequest);
-            try (OutputStreamWriter outputStream = new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8")) {
+            try (OutputStreamWriter outputStream = new OutputStreamWriter(urlConnection.getOutputStream(), StandardCharsets.UTF_8)) {
                 outputStream.write(movieRequestBody);
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Failed writing to movie info service", e);
@@ -94,7 +95,7 @@ public class MovieFacade {
         if(client.getLastUpdate() == null){
             client.setLastUpdate(System.currentTimeMillis());
         }
-        String url = client.getComputerUrl() + "/localmovies/v2/movie/events?timestamp=" + client.getLastUpdate();
+        String url = client.getComputerUrl() + "/localmovie/v2/media/events?timestamp=" + client.getLastUpdate();
 
         try {
             urlConnection = (HttpURLConnection) (new URL(url)).openConnection();

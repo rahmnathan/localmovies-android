@@ -78,7 +78,7 @@ public class KeycloakAuthenticator implements Runnable {
     private byte[] buildLoginInfo(Client client) {
         Map<String, String> args = new HashMap<>();
         args.put("grant_type", "password");
-        args.put("client_id", "movielogin");
+        args.put("client_id", "localmovie-login");
         args.put("username", client.getUserName());
         args.put("password", client.getPassword());
         StringBuilder sb = new StringBuilder();
