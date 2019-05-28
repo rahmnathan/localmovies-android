@@ -30,16 +30,10 @@
         </activity>
 
         <service
-            android:name="com.github.rahmnathan.localmovies.app.google.pushnotification.LocalMovieFirebaseInstanceIDService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
-            </intent-filter>
-        </service>
-
-        <service
             android:name="com.github.rahmnathan.localmovies.app.google.pushnotification.LocalMovieFirebaseMessageService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
 

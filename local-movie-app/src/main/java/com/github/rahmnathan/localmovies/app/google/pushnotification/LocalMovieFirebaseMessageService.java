@@ -57,6 +57,12 @@ public class LocalMovieFirebaseMessageService extends FirebaseMessagingService {
         mNotifyMgr.notify(new Random().nextInt(), mBuilder.build());
     }
 
+    @Override
+    public void onNewToken(String s) {
+        super.onNewToken(s);
+        logger.info("Firebase token: " + s);
+    }
+
     private void buildChannel(){
         int importance = NotificationManager.IMPORTANCE_DEFAULT;
         NotificationChannel channel = new NotificationChannel("LocalMovies", "LocalMovies", importance);
