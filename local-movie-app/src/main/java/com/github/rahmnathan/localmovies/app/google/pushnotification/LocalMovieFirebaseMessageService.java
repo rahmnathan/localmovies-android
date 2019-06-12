@@ -73,7 +73,7 @@ public class LocalMovieFirebaseMessageService extends FirebaseMessagingService {
 
     private Optional<byte[]>    getMoviePoster(String path) {
         HttpURLConnection urlConnection = null;
-        String url = MainActivity.client.getComputerUrl() + "/localmovies/v2/movie/poster?path=" + path;
+        String url = MainActivity.client.getComputerUrl() + "/localmovies/v2/media/poster?path=" + path;
 
         try {
             urlConnection = (HttpURLConnection) (new URL(url)).openConnection();
@@ -81,7 +81,7 @@ public class LocalMovieFirebaseMessageService extends FirebaseMessagingService {
             urlConnection.setRequestProperty("Authorization", "bearer " + MainActivity.client.getAccessToken());
             urlConnection.setConnectTimeout(10000);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed connecting to movie info service", e);
+            logger.log(Level.SEVERE, "Failed connecting to media info service", e);
         }
 
         if (urlConnection != null) {

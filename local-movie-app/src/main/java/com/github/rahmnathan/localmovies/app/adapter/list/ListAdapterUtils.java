@@ -7,7 +7,7 @@ import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Media;
 import com.github.rahmnathan.localmovies.app.data.MovieOrder;
 
 import java.util.Comparator;
@@ -18,22 +18,22 @@ import rahmnathan.localmovies.R;
 
 public class ListAdapterUtils {
 
-    static void sort(List<Movie> movies, MovieOrder order) {
+    static void sort(List<Media> media, MovieOrder order) {
         switch (order) {
             case DATE_ADDED:
-                movies.sort((movie1, movie2) -> Objects.requireNonNull(movie2.getCreated()).compareTo(movie1.getCreated()));
+                media.sort((movie1, movie2) -> Objects.requireNonNull(movie2.getCreated()).compareTo(movie1.getCreated()));
                 break;
             case MOST_VIEWS:
-                movies.sort((movie1, movie2) -> Integer.compare(movie2.getViews(), movie1.getViews()));
+                media.sort((movie1, movie2) -> Integer.compare(movie2.getViews(), movie1.getViews()));
                 break;
             case RATING:
-                movies.sort((movie1, movie2) -> String.valueOf(movie2.getImdbRating()).compareTo(String.valueOf(movie1.getImdbRating())));
+                media.sort((movie1, movie2) -> movie2.getImdbRating().compareTo(movie1.getImdbRating()));
                 break;
             case RELEASE_YEAR:
-                movies.sort((movie1, movie2) -> movie2.getReleaseYear().compareTo(movie1.getReleaseYear()));
+                media.sort((movie1, movie2) -> movie2.getReleaseYear().compareTo(movie1.getReleaseYear()));
                 break;
             case TITLE:
-                movies.sort(Comparator.comparing(Movie::getTitle));
+                media.sort(Comparator.comparing(Media::getTitle));
                 break;
         }
     }

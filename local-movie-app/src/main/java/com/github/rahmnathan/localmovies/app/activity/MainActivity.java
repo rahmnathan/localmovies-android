@@ -16,7 +16,7 @@ import com.github.rahmnathan.localmovies.app.control.MovieClickListener;
 import com.github.rahmnathan.localmovies.app.control.MovieEventLoader;
 import com.github.rahmnathan.localmovies.app.control.MoviePersistenceManager;
 import com.github.rahmnathan.localmovies.app.control.MovieSearchTextWatcher;
-import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Media;
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
 import com.github.rahmnathan.localmovies.app.persistence.MovieHistory;
 import com.google.android.gms.cast.framework.CastButtonFactory;
@@ -40,7 +40,7 @@ import static com.github.rahmnathan.localmovies.app.control.MainActivityUtils.so
 import static com.github.rahmnathan.localmovies.app.control.MovieClickListener.getVideos;
 
 public class MainActivity extends AppCompatActivity {
-    private final ConcurrentMap<String, List<Movie>> movieCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, List<Media>> movieCache = new ConcurrentHashMap<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private volatile MoviePersistenceManager persistenceManager;
     private static final String MOVIES = "Movies";
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         Button series = findViewById(R.id.series);
         series.setOnClickListener(view -> getRootVideos(SERIES, searchText));
 
-        Button movies = findViewById(R.id.movies);
+        Button movies = findViewById(R.id.media);
         movies.setOnClickListener(view -> getRootVideos(MOVIES, searchText));
 
         MovieClickListener clickListener = MovieClickListener.Builder.newInstance()

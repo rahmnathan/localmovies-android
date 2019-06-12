@@ -8,7 +8,7 @@ import android.widget.Toast;
 import com.github.rahmnathan.localmovies.app.activity.SetupActivity;
 import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter;
 import com.github.rahmnathan.localmovies.app.data.Client;
-import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Media;
 import com.github.rahmnathan.localmovies.app.data.MovieEvent;
 
 import java.util.ArrayList;
@@ -46,8 +46,8 @@ public class MovieEventLoader implements Runnable {
         List<MovieEvent> events = getMovieEvents(client);
         events.forEach(event -> {
             if(event.getEvent().equalsIgnoreCase("CREATE")){
-                Movie movie = event.getMovie();
-                persistenceManager.addOne(getParentPath(event.getRelativePath()), movie);
+                Media media = event.getMedia();
+                persistenceManager.addOne(getParentPath(event.getRelativePath()), media);
                 movieListAdapter.clearLists();
                 movieListAdapter.updateList(persistenceManager.getMoviesAtPath(client.getCurrentPath().toString()).orElse(new ArrayList<>()));
                 UIHandler.post(movieListAdapter::notifyDataSetChanged);

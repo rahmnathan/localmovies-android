@@ -11,7 +11,7 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Media;
 import com.github.rahmnathan.localmovies.app.data.MovieGenre;
 import com.github.rahmnathan.localmovies.app.data.MovieOrder;
 
@@ -27,17 +27,17 @@ import static com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtil
 import static com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils.mapTitleToView;
 import static com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils.mapYearToView;
 
-public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable {
+public class MovieListAdapter extends ArrayAdapter<Media> implements Filterable {
 
-    private final List<Movie> originalMovieList = new ArrayList<>();
+    private final List<Media> originalMediaList = new ArrayList<>();
     private final AdapterFilter adapterFilter = new AdapterFilter();
     private final Activity context;
-    private List<Movie> movies;
+    private List<Media> media;
     private CharSequence chars = "";
 
-    public MovieListAdapter(Activity context, List<Movie> movieList) {
-        super(context, R.layout.my_adapter, movieList);
-        this.movies = movieList;
+    public MovieListAdapter(Activity context, List<Media> mediaList) {
+        super(context, R.layout.my_adapter, mediaList);
+        this.media = mediaList;
         this.context = context;
     }
 
@@ -46,7 +46,7 @@ public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable 
         LayoutInflater inflater = context.getLayoutInflater();
         if (rowView == null)
             rowView = inflater.inflate(R.layout.my_adapter, parent, false);
-        if (position >= movies.size())
+        if (position >= this.media.size())
             return new View(context);
 
         TextView titleView = rowView.findViewById(R.id.textView);
@@ -54,11 +54,17 @@ public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable 
         TextView yearView = rowView.findViewById(R.id.year);
         TextView ratingView = rowView.findViewById(R.id.rating);
 
-        Movie movie = movies.get(position);
-        mapTitleToView(movie.getTitle(), titleView, 17);
-        mapImageToView(movie.getImage(), imageView);
-        mapYearToView(movie.getReleaseYear(), yearView, 12);
-        mapRatingsToView(movie.getImdbRating(), movie.getMetaRating(), ratingView);
+        Media media = this.media.get(position);
+
+        String title = media.getTitle();
+        if(media.getType().equalsIgnoreCase("episode")){
+            title = "#" + media.getNumber() + " - " + title;
+        }
+
+        mapTitleToView(title, titleView, 16);
+        mapImageToView(media.getImage(), imageView);
+        mapYearToView(media.getReleaseYear(), yearView, 12);
+        mapRatingsToView(media.getImdbRating(), media.getMetaRating(), ratingView);
 
         return rowView;
     }
@@ -70,8 +76,8 @@ public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable 
     }
 
     public void filterGenre(MovieGenre genre){
-        List<Movie> filteredList = originalMovieList.stream()
-                .sorted(Comparator.comparing(Movie::getTitle))
+        List<Media> filteredList = originalMediaList.stream()
+                .sorted(Comparator.comparing(Media::getTitle))
                 .filter(movieInfo -> movieInfo.getGenre().toLowerCase().contains(genre.getFormattedName()))
                 .collect(Collectors.toList());
 
@@ -79,30 +85,30 @@ public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable 
     }
 
     public void clearLists() {
-        movies.clear();
-        originalMovieList.clear();
+        media.clear();
+        originalMediaList.clear();
     }
 
-    public void updateList(List<Movie> movieList) {
-        this.movies.addAll(movieList);
-        this.originalMovieList.addAll(movieList);
+    public void updateList(List<Media> mediaList) {
+        this.media.addAll(mediaList);
+        this.originalMediaList.addAll(mediaList);
     }
 
     public CharSequence getChars() {
         return chars;
     }
 
-    public List<Movie> getOriginalMovieList() {
-        return originalMovieList;
+    public List<Media> getOriginalMediaList() {
+        return originalMediaList;
     }
 
-    public Movie getMovie(int position) {
-        return movies.get(position);
+    public Media getMovie(int position) {
+        return media.get(position);
     }
 
     @Override
     public int getCount() {
-        return movies.size();
+        return media.size();
     }
 
     private class AdapterFilter extends Filter {
@@ -111,17 +117,17 @@ public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable 
         protected FilterResults performFiltering(CharSequence charSequence) {
             chars = charSequence;
             FilterResults filterResults = new FilterResults();
-            if (movies != null) {
-                movies.clear();
+            if (media != null) {
+                media.clear();
                 if (charSequence == null || charSequence.length() == 0) {
-                    movies.addAll(originalMovieList);
+                    media.addAll(originalMediaList);
                 } else {
-                    movies.addAll(originalMovieList.stream()
+                    media.addAll(originalMediaList.stream()
                             .filter(movie -> movie.getTitle().toLowerCase().contains(charSequence.toString().toLowerCase()))
                             .collect(Collectors.toList()));
                 }
-                filterResults.values = movies;
-                filterResults.count = movies.size();
+                filterResults.values = media;
+                filterResults.count = media.size();
             }
             return filterResults;
         }
@@ -129,19 +135,19 @@ public class MovieListAdapter extends ArrayAdapter<Movie> implements Filterable 
         @Override
         @SuppressWarnings("unchecked")
         protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-            movies = (List<Movie>) filterResults.values;
+            media = (List<Media>) filterResults.values;
             notifyDataSetChanged();
         }
     }
 
-    public void display(List<Movie> newMovies){
-        movies.clear();
-        movies.addAll(newMovies);
+    public void display(List<Media> newMedia){
+        media.clear();
+        media.addAll(newMedia);
         notifyDataSetChanged();
     }
 
     public void sort(MovieOrder order) {
-        ListAdapterUtils.sort(movies, order);
+        ListAdapterUtils.sort(media, order);
         notifyDataSetChanged();
     }
 }

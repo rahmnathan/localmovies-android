@@ -3,7 +3,7 @@ package com.github.rahmnathan.localmovies.app.google.cast.control;
 import android.net.Uri;
 
 import com.github.rahmnathan.localmovies.app.data.Client;
-import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Media;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaQueueItem;
@@ -21,23 +21,23 @@ import java.util.logging.Logger;
 public class GoogleCastUtils {
     private static final Logger logger = Logger.getLogger(GoogleCastUtils.class.getName());
 
-    public static MediaQueueItem[] assembleMediaQueue(List<Movie> movies, String posterPath, Client myClient) {
-        return movies.stream()
+    public static MediaQueueItem[] assembleMediaQueue(List<Media> media, String posterPath, Client myClient) {
+        return media.stream()
                 .map(title -> buildMediaQueueItem(title, posterPath, myClient))
                 .toArray(MediaQueueItem[]::new);
     }
 
-    private static MediaQueueItem buildMediaQueueItem(Movie movie, String posterPath, Client myClient){
+    private static MediaQueueItem buildMediaQueueItem(Media media, String posterPath, Client myClient){
         WebImage image = new WebImage(Uri.parse(myClient.getComputerUrl()
                 + "/localmovie/v2/media/poster?access_token=" + myClient.getAccessToken()
                 + "&path=" + posterPath));
 
         String movieUrl = myClient.getComputerUrl()
                 + "/localmovie/v2/media/stream.mp4?access_token=" + myClient.getAccessToken()
-                + "&path=" + encodeParameter(myClient.getCurrentPath() + File.separator + movie.getFilename());
+                + "&path=" + encodeParameter(myClient.getCurrentPath() + File.separator + media.getFilename());
 
         MediaMetadata metaData = new MediaMetadata();
-        metaData.putString(MediaMetadata.KEY_TITLE, movie.getTitle());
+        metaData.putString(MediaMetadata.KEY_TITLE, media.getTitle());
         metaData.addImage(image);
 
         MediaInfo mediaInfo = new MediaInfo.Builder(movieUrl)

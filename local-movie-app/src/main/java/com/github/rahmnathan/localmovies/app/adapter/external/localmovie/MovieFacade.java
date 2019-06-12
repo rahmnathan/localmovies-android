@@ -1,7 +1,7 @@
 package com.github.rahmnathan.localmovies.app.adapter.external.localmovie;
 
 import com.github.rahmnathan.localmovies.app.data.Client;
-import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Media;
 import com.github.rahmnathan.localmovies.app.data.MovieEvent;
 import com.github.rahmnathan.localmovies.app.data.MovieRequest;
 import com.google.gson.Gson;
@@ -28,7 +28,7 @@ public class MovieFacade {
     private static final String X_CORRELATION_ID = "x-correlation-id";
     private static final Gson GSON = new Gson();
 
-    public static List<Movie> getMovieInfo(Client client, MovieRequest movieRequest) {
+    public static List<Media> getMovieInfo(Client client, MovieRequest movieRequest) {
         String xCorrelationId = UUID.randomUUID().toString();
         logger.info("Requesting movies with x-correlation-id: " + xCorrelationId);
         Optional<JSONArray> movieInfoJson = getMovieInfoJson(client, movieRequest, xCorrelationId);
@@ -37,7 +37,7 @@ public class MovieFacade {
 
     public static List<MovieEvent> getMovieEvents(Client client) {
         String xCorrelationId = UUID.randomUUID().toString();
-        logger.info("Requesting movie events with x-correlation-id: " + xCorrelationId);
+        logger.info("Requesting media events with x-correlation-id: " + xCorrelationId);
         Optional<JSONArray> movieInfoJson = getMovieEventJson(client, xCorrelationId);
         return movieInfoJson.map(JSONtoMovieMapper.INSTANCE::jsonArrayToMovieEventList).orElseGet(ArrayList::new);
     }
@@ -56,7 +56,7 @@ public class MovieFacade {
             urlConnection.setRequestProperty("Authorization", "bearer " + client.getAccessToken());
             urlConnection.setConnectTimeout(10000);
         } catch (IOException e){
-            logger.log(Level.SEVERE, "Failed connecting to movie info service", e);
+            logger.log(Level.SEVERE, "Failed connecting to media info service", e);
         }
 
         if(urlConnection != null) {
@@ -64,7 +64,7 @@ public class MovieFacade {
             try (OutputStreamWriter outputStream = new OutputStreamWriter(urlConnection.getOutputStream(), StandardCharsets.UTF_8)) {
                 outputStream.write(movieRequestBody);
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "Failed writing to movie info service", e);
+                logger.log(Level.SEVERE, "Failed writing to media info service", e);
             }
 
             if (movieRequest.getPage() == 0) {
@@ -76,7 +76,7 @@ public class MovieFacade {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
                 br.lines().forEachOrdered(result::append);
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "Failed reading from movie info service", e);
+                logger.log(Level.SEVERE, "Failed reading from media info service", e);
             } finally {
                 urlConnection.disconnect();
             }
@@ -104,7 +104,7 @@ public class MovieFacade {
             urlConnection.setRequestProperty("Authorization", "bearer " + client.getAccessToken());
             urlConnection.setConnectTimeout(10000);
         } catch (IOException e){
-            logger.log(Level.SEVERE, "Failed connecting to movie info service", e);
+            logger.log(Level.SEVERE, "Failed connecting to media info service", e);
         }
 
         if(urlConnection != null) {
@@ -112,7 +112,7 @@ public class MovieFacade {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
                 br.lines().forEachOrdered(result::append);
             } catch (IOException e) {
-                logger.log(Level.SEVERE, "Failed reading from movie info service", e);
+                logger.log(Level.SEVERE, "Failed reading from media info service", e);
             } finally {
                 urlConnection.disconnect();
             }

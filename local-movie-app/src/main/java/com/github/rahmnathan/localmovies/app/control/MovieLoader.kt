@@ -52,7 +52,7 @@ class MovieLoader internal constructor(private val movieListAdapter: MovieListAd
         } while (page <= client.movieCount / ITEMS_PER_PAGE)
 
         if (isRunning) {
-            persistenceManager.addAll(client.currentPath.toString(), ArrayList(movieListAdapter.originalMovieList))
+            persistenceManager.addAll(client.currentPath.toString(), ArrayList(movieListAdapter.originalMediaList))
         }
 
         isRunning = false

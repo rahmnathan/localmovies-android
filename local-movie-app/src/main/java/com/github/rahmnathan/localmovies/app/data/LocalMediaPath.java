@@ -7,6 +7,6 @@ public class LocalMediaPath extends ArrayDeque<String> {
 
     @Override
     public String toString(){
-        return this.stream().collect(Collectors.joining("/"));
+        return String.join("/", this);
     }
 }

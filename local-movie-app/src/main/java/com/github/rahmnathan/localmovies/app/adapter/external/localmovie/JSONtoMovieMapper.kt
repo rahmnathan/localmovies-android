@@ -1,6 +1,6 @@
 package com.github.rahmnathan.localmovies.app.adapter.external.localmovie
 
-import com.github.rahmnathan.localmovies.app.data.Movie
+import com.github.rahmnathan.localmovies.app.data.Media
 import java.util.ArrayList
 
 import org.json.JSONArray
@@ -8,8 +8,8 @@ import org.json.JSONObject
 
 internal object JSONtoMovieMapper {
 
-    fun jsonArrayToMovieInfoList(jsonList: JSONArray): List<Movie> {
-        val movieList = ArrayList<Movie>()
+    fun jsonArrayToMovieInfoList(jsonList: JSONArray): List<Media> {
+        val movieList = ArrayList<Media>()
         for (i in 0 until jsonList.length()) {
             val mediaFile = jsonList.getJSONObject(i)
             movieList.add(mediaFileToMovie(mediaFile))
@@ -17,10 +17,12 @@ internal object JSONtoMovieMapper {
         return movieList
     }
 
-    fun mediaFileToMovie(mediaFile: JSONObject): Movie {
-        val movieInfo = mediaFile.getJSONObject("movie")
+    fun mediaFileToMovie(mediaFile: JSONObject): Media {
+        val movieInfo = mediaFile.getJSONObject("media")
 
-        return Movie(
+        println("")
+
+        return Media(
                 releaseYear = movieInfo.getString("releaseYear"),
                 metaRating = movieInfo.getString("metaRating"),
                 imdbRating = movieInfo.getString("imdbRating"),
@@ -32,7 +34,9 @@ internal object JSONtoMovieMapper {
                 views = mediaFile.getInt("views"),
                 actors = movieInfo.getString("actors"),
                 plot =  movieInfo.getString("plot"),
-                path = mediaFile.getString("path")
+                path = mediaFile.getString("path"),
+                type = movieInfo.getString("mediaType"),
+                number = movieInfo.getString("number")
         )
     }
 

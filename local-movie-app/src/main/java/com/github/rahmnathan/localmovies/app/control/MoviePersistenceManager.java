@@ -2,7 +2,7 @@ package com.github.rahmnathan.localmovies.app.control;
 
 import android.content.Context;
 
-import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Media;
 import com.github.rahmnathan.localmovies.app.persistence.MovieDAO;
 import com.github.rahmnathan.localmovies.app.persistence.MovieDatabase;
 import com.github.rahmnathan.localmovies.app.persistence.MovieEntity;
@@ -21,10 +21,10 @@ import static com.github.rahmnathan.localmovies.app.control.MediaPathUtils.getPa
 
 public class MoviePersistenceManager {
     private final Logger logger = Logger.getLogger(MoviePersistenceManager.class.getName());
-    private final ConcurrentMap<String, List<Movie>> movieInfoCache;
+    private final ConcurrentMap<String, List<Media>> movieInfoCache;
     private MovieDAO movieDAO;
 
-    public MoviePersistenceManager(ConcurrentMap<String, List<Movie>> movieInfoCache, Context context, ExecutorService executorService) {
+    public MoviePersistenceManager(ConcurrentMap<String, List<Media>> movieInfoCache, Context context, ExecutorService executorService) {
         this.movieInfoCache = movieInfoCache;
 
         CompletableFuture.runAsync(() -> {
@@ -34,30 +34,30 @@ public class MoviePersistenceManager {
             List<MovieEntity> movieEntities = movieDAO.getAll();
 
             movieEntities.forEach(movieEntity -> {
-                logger.info("Loading MovieEntities into memory - Path: " + movieEntity.getDirectoryPath() + " Filename: " + movieEntity.getMovie().getFilename());
-                List<Movie> movies = movieInfoCache.getOrDefault(movieEntity.getDirectoryPath(), new ArrayList<>());
-                movies.add(movieEntity.getMovie());
-                movieInfoCache.putIfAbsent(movieEntity.getDirectoryPath(), movies);
+                logger.info("Loading MovieEntities into memory - Path: " + movieEntity.getDirectoryPath() + " Filename: " + movieEntity.getMedia().getFilename());
+                List<Media> media = movieInfoCache.getOrDefault(movieEntity.getDirectoryPath(), new ArrayList<>());
+                media.add(movieEntity.getMedia());
+                movieInfoCache.putIfAbsent(movieEntity.getDirectoryPath(), media);
             });
 
         }, executorService);
     }
 
-    public void addAll(String path, List<Movie> movies){
-        movieInfoCache.putIfAbsent(path, movies);
+    public void addAll(String path, List<Media> media){
+        movieInfoCache.putIfAbsent(path, media);
         logger.info("Adding movielistentities to database: " + path);
-        List<MovieEntity> movieEntities = movies.stream().map(movie -> new MovieEntity(path, movie)).collect(Collectors.toList());
+        List<MovieEntity> movieEntities = media.stream().map(movie -> new MovieEntity(path, movie)).collect(Collectors.toList());
         movieDAO.insertAll(movieEntities);
     }
 
-    void addOne(String path, Movie movie){
-        List<Movie> movies = movieInfoCache.getOrDefault(path, new ArrayList<>());
-        movies.add(movie);
-        movieInfoCache.put(path, movies);
-        movieDAO.insert(new MovieEntity(path, movie));
+    void addOne(String path, Media media){
+        List<Media> mediaList = movieInfoCache.getOrDefault(path, new ArrayList<>());
+        mediaList.add(media);
+        movieInfoCache.put(path, mediaList);
+        movieDAO.insert(new MovieEntity(path, media));
     }
 
-    Optional<List<Movie>> getMoviesAtPath(String path){
+    Optional<List<Media>> getMoviesAtPath(String path){
         return Optional.ofNullable(movieInfoCache.get(path));
     }
 
@@ -65,9 +65,9 @@ public class MoviePersistenceManager {
         String parentPath = getParentPath(path);
         String filename = getFilename(path);
 
-        List<Movie> cachedMovies = movieInfoCache.get(parentPath);
-        if(cachedMovies != null)
-            cachedMovies.removeIf(movie -> movie.getFilename().equalsIgnoreCase(filename));
+        List<Media> cachedMedia = movieInfoCache.get(parentPath);
+        if(cachedMedia != null)
+            cachedMedia.removeIf(movie -> movie.getFilename().equalsIgnoreCase(filename));
 
         MovieEntity movieEntity = movieDAO.getByPathAndFilename(parentPath, filename);
         if(movieEntity != null)

@@ -9,7 +9,7 @@ import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Media;
 
 import rahmnathan.localmovies.R;
 
@@ -19,7 +19,7 @@ import static com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtil
 import static com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils.mapYearToView;
 
 public class DescriptionPopUpActivity extends Activity {
-    public static final String MOVIE = "movie";
+    public static final String MOVIE = "media";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,7 +38,7 @@ public class DescriptionPopUpActivity extends Activity {
         if(bundle != null) {
             Object object = bundle.get(MOVIE);
             if (object != null) {
-                Movie movie = (Movie) object;
+                Media media = (Media) object;
                 TextView titleView = findViewById(R.id.detailedTitle);
                 ImageView imageView = findViewById(R.id.detailedPoster);
                 TextView yearView = findViewById(R.id.detailedYear);
@@ -47,14 +47,14 @@ public class DescriptionPopUpActivity extends Activity {
                 TextView plotView = findViewById(R.id.detailedPlot);
                 TextView actorView = findViewById(R.id.detailedActors);
 
-                mapImageToView(movie.getImage(), imageView);
-                mapTitleToView(movie.getTitle(), titleView, 22);
-                mapYearToView(movie.getReleaseYear(), yearView, 16);
+                mapImageToView(media.getImage(), imageView);
+                mapTitleToView(media.getTitle(), titleView, 22);
+                mapYearToView(media.getReleaseYear(), yearView, 16);
 
-                mapTextToView(metaRatingView, String.format("Metacritic Rating: %s", movie.getMetaRating()), 16);
-                mapTextToView(imdbRatingView, String.format("IMDB Rating: %s", movie.getImdbRating()), 16);
-                mapTextToView(plotView, movie.getPlot(), 14);
-                mapTextToView(actorView, String.format("Starring: %s", movie.getActors()), 14);
+                mapTextToView(metaRatingView, String.format("Metacritic Rating: %s", media.getMetaRating()), 16);
+                mapTextToView(imdbRatingView, String.format("IMDB Rating: %s", media.getImdbRating()), 16);
+                mapTextToView(plotView, media.getPlot(), 14);
+                mapTextToView(actorView, String.format("Starring: %s", media.getActors()), 14);
             }
         }
     }

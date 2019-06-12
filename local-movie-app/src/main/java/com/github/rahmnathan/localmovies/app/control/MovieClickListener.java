@@ -12,7 +12,7 @@ import android.widget.Toast;
 import com.github.rahmnathan.localmovies.app.adapter.external.keycloak.KeycloakAuthenticator;
 import com.github.rahmnathan.localmovies.app.activity.PlayerActivity;
 import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter;
-import com.github.rahmnathan.localmovies.app.data.Movie;
+import com.github.rahmnathan.localmovies.app.data.Media;
 import com.github.rahmnathan.localmovies.app.google.cast.control.GoogleCastUtils;
 import com.github.rahmnathan.localmovies.app.persistence.MovieHistory;
 import com.github.rahmnathan.localmovies.app.data.Client;
@@ -52,27 +52,27 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         String posterPath;
-        List<Movie> titles;
-        Movie movie = listAdapter.getMovie(position);
-        history.addHistoryItem(movie);
+        List<Media> titles;
+        Media media = listAdapter.getMovie(position);
+        history.addHistoryItem(media);
         if (client.isViewingVideos()) {
             // If we're viewing movies or episodes we refresh our token and start the video
             CompletableFuture.runAsync(new KeycloakAuthenticator(client));
             if (client.isViewingEpisodes()) {
                 // If we're playing episodes, we queue up the rest of the season
                 posterPath = client.getCurrentPath().toString();
-                titles = listAdapter.getOriginalMovieList().stream()
-                        .filter(movieInfo -> getEpisodeNumber(movieInfo.getTitle()).compareTo(getEpisodeNumber(movie.getTitle())) > 0 || movieInfo.getTitle().equals(movie.getTitle()))
+                titles = listAdapter.getOriginalMediaList().stream()
+                        .filter(movieInfo -> Integer.valueOf(movieInfo.getNumber()).compareTo(Integer.valueOf(media.getNumber())) > 0 || movieInfo.getTitle().equals(media.getTitle()))
                         .collect(Collectors.toList());
             } else {
-                posterPath = client.getCurrentPath() + File.separator + movie.getFilename();
-                titles = Collections.singletonList(movie);
+                posterPath = client.getCurrentPath() + File.separator + media.getFilename();
+                titles = Collections.singletonList(media);
             }
 
             MediaQueueItem[] queueItems = GoogleCastUtils.assembleMediaQueue(titles, posterPath, client);
             queueVideos(queueItems);
         } else {
-            client.appendToCurrentPath(movie.getFilename());
+            client.appendToCurrentPath(media.getFilename());
             getVideos(persistenceManager, client, listAdapter, context, progressBar);
         }
     }
@@ -97,7 +97,7 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
             movieLoader.terminate();
         }
 
-        Optional<List<Movie>> optionalMovies = persistenceManager.getMoviesAtPath(myClient.getCurrentPath().toString());
+        Optional<List<Media>> optionalMovies = persistenceManager.getMoviesAtPath(myClient.getCurrentPath().toString());
         if (optionalMovies.isPresent()) {
             movieListAdapter.clearLists();
             movieListAdapter.updateList(optionalMovies.get());

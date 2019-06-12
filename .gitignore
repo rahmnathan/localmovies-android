@@ -1,9 +1,9 @@
 .gradle/
 .idea/
 build/
-local-movie-app/local-movie-app.iml
-local-movie-authentication-keycloak/local-movie-authentication-keycloak.iml
-local-movie-client/local-movie-client.iml
-local-movie-info-provider/local-movie-info-provider.iml
+local-media-app/local-media-app.iml
+local-media-authentication-keycloak/local-media-authentication-keycloak.iml
+local-media-client/local-media-client.iml
+local-media-info-provider/local-media-info-provider.iml
 local.properties
 localmovies-android.iml
