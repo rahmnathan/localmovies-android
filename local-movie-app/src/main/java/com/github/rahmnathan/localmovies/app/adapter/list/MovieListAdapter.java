@@ -59,6 +59,8 @@ public class MovieListAdapter extends ArrayAdapter<Media> implements Filterable 
         String title = media.getTitle();
         if(media.getType().equalsIgnoreCase("episode")){
             title = "#" + media.getNumber() + " - " + title;
+        } else if(media.getTitle().startsWith("Episode ") && media.getNumber() != null){
+            title = "#" + media.getNumber();
         }
 
         mapTitleToView(title, titleView, 16);
