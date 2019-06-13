@@ -36,7 +36,7 @@ public class MovieEventLoader implements Runnable {
 
     @Override
     public void run() {
-        logger.log(Level.INFO, "Dynamically loading titles");
+        logger.log(Level.INFO, "Dynamically loading events.");
 
         if (client.getAccessToken() == null) {
             UIHandler.post(() -> Toast.makeText(context, "Login failed - Check credentials", Toast.LENGTH_LONG).show());
@@ -45,8 +45,10 @@ public class MovieEventLoader implements Runnable {
 
         List<MovieEvent> events = getMovieEvents(client);
         events.forEach(event -> {
+            logger.info("Found media event: " + event.toString());
             if(event.getEvent().equalsIgnoreCase("CREATE")){
                 Media media = event.getMedia();
+                persistenceManager.deleteMovie(event.getRelativePath());
                 persistenceManager.addOne(getParentPath(event.getRelativePath()), media);
                 movieListAdapter.clearLists();
                 movieListAdapter.updateList(persistenceManager.getMoviesAtPath(client.getCurrentPath().toString()).orElse(new ArrayList<>()));
