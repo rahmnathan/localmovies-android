@@ -112,10 +112,6 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
         }
     }
 
-    private Integer getEpisodeNumber(String title) {
-        return Integer.valueOf(title.split(" ")[1]);
-    }
-
     public static class Builder {
         private MovieClickListener clickListener = new MovieClickListener();
 

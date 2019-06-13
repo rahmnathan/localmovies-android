@@ -20,8 +20,6 @@ internal object JSONtoMovieMapper {
     fun mediaFileToMovie(mediaFile: JSONObject): Media {
         val movieInfo = mediaFile.getJSONObject("media")
 
-        println("")
-
         return Media(
                 releaseYear = movieInfo.getString("releaseYear"),
                 metaRating = movieInfo.getString("metaRating"),
