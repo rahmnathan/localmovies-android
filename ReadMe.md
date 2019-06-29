@@ -1,3 +1,7 @@
+<h1>LocalMovies</h1>
+
+[![Build Status](https://nathanrahm-jenkins.ddns.net/buildStatus/icon?job=localmovies-android)](https://nathanrahm-jenkins.ddns.net/job/localmovies-android/)
+
 Android client for LocalMovies backend system.
 
 Android app displays media metadata based on sub-directory query and plays media locally or on a Google Cast device.
