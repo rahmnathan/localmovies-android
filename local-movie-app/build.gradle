@@ -39,9 +39,7 @@ android {
 repositories {
     jcenter()
     mavenCentral()
-    maven {
-        url "/home/nathan/.m2/repository/"
-    }
+    mavenLocal()
 }
 
 dependencies {
