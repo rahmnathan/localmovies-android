@@ -86,6 +86,6 @@
     <item
         android:id="@+id/media_route_menu_item"
         android:title="@string/app_name"
-        app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
+        app:actionProviderClass="androidx.mediarouter.app.MediaRouteActionProvider"
         app:showAsAction="ifRoom" />
 </menu>

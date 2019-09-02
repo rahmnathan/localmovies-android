@@ -3,7 +3,7 @@ package com.github.rahmnathan.localmovies.app.activity;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.widget.ImageView;

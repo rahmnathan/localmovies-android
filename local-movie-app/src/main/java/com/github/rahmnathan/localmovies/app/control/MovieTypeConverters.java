@@ -1,6 +1,6 @@
 package com.github.rahmnathan.localmovies.app.control;
 
-import android.arch.persistence.room.TypeConverter;
+import androidx.room.TypeConverter;
 
 import com.github.rahmnathan.localmovies.app.data.Media;
 import com.google.gson.Gson;

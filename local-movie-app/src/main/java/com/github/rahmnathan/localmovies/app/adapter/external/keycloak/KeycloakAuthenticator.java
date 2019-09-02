@@ -1,29 +1,42 @@
 package com.github.rahmnathan.localmovies.app.adapter.external.keycloak;
 
 import com.github.rahmnathan.localmovies.app.data.Client;
+import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service;
+import com.github.rahmnathan.oauth2.adapter.domain.client.OAuth2Client;
+import com.github.rahmnathan.oauth2.adapter.domain.client.OAuth2ClientConfig;
+import com.github.rahmnathan.oauth2.adapter.domain.credential.Duration;
+import com.github.rahmnathan.oauth2.adapter.domain.credential.OAuth2CredentialPassword;
+import com.github.rahmnathan.oauth2.adapter.keycloak.resilience4j.KeycloakClientResilience4j;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
+import java.time.temporal.ChronoUnit;
 import java.util.logging.Logger;
 
 public class KeycloakAuthenticator implements Runnable {
     private final Logger logger = Logger.getLogger(KeycloakAuthenticator.class.getName());
+    private final OAuth2Service oAuth2Service;
     private final Client client;
 
     public KeycloakAuthenticator(Client client) {
         this.client = client;
+
+        OAuth2ClientConfig clientConfig = OAuth2ClientConfig.builder()
+                .initialRetryDelay(500)
+                .retryCount(3)
+                .url(client.getComputerUrl() + "/auth")
+                .timoutMs(3000)
+                .build();
+
+        OAuth2Client keycloakClient = new KeycloakClientResilience4j(clientConfig);
+
+        OAuth2CredentialPassword passwordConfig = OAuth2CredentialPassword.builder()
+                .password(client.getPassword())
+                .clientId("localmovie-login")
+                .username(client.getUserName())
+                .realm("LocalMovies")
+                .tokenRefreshThreshold(new Duration(ChronoUnit.SECONDS, 30))
+                .build();
+
+        this.oAuth2Service = new OAuth2Service(passwordConfig, keycloakClient);
     }
 
     public void run() {
@@ -31,66 +44,10 @@ public class KeycloakAuthenticator implements Runnable {
     }
 
     private void updateAccessToken() {
-        logger.info("Logging in with Keycloak");
-        String urlString = client.getComputerUrl() + "/auth/realms/LocalMovies/protocol/openid-connect/token";
-
-        byte[] loginInfo = buildLoginInfo(client);
-        HttpURLConnection urlConnection = null;
-        try {
-            URL url = new URL(urlString);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setFixedLengthStreamingMode(loginInfo.length);
-            urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            urlConnection.setConnectTimeout(5000);
-            urlConnection.connect();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed connecting to auth server", e);
+        try{
+            client.setAccessToken(oAuth2Service.getAccessToken().serialize());
+        } catch (Exception e){
+            throw new RuntimeException(e);
         }
-
-        if (urlConnection != null) {
-            try (DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
-                wr.write(loginInfo);
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, "Failed writing to auth server", e);
-            }
-
-            StringBuilder result = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
-                br.lines().forEachOrdered(result::append);
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, "Failed reading from auth server", e);
-            } finally {
-                urlConnection.disconnect();
-            }
-
-            try {
-                JSONObject response = new JSONObject(result.toString());
-                if (response.has("access_token")) {
-                    client.setAccessToken(response.getString("access_token"));
-                }
-            } catch (JSONException e){
-                logger.log(Level.SEVERE, "Failure acquiring access token.", e);
-            }
-        }
-    }
-
-    private byte[] buildLoginInfo(Client client) {
-        Map<String, String> args = new HashMap<>();
-        args.put("grant_type", "password");
-        args.put("client_id", "localmovie-login");
-        args.put("username", client.getUserName());
-        args.put("password", client.getPassword());
-        StringBuilder sb = new StringBuilder();
-        args.forEach((key, value) -> {
-            try {
-                sb.append(URLEncoder.encode(key, "UTF-8")).append("=")
-                        .append(URLEncoder.encode(value, "UTF-8")).append("&");
-            } catch (UnsupportedEncodingException e) {
-                logger.log(Level.SEVERE, "Failed building login info", e);
-            }
-        });
-
-        return sb.toString().substring(0, sb.length() - 1).getBytes();
     }
 }
