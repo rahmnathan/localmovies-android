@@ -1,6 +1,7 @@
 package com.github.rahmnathan.localmovies.app.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -74,13 +75,19 @@ public class MainActivity extends AppCompatActivity {
         gridView.setAdapter(listAdapter);
 
         EditText searchText = findViewById(R.id.searchText);
-        PrimaryDrawerItem homeItem = new PrimaryDrawerItem().withIdentifier(1).withName("Home")
+        PrimaryDrawerItem homeItem = new PrimaryDrawerItem()
+                .withIdentifier(1)
+                .withName("Home")
+                .withTextColor(Color.WHITE)
                 .withOnDrawerItemClickListener((view, position, drawerItem) -> {
                     getRootVideos(MOVIES, searchText);
-                    return true;
+                    return false;
                 });
 
-        PrimaryDrawerItem historyItem = new PrimaryDrawerItem().withIdentifier(2).withName("History")
+        PrimaryDrawerItem historyItem = new PrimaryDrawerItem()
+                .withIdentifier(2)
+                .withName("History")
+                .withTextColor(Color.WHITE)
                 .withOnDrawerItemClickListener((view, position, drawerItem) -> {
                     client.resetCurrentPath();
                     client.appendToCurrentPath(MOVIES);
@@ -88,17 +95,20 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 });
 
-        PrimaryDrawerItem settingsItem = new PrimaryDrawerItem().withIdentifier(3).withName("My Account")
+        PrimaryDrawerItem settingsItem = new PrimaryDrawerItem()
+                .withIdentifier(3)
+                .withName("My Account")
+                .withTextColor(Color.WHITE)
                 .withOnDrawerItemClickListener((view, position, drawerItem) -> {
                     MainActivity.this.startActivity(new Intent(MainActivity.this, SetupActivity.class));
-                    return true;
+                    return false;
                 });
 
         Drawer result = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(findViewById(R.id.toolbar))
                 .addDrawerItems(homeItem, historyItem, settingsItem)
-                .withSliderBackgroundColor(99999999)
+                .withSliderBackgroundColor(Color.BLACK)
                 .build();
 
         searchText.addTextChangedListener(new MovieSearchTextWatcher(listAdapter));
