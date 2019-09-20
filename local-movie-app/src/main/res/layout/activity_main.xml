@@ -19,47 +19,30 @@
         android:textColor="#ffff"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:autofillHints="Search" />
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Controls"
-        android:id="@+id/controls"
-        android:layout_gravity="center_horizontal"
-        android:width="100dp"
-        android:padding="3dp"
-        android:layout_alignParentBottom="true"
-        android:backgroundTint="#4c4c4c"/>
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Series"
-        android:id="@+id/series"
-        android:layout_gravity="center_horizontal"
-        android:clickable="false"
-        android:width="85dp"
-        android:backgroundTint="#4c4c4c"
-        android:elegantTextHeight="false"
-        android:textColor="@color/abc_primary_text_disable_only_material_light"
-        android:padding="3dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true" />
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Movies"
-        android:id="@+id/media"
-        android:width="85dp"
-        android:padding="3dp"
-        android:backgroundTint="#4c4c4c"
         android:layout_alignParentBottom="true"
-        android:layout_toStartOf="@+id/series" />
+        app:menu="@menu/bottom_nav_menu"
+        app:itemBackground="@android:color/background_dark"
+        app:itemTextColor="@android:color/white" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -79,9 +62,9 @@
         android:scrollbarStyle="outsideOverlay"
         android:verticalScrollbarPosition="right"
         android:scrollbars="vertical"
-        android:layout_below="@+id/searchText"
+        android:layout_below="@+id/toolbar"
         android:layout_alignParentStart="true"
-        android:layout_above="@+id/controls">
+        android:layout_above="@+id/bottom_navigation">
     </GridView>
 
 </RelativeLayout>

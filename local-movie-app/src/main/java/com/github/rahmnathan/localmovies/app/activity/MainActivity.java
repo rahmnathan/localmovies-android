@@ -2,12 +2,17 @@ package com.github.rahmnathan.localmovies.app.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
+
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -23,6 +28,13 @@ import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.github.rahmnathan.localmovies.app.adapter.external.keycloak.KeycloakAuthenticator;
 import com.github.rahmnathan.localmovies.app.data.Client;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,32 +73,77 @@ public class MainActivity extends AppCompatActivity {
         gridView = findViewById(R.id.gridView);
         gridView.setAdapter(listAdapter);
 
-        persistenceManager = new MoviePersistenceManager(movieCache, this, executorService);
+        EditText searchText = findViewById(R.id.searchText);
+        PrimaryDrawerItem homeItem = new PrimaryDrawerItem().withIdentifier(1).withName("Home")
+                .withOnDrawerItemClickListener((view, position, drawerItem) -> {
+                    getRootVideos(MOVIES, searchText);
+                    return true;
+                });
 
-        // Getting phone info and Triggering initial request of titles from server
+        PrimaryDrawerItem historyItem = new PrimaryDrawerItem().withIdentifier(2).withName("History")
+                .withOnDrawerItemClickListener((view, position, drawerItem) -> {
+                    client.resetCurrentPath();
+                    client.appendToCurrentPath(MOVIES);
+                    listAdapter.display(history.getHistoryList());
+                    return false;
+                });
+
+        PrimaryDrawerItem settingsItem = new PrimaryDrawerItem().withIdentifier(3).withName("My Account")
+                .withOnDrawerItemClickListener((view, position, drawerItem) -> {
+                    MainActivity.this.startActivity(new Intent(MainActivity.this, SetupActivity.class));
+                    return true;
+                });
+
+        Drawer result = new DrawerBuilder()
+                .withActivity(this)
+                .withToolbar(findViewById(R.id.toolbar))
+                .addDrawerItems(homeItem, historyItem, settingsItem)
+                .withSliderBackgroundColor(99999999)
+                .build();
+
+        searchText.addTextChangedListener(new MovieSearchTextWatcher(listAdapter));
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.action_movies);
+        bottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
+
+        PopupMenu popup = new PopupMenu(this, bottomNavigationView, Gravity.END);
+        popup.setOnMenuItemClickListener(item -> {
+            sortVideoList(item, listAdapter, gridView);
+            return true;
+        });
+
+        popup.getMenuInflater().inflate(R.menu.settings, popup.getMenu());
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.action_controls:
+                    startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class));
+                    break;
+                case R.id.action_movies:
+                    getRootVideos(MOVIES, searchText);
+                    break;
+                case R.id.action_series:
+                    getRootVideos(SERIES, searchText);
+                    break;
+                case R.id.action_more:
+                    popup.show();
+                    break;
+            }
+            return true;
+        });
+
+        persistenceManager = new MoviePersistenceManager(movieCache, this, executorService);
 
         try {
             client = getPhoneInfo(openFileInput("setup"));
             client.appendToCurrentPath(MOVIES);
-            Toast.makeText(this, "Logging in", Toast.LENGTH_SHORT).show();
             CompletableFuture.runAsync(new KeycloakAuthenticator(client), executorService)
                     .thenRun(this::loadVideos)
                     .thenRun(new MovieEventLoader(listAdapter, client, persistenceManager, this));
         } catch (Exception e) {
             startActivity(new Intent(MainActivity.this, SetupActivity.class));
         }
-
-        EditText searchText = findViewById(R.id.searchText);
-        searchText.addTextChangedListener(new MovieSearchTextWatcher(listAdapter));
-
-        Button controls = findViewById(R.id.controls);
-        controls.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class)));
-
-        Button series = findViewById(R.id.series);
-        series.setOnClickListener(view -> getRootVideos(SERIES, searchText));
-
-        Button movies = findViewById(R.id.media);
-        movies.setOnClickListener(view -> getRootVideos(MOVIES, searchText));
 
         MovieClickListener clickListener = MovieClickListener.Builder.newInstance()
                 .setCastContext(CastContext.getSharedInstance(this))
@@ -126,19 +183,5 @@ public class MainActivity extends AppCompatActivity {
 
         client.popOneDirectory();
         loadVideos();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        CastButtonFactory.setUpMediaRouteButton(getApplicationContext(), menu, R.id.media_route_menu_item);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        sortVideoList(item, listAdapter, gridView, this, client, history);
-        return true;
     }
 }

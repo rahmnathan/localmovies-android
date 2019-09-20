@@ -1,7 +1,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.github.rahmnathan.localmovies.app.activity.MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_sort"
         android:orderInCategory="100"
@@ -73,19 +71,4 @@
                 app:showAsAction="never" />
         </menu>
     </item>
-    <item
-        android:id="@+id/action_history"
-        android:orderInCategory="100"
-        android:title="@string/action_history"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/media_route_menu_item"
-        android:title="@string/app_name"
-        app:actionProviderClass="androidx.mediarouter.app.MediaRouteActionProvider"
-        app:showAsAction="ifRoom" />
 </menu>
