@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_controls"
         android:enabled="true"
-        android:icon="@drawable/movie_icon"
-        android:title="Controls"
-        app:showAsAction="always" />
+        android:icon="@drawable/play_icon"
+        android:title="Controls"/>
     <item
         android:id="@+id/action_movies"
         android:enabled="true"
-        android:icon="@drawable/movie_icon"
-        android:title="Movies"
-        app:showAsAction="ifRoom" />
+        android:icon="@drawable/navigation_media_icon"
+        android:title="Movies"/>
     <item
         android:id="@+id/action_series"
         android:enabled="true"
-        android:icon="@drawable/movie_icon"
-        android:title="Series"
-        app:showAsAction="ifRoom" />
+        android:icon="@drawable/navigation_media_icon"
+        android:title="Series"/>
     <item
         android:id="@+id/action_more"
         android:enabled="true"
-        android:icon="@drawable/movie_icon"
-        android:title="More"
-        app:showAsAction="ifRoom" />
+        android:icon="@drawable/hamburger_menu"
+        android:title="More" />
 </menu>
