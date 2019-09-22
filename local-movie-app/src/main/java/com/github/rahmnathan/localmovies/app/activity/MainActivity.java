@@ -11,10 +11,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
 
 import android.view.Gravity;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter;
 import com.github.rahmnathan.localmovies.app.control.MovieClickListener;
@@ -28,6 +28,7 @@ import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.github.rahmnathan.localmovies.app.adapter.external.keycloak.KeycloakAuthenticator;
 import com.github.rahmnathan.localmovies.app.data.Client;
+import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 import com.mikepenz.materialdrawer.Drawer;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private GridView gridView;
     public static Client client;
+    private CastContext castContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         listAdapter = new MovieListAdapter(this, new ArrayList<>());
         gridView = findViewById(R.id.gridView);
         gridView.setAdapter(listAdapter);
+        castContext = CastContext.getSharedInstance(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         getMenuInflater().inflate(R.menu.cast, toolbar.getMenu());
@@ -78,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(toolbar.getMenu().findItem(R.id.action_search));
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-
         searchView.setOnQueryTextListener(new MovieSearchTextWatcher(listAdapter));
 
         PrimaryDrawerItem homeItem = new PrimaryDrawerItem()
@@ -126,13 +128,19 @@ public class MainActivity extends AppCompatActivity {
             sortVideoList(item, listAdapter, gridView);
             return true;
         });
-
         popup.getMenuInflater().inflate(R.menu.settings, popup.getMenu());
+
+        bottomNavigationView.getMenu().setGroupCheckable(0, false, true);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             switch (item.getItemId()) {
                 case R.id.action_controls:
-                    startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class));
+                    CastSession session = castContext.getSessionManager().getCurrentCastSession();
+                    if(session != null && session.isConnected()) {
+                        startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class));
+                    } else {
+                        Toast.makeText(this, "No video playing", Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 case R.id.action_movies:
                     getRootVideos(MOVIES, searchView);
@@ -160,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         MovieClickListener clickListener = MovieClickListener.Builder.newInstance()
-                .setCastContext(CastContext.getSharedInstance(this))
+                .setCastContext(castContext)
                 .setContext(this)
                 .setProgressBar(progressBar)
                 .setClient(client)

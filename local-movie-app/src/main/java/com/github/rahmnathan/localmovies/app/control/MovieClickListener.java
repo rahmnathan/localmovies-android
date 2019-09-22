@@ -7,12 +7,12 @@ import android.os.Looper;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.adapter.external.keycloak.KeycloakAuthenticator;
 import com.github.rahmnathan.localmovies.app.activity.PlayerActivity;
 import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter;
 import com.github.rahmnathan.localmovies.app.data.Media;
+import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity;
 import com.github.rahmnathan.localmovies.app.google.cast.control.GoogleCastUtils;
 import com.github.rahmnathan.localmovies.app.persistence.MovieHistory;
 import com.github.rahmnathan.localmovies.app.data.Client;
@@ -77,14 +77,14 @@ public class MovieClickListener implements AdapterView.OnItemClickListener {
         }
     }
 
-    private void queueVideos(MediaQueueItem[] queueItems){
-        try {
-            CastSession session = castContext.getSessionManager().getCurrentCastSession();
+    private void queueVideos(MediaQueueItem[] queueItems) {
+        CastSession session = castContext.getSessionManager().getCurrentCastSession();
+
+        if(session != null && session.isConnected()) {
             RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
             remoteMediaClient.queueLoad(queueItems, 0, 0, null);
-            Toast.makeText(context, "Casting", Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-            logger.severe(e.toString());
+            context.startActivity(new Intent(context, ExpandedControlActivity.class));
+        } else {
             Intent intent = new Intent(context, PlayerActivity.class);
             String url = queueItems[0].getMedia().getContentId();
             intent.putExtra("url", url);
