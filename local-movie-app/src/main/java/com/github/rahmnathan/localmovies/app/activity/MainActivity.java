@@ -5,17 +5,13 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.widget.Toolbar;
 
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter;
 import com.github.rahmnathan.localmovies.app.control.MovieClickListener;
@@ -33,9 +29,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
-import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,9 +98,13 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 });
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        getMenuInflater().inflate(R.menu.cast, toolbar.getMenu());
+        CastButtonFactory.setUpMediaRouteButton(getApplicationContext(), toolbar.getMenu(), R.id.media_route_menu_item);
+
         Drawer result = new DrawerBuilder()
                 .withActivity(this)
-                .withToolbar(findViewById(R.id.toolbar))
+                .withToolbar(toolbar)
                 .addDrawerItems(homeItem, historyItem, settingsItem)
                 .withSliderBackgroundColor(Color.BLACK)
                 .build();
