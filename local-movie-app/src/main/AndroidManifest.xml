@@ -17,7 +17,8 @@
             android:name="com.github.rahmnathan.localmovies.app.activity.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:windowSoftInputMode="stateAlwaysHidden"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:label="LocalMovies">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
