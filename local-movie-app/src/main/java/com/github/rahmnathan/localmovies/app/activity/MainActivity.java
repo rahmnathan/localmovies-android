@@ -1,11 +1,14 @@
 package com.github.rahmnathan.localmovies.app.activity;
 
+import android.app.SearchManager;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.MenuItemCompat;
 
 import android.view.Gravity;
 import android.widget.EditText;
@@ -68,13 +71,22 @@ public class MainActivity extends AppCompatActivity {
         gridView = findViewById(R.id.gridView);
         gridView.setAdapter(listAdapter);
 
-        EditText searchText = findViewById(R.id.searchText);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        getMenuInflater().inflate(R.menu.cast, toolbar.getMenu());
+        CastButtonFactory.setUpMediaRouteButton(getApplicationContext(), toolbar.getMenu(), R.id.media_route_menu_item);
+
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(toolbar.getMenu().findItem(R.id.action_search));
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        searchView.setOnQueryTextListener(new MovieSearchTextWatcher(listAdapter));
+
         PrimaryDrawerItem homeItem = new PrimaryDrawerItem()
                 .withIdentifier(1)
                 .withName("Home")
                 .withTextColor(Color.WHITE)
                 .withOnDrawerItemClickListener((view, position, drawerItem) -> {
-                    getRootVideos(MOVIES, searchText);
+                    getRootVideos(MOVIES, searchView);
                     return false;
                 });
 
@@ -98,18 +110,12 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 });
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        getMenuInflater().inflate(R.menu.cast, toolbar.getMenu());
-        CastButtonFactory.setUpMediaRouteButton(getApplicationContext(), toolbar.getMenu(), R.id.media_route_menu_item);
-
         Drawer result = new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
                 .addDrawerItems(homeItem, historyItem, settingsItem)
                 .withSliderBackgroundColor(Color.BLACK)
                 .build();
-
-        searchText.addTextChangedListener(new MovieSearchTextWatcher(listAdapter));
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.action_movies);
@@ -129,10 +135,10 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(MainActivity.this, ExpandedControlActivity.class));
                     break;
                 case R.id.action_movies:
-                    getRootVideos(MOVIES, searchText);
+                    getRootVideos(MOVIES, searchView);
                     break;
                 case R.id.action_series:
-                    getRootVideos(SERIES, searchText);
+                    getRootVideos(SERIES, searchView);
                     break;
                 case R.id.action_more:
                     popup.show();
@@ -172,9 +178,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void getRootVideos(String path, EditText searchText){
+    private void getRootVideos(String path, SearchView searchText){
         client.resetCurrentPath();
-        searchText.setText("");
+        searchText.setQuery("", false);
         client.appendToCurrentPath(path);
         loadVideos();
     }
