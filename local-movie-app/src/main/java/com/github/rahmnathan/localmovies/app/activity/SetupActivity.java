@@ -47,18 +47,15 @@ public class SetupActivity extends Activity {
         userName.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
         EditText password = findViewById(R.id.password);
         password.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
-        EditText url = findViewById(R.id.url);
-        url.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.DARKEN);
 
         // Populating our text fields with our saved data if it exists
         Client client = getPhoneInfo();
         userName.setText(client.getUserName());
         password.setText(client.getPassword());
-        url.setText(client.getComputerUrl());
 
         Button set = findViewById(R.id.set);
         set.setOnClickListener(view -> {
-            Client client1 = new Client(url.getText().toString(), userName.getText().toString(), password.getText().toString());
+            Client client1 = new Client(userName.getText().toString(), password.getText().toString());
             saveData(client1, this);
 
             startActivity(new Intent(SetupActivity.this, MainActivity.class));

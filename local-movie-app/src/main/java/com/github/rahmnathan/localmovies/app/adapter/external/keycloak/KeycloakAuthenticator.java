@@ -22,7 +22,7 @@ public class KeycloakAuthenticator implements Runnable {
         OAuth2ClientConfig clientConfig = OAuth2ClientConfig.builder()
                 .initialRetryDelay(500)
                 .retryCount(3)
-                .url(client.getComputerUrl() + "/auth")
+                .url("https://login.nathanrahm.com/auth")
                 .timoutMs(3000)
                 .build();
 
@@ -30,7 +30,7 @@ public class KeycloakAuthenticator implements Runnable {
 
         OAuth2CredentialPassword passwordConfig = OAuth2CredentialPassword.builder()
                 .password(client.getPassword())
-                .clientId("localmovie-login")
+                .clientId("localmovies")
                 .username(client.getUserName())
                 .realm("LocalMovies")
                 .tokenRefreshThreshold(new Duration(ChronoUnit.SECONDS, 30))

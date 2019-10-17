@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class Client implements Serializable {
     private final LocalMediaPath mainPath = new LocalMediaPath();
-    private String computerUrl = "https://localmovies.hopto.org";
+    private String computerUrl = "https://movies.nathanrahm.com";
     private LocalMediaPath currentPath = mainPath;
     private Integer movieCount;
     private String accessToken;
@@ -12,8 +12,7 @@ public class Client implements Serializable {
     private String userName;
     private String password;
 
-    public Client(String computerUrl, String userName, String password) {
-        this.computerUrl = computerUrl;
+    public Client(String userName, String password) {
         this.userName = userName;
         this.password = password;
     }

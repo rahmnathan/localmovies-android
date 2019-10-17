@@ -35,7 +35,8 @@ class MovieLoader internal constructor(private val movieListAdapter: MovieListAd
             val movieRequest = MovieRequest(
                     page = page,
                     resultsPerPage = ITEMS_PER_PAGE,
-                    path = client.currentPath.toString()
+                    path = client.currentPath.toString(),
+                    order = "TITLE"
             )
 
             val infoList = getMovieInfo(client, movieRequest)
