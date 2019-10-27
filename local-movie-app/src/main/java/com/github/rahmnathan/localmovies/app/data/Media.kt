@@ -4,7 +4,7 @@ import java.io.Serializable
 import java.util.Comparator
 
 class Media(val title: String, val imdbRating: String, val metaRating: String, val image: String, val releaseYear: String,
-            val created: Long?, val views: Int, val genre: String, val filename: String, val actors: String, val plot: String,
+            val created: Long?, val genre: String, val filename: String, val actors: String, val plot: String,
             val path: String, val number: String?, val type: String) : Serializable, Comparator<Media> {
 
     override fun toString(): String {

@@ -21,9 +21,6 @@ public class MainActivityUtils {
             case R.id.order_date_added:
                 sort(MovieOrder.DATE_ADDED, listAdapter, gridView);
                 break;
-            case R.id.order_views:
-                sort(MovieOrder.MOST_VIEWS, listAdapter, gridView);
-                break;
             case R.id.order_year:
                 sort(MovieOrder.RELEASE_YEAR, listAdapter, gridView);
                 break;

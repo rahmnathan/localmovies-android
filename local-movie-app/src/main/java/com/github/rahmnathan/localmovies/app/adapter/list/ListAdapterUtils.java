@@ -23,9 +23,6 @@ public class ListAdapterUtils {
             case DATE_ADDED:
                 media.sort((movie1, movie2) -> Objects.requireNonNull(movie2.getCreated()).compareTo(movie1.getCreated()));
                 break;
-            case MOST_VIEWS:
-                media.sort((movie1, movie2) -> Integer.compare(movie2.getViews(), movie1.getViews()));
-                break;
             case RATING:
                 media.sort((movie1, movie2) -> movie2.getImdbRating().compareTo(movie1.getImdbRating()));
                 break;
