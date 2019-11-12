@@ -38,6 +38,9 @@ repositories {
     jcenter()
     mavenCentral()
     mavenLocal()
+    maven {
+        url "https://artifactory.nathanrahm.com/artifactory/rahmnathan-libraries"
+    }
 }
 
 dependencies {
