@@ -13,9 +13,11 @@ import com.github.rahmnathan.localmovies.app.data.MovieEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MovieFacade.getMovieEventCount;
 import static com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MovieFacade.getMovieEvents;
 import static com.github.rahmnathan.localmovies.app.control.MediaPathUtils.getParentPath;
 
@@ -24,6 +26,7 @@ public class MovieEventLoader implements Runnable {
     private final Handler UIHandler = new Handler(Looper.getMainLooper());
     private final MoviePersistenceManager persistenceManager;
     private final MovieListAdapter movieListAdapter;
+    private static final int ITEMS_PER_PAGE = 30;
     private final Context context;
     private final Client client;
 
@@ -43,23 +46,32 @@ public class MovieEventLoader implements Runnable {
             return;
         }
 
-        List<MovieEvent> events = getMovieEvents(client);
-        events.forEach(event -> {
-            logger.info("Found media event: " + event.toString());
-            if(event.getEvent().equalsIgnoreCase("CREATE")){
-                Media media = event.getMedia();
-                persistenceManager.deleteMovie(event.getRelativePath());
-                persistenceManager.addOne(getParentPath(event.getRelativePath()), media);
-                movieListAdapter.clearLists();
-                movieListAdapter.updateList(persistenceManager.getMoviesAtPath(client.getCurrentPath().toString()).orElse(new ArrayList<>()));
-                UIHandler.post(movieListAdapter::notifyDataSetChanged);
-            } else {
-                persistenceManager.deleteMovie(event.getRelativePath());
-                movieListAdapter.clearLists();
-                movieListAdapter.updateList(persistenceManager.getMoviesAtPath(client.getCurrentPath().toString()).orElse(new ArrayList<>()));
-                UIHandler.post(movieListAdapter::notifyDataSetChanged);
-            }
-        });
+        Optional<Long> count = getMovieEventCount(client);
+        if(!count.isPresent()){
+            logger.severe("Error retrieving media event count.");
+            return;
+        }
+
+        for(int page = 0; page <= count.get()/ITEMS_PER_PAGE; page++) {
+            List<MovieEvent> events = getMovieEvents(client, page, ITEMS_PER_PAGE);
+
+            events.forEach(event -> {
+                logger.info("Found media event: " + event.toString());
+                if (event.getEvent().equalsIgnoreCase("CREATE")) {
+                    Media media = event.getMedia();
+                    persistenceManager.deleteMovie(event.getRelativePath());
+                    persistenceManager.addOne(getParentPath(event.getRelativePath()), media);
+                    movieListAdapter.clearLists();
+                    movieListAdapter.updateList(persistenceManager.getMoviesAtPath(client.getCurrentPath().toString()).orElse(new ArrayList<>()));
+                    UIHandler.post(movieListAdapter::notifyDataSetChanged);
+                } else {
+                    persistenceManager.deleteMovie(event.getRelativePath());
+                    movieListAdapter.clearLists();
+                    movieListAdapter.updateList(persistenceManager.getMoviesAtPath(client.getCurrentPath().toString()).orElse(new ArrayList<>()));
+                    UIHandler.post(movieListAdapter::notifyDataSetChanged);
+                }
+            });
+        }
 
         if (!movieListAdapter.getChars().equals("")) {
             UIHandler.post(() -> movieListAdapter.getFilter().filter(movieListAdapter.getChars()));

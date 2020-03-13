@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 public class MovieFacade {
     private static final Logger logger = Logger.getLogger(MovieFacade.class.getName());
     private static final String X_CORRELATION_ID = "x-correlation-id";
+    private static final String COUNT_HEADER = "Count";
     private static final Gson GSON = new Gson();
 
     public static List<Media> getMovieInfo(Client client, MovieRequest movieRequest) {
@@ -35,10 +36,10 @@ public class MovieFacade {
         return movieInfoJson.map(JSONtoMovieMapper.INSTANCE::jsonArrayToMovieInfoList).orElseGet(ArrayList::new);
     }
 
-    public static List<MovieEvent> getMovieEvents(Client client) {
+    public static List<MovieEvent> getMovieEvents(Client client, int page, int size) {
         String xCorrelationId = UUID.randomUUID().toString();
         logger.info("Requesting media events with x-correlation-id: " + xCorrelationId);
-        Optional<JSONArray> movieInfoJson = getMovieEventJson(client, xCorrelationId);
+        Optional<JSONArray> movieInfoJson = getMovieEventJson(client, xCorrelationId, page, size);
         return movieInfoJson.map(JSONtoMovieMapper.INSTANCE::jsonArrayToMovieEventList).orElseGet(ArrayList::new);
     }
 
@@ -90,12 +91,44 @@ public class MovieFacade {
         return Optional.empty();
     }
 
-    private static Optional<JSONArray> getMovieEventJson(Client client, String xCorrelationId) {
+    public static Optional<Long> getMovieEventCount(Client client){
+        String xCorrelationId = UUID.randomUUID().toString();
+        logger.info("Requesting media event count with x-correlation-id: " + xCorrelationId);
+
         HttpURLConnection urlConnection = null;
         if(client.getLastUpdate() == null){
             client.setLastUpdate(System.currentTimeMillis());
         }
-        String url = client.getComputerUrl() + "/localmovie/v2/media/events?timestamp=" + client.getLastUpdate();
+        String url = client.getComputerUrl()
+                + "/localmovie/v2/media/events/count?timestamp=" + client.getLastUpdate();
+
+        try {
+            urlConnection = (HttpURLConnection) (new URL(url)).openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setRequestProperty(X_CORRELATION_ID, xCorrelationId);
+            urlConnection.setRequestProperty("Authorization", "bearer " + client.getAccessToken());
+            urlConnection.setConnectTimeout(10000);
+            return Optional.of(Long.parseLong(urlConnection.getHeaderField(COUNT_HEADER)));
+        } catch (IOException e){
+            logger.log(Level.SEVERE, "Failed connecting to media info service", e);
+        } finally {
+            if(urlConnection != null){
+                urlConnection.disconnect();
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private static Optional<JSONArray> getMovieEventJson(Client client, String xCorrelationId, int page, int size) {
+        HttpURLConnection urlConnection = null;
+        if(client.getLastUpdate() == null){
+            client.setLastUpdate(System.currentTimeMillis());
+        }
+        String url = client.getComputerUrl()
+                + "/localmovie/v2/media/events?timestamp=" + client.getLastUpdate()
+                + "&page=" + page
+                + "&size=" + size;
 
         try {
             urlConnection = (HttpURLConnection) (new URL(url)).openConnection();
@@ -111,6 +144,7 @@ public class MovieFacade {
             StringBuilder result = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
                 br.lines().forEachOrdered(result::append);
+                Integer count = Integer.valueOf(urlConnection.getHeaderField(COUNT_HEADER));
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Failed reading from media info service", e);
             } finally {
