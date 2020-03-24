@@ -12,17 +12,13 @@ import java.util.logging.Logger
 
 class MovieHistory(private val context: Context) {
     private val logger = Logger.getLogger(MovieHistory::class.java.name)
-    private val mediaQueue: Queue<Media?>?
+    private var mediaQueue: Queue<Media?>
 
     val historyList: List<Media>
-        get() = if (mediaQueue != null) {
-            ArrayList(mediaQueue).filterNotNull().sortedByDescending { media -> media.created  }
-        } else {
-            emptyList()
-        }
+        get() = ArrayList(mediaQueue).filterNotNull().sortedByDescending { media -> media.created  }
 
     fun addHistoryItem(media: Media?) {
-        mediaQueue!!.add(media)
+        mediaQueue.add(media)
         saveHistory()
     }
 

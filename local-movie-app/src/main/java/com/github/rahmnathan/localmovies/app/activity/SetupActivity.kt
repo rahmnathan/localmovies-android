@@ -51,7 +51,7 @@ class SetupActivity : Activity() {
         }
 
         val clearMovies = findViewById<Button>(R.id.clearMovies)
-        clearMovies.setOnClickListener { view: View? ->
+        clearMovies.setOnClickListener {
             CompletableFuture.runAsync {
                 val movieDAO = MovieDatabase.getDatabase(this)!!.movieDAO()
                 movieDAO!!.deleteAll()
