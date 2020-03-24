@@ -9,19 +9,15 @@ import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import android.widget.AdapterView.OnItemLongClickListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuItemCompat
-import com.github.rahmnathan.localmovies.app.activity.DescriptionPopUpActivity
-import com.github.rahmnathan.localmovies.app.activity.MainActivity
-import com.github.rahmnathan.localmovies.app.activity.SetupActivity
 import com.github.rahmnathan.localmovies.app.adapter.external.keycloak.KeycloakAuthenticator
 import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter
 import com.github.rahmnathan.localmovies.app.control.MainActivityUtils.getPhoneInfo
 import com.github.rahmnathan.localmovies.app.control.MainActivityUtils.sortVideoList
-import com.github.rahmnathan.localmovies.app.control.MovieClickListener.Builder.Companion.newInstance
+import com.github.rahmnathan.localmovies.app.control.MovieClickListener
 import com.github.rahmnathan.localmovies.app.control.MovieClickListener.Companion.getVideos
 import com.github.rahmnathan.localmovies.app.control.MovieEventLoader
 import com.github.rahmnathan.localmovies.app.control.MoviePersistenceManager
@@ -43,6 +39,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.Executors
+import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
     private val movieCache: ConcurrentMap<String, MutableList<Media>> = ConcurrentHashMap()
@@ -64,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         listAdapter = MovieListAdapter(this, ArrayList())
         gridView = findViewById(R.id.gridView)
-        gridView?.setAdapter(listAdapter)
+        gridView?.adapter = listAdapter
         castContext = CastContext.getSharedInstance(this)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
 
@@ -74,11 +71,12 @@ class MainActivity : AppCompatActivity() {
         val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnQueryTextListener(MovieSearchTextWatcher(listAdapter!!))
+
         val homeItem = PrimaryDrawerItem()
                 .withIdentifier(1)
                 .withName("Home")
                 .withTextColor(Color.WHITE)
-                .withOnDrawerItemClickListener { view: View?, position: Int, drawerItem: IDrawerItem<*, *>? ->
+                .withOnDrawerItemClickListener { _: View?, _: Int, _: IDrawerItem<*, *>? ->
                     getRootVideos(MOVIES, searchView)
                     false
                 }
@@ -86,7 +84,7 @@ class MainActivity : AppCompatActivity() {
                 .withIdentifier(2)
                 .withName("History")
                 .withTextColor(Color.WHITE)
-                .withOnDrawerItemClickListener { view: View?, position: Int, drawerItem: IDrawerItem<*, *>? ->
+                .withOnDrawerItemClickListener { _: View?, _: Int, _: IDrawerItem<*, *>? ->
                     client!!.resetCurrentPath()
                     client!!.appendToCurrentPath(MOVIES)
                     listAdapter!!.display(history!!.historyList)
@@ -96,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                 .withIdentifier(3)
                 .withName("My Account")
                 .withTextColor(Color.WHITE)
-                .withOnDrawerItemClickListener { view: View?, position: Int, drawerItem: IDrawerItem<*, *>? ->
+                .withOnDrawerItemClickListener { _: View?, _: Int, _: IDrawerItem<*, *>? ->
                     this@MainActivity.startActivity(Intent(this@MainActivity, SetupActivity::class.java))
                     false
                 }
@@ -106,6 +104,7 @@ class MainActivity : AppCompatActivity() {
                 .addDrawerItems(homeItem, historyItem, settingsItem)
                 .withSliderBackgroundColor(Color.BLACK)
                 .build()
+
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.action_movies
         bottomNavigationView.labelVisibilityMode = LabelVisibilityMode.LABEL_VISIBILITY_LABELED
@@ -119,7 +118,7 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setOnNavigationItemSelectedListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.action_controls -> {
-                    val session = castContext?.getSessionManager()!!.currentCastSession
+                    val session = castContext?.sessionManager!!.currentCastSession
                     if (session != null && session.isConnected) {
                         startActivity(Intent(this@MainActivity, ExpandedControlActivity::class.java))
                     } else {
@@ -143,16 +142,17 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this@MainActivity, SetupActivity::class.java))
         }
 
-        val clickListener = newInstance()
-                .setCastContext(castContext)
-                .setContext(this)
-                .setProgressBar(progressBar)
-                .setClient(client)
-                .setMovieListAdapter(listAdapter)
-                .setMovieInfoCache(persistenceManager)
-                .setMovieHistory(history)
-                .build()
-        gridView?.setOnItemClickListener(clickListener)
+        val clickListener = MovieClickListener(
+                castContext=castContext!!,
+                context = this,
+                progressBar = progressBar!!,
+                client = client!!,
+                listAdapter = listAdapter!!,
+                persistenceManager = persistenceManager!!,
+                history = history!!
+        )
+
+        gridView?.onItemClickListener = clickListener
         gridView?.setOnItemLongClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
             val intent = Intent(this, DescriptionPopUpActivity::class.java)
             intent.putExtra(DescriptionPopUpActivity.MOVIE, listAdapter!!.getMovie(position))
@@ -174,7 +174,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         val currentDirectory = client!!.currentPath.peekLast()
-        if (currentDirectory.equals(SERIES, ignoreCase = true) || currentDirectory.equals(MOVIES, ignoreCase = true)) System.exit(8)
+        if (currentDirectory.equals(SERIES, ignoreCase = true) || currentDirectory.equals(MOVIES, ignoreCase = true)) exitProcess(8)
         client!!.popOneDirectory()
         loadVideos()
     }

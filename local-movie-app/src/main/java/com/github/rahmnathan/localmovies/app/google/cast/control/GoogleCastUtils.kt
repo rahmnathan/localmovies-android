@@ -18,6 +18,7 @@ import java.util.stream.Collectors
 
 object GoogleCastUtils {
     private val logger = Logger.getLogger(GoogleCastUtils::class.java.name)
+
     fun assembleMediaQueue(media: List<Media>, posterPath: String, myClient: Client): List<MediaQueueItem> {
         return media.stream()
                 .map { title: Media -> buildMediaQueueItem(title, posterPath, myClient) }

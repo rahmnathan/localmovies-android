@@ -21,11 +21,7 @@ class Client : Serializable {
         this.password = password
     }
 
-    constructor() {}
-
-    fun setLastUpdate(lastUpdate: Long) {
-        this.lastUpdate = lastUpdate
-    }
+    constructor()
 
     val isViewingEpisodes: Boolean
         get() = currentPath.size == 3

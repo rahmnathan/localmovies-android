@@ -64,6 +64,6 @@ class MovieLoader internal constructor(private val movieListAdapter: MovieListAd
     }
 
     companion object {
-        private val ITEMS_PER_PAGE = 30
+        private const val ITEMS_PER_PAGE = 30
     }
 }

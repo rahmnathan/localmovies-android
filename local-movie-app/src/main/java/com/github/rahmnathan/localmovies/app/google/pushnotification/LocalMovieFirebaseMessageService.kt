@@ -24,6 +24,7 @@ class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         buildChannel()
+
         val data = remoteMessage.data
         val mBuilder = NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.movie_icon)
@@ -33,14 +34,17 @@ class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
                 .setChannelId("LocalMovies")
                 .setAutoCancel(true)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+
         val optionalPoster = getMoviePoster(data["path"])
         optionalPoster.ifPresent { poster: ByteArray ->
             val bitmap = BitmapFactory.decodeByteArray(poster, 0, poster.size)
             mBuilder.setLargeIcon(bitmap)
             mBuilder.setStyle(NotificationCompat.BigPictureStyle().bigLargeIcon(bitmap).bigPicture(bitmap))
         }
+
         val pendingIntent = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT)
         mBuilder.setContentIntent(pendingIntent)
+
         val mNotifyMgr = NotificationManagerCompat.from(this)
         mNotifyMgr.notify(Random().nextInt(), mBuilder.build())
     }

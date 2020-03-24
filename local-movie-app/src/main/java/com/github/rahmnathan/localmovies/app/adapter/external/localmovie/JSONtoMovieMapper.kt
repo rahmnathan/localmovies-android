@@ -17,7 +17,7 @@ internal object JSONtoMovieMapper {
         return movieList
     }
 
-    fun mediaFileToMovie(mediaFile: JSONObject): Media {
+    private fun mediaFileToMovie(mediaFile: JSONObject): Media {
         val movieInfo = mediaFile.getJSONObject("media")
 
         return Media(

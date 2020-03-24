@@ -44,7 +44,7 @@ class SetupActivity : Activity() {
         password.setText(client.password)
 
         val set = findViewById<Button>(R.id.set)
-        set.setOnClickListener { view: View? ->
+        set.setOnClickListener {
             val client1 = Client(userName.text.toString(), password.text.toString())
             saveData(client1, this)
             startActivity(Intent(this@SetupActivity, MainActivity::class.java))
