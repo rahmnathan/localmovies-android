@@ -63,12 +63,12 @@ class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
 
     private fun getMoviePoster(path: String?): Optional<ByteArray> {
         var urlConnection: HttpURLConnection? = null
-        val url = MainActivity.client!!.computerUrl + "/localmovies/v2/media/poster?path=" + path
+        val url = MainActivity.client.computerUrl + "/localmovies/v2/media/poster?path=" + path
 
         try {
             urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "GET"
-            urlConnection.setRequestProperty("Authorization", "bearer " + MainActivity.client!!.accessToken)
+            urlConnection.setRequestProperty("Authorization", "bearer " + MainActivity.client.accessToken)
             urlConnection.connectTimeout = 10000
         } catch (e: IOException) {
             logger.log(Level.SEVERE, "Failed connecting to media info service", e)

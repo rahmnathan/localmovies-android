@@ -82,22 +82,23 @@ class MovieClickListener(
 
         @Volatile
         private var movieLoader: MovieLoader? = null
+
         @JvmStatic
-        fun getVideos(persistenceManager: MoviePersistenceManager?, myClient: Client?, movieListAdapter: MovieListAdapter?, context: Context?, progressBar: ProgressBar?) {
+        fun getVideos(persistenceManager: MoviePersistenceManager, myClient: Client?, movieListAdapter: MovieListAdapter, context: Context, progressBar: ProgressBar) {
             if (movieLoader != null && movieLoader!!.isRunning) {
                 movieLoader!!.terminate()
             }
-            val optionalMovies = persistenceManager!!.getMoviesAtPath(myClient!!.currentPath.toString())
+            val optionalMovies = persistenceManager.getMoviesAtPath(myClient!!.currentPath.toString())
             if (optionalMovies.isPresent) {
-                movieListAdapter!!.clearLists()
+                movieListAdapter.clearLists()
                 movieListAdapter.updateList(optionalMovies.get())
                 UIHandler.post { movieListAdapter.notifyDataSetChanged() }
-                UIHandler.post { progressBar!!.visibility = View.INVISIBLE }
+                UIHandler.post { progressBar.visibility = View.INVISIBLE }
             } else {
-                UIHandler.post { progressBar!!.visibility = View.VISIBLE }
-                movieLoader = MovieLoader(movieListAdapter!!, myClient, persistenceManager, context!!)
+                UIHandler.post { progressBar.visibility = View.VISIBLE }
+                movieLoader = MovieLoader(movieListAdapter, myClient, persistenceManager, context)
                 CompletableFuture.runAsync(movieLoader, executorService)
-                        .thenRun { UIHandler.post { progressBar!!.visibility = View.GONE } }
+                        .thenRun { UIHandler.post { progressBar.visibility = View.GONE } }
                         .thenRun { FirebaseMessaging.getInstance().subscribeToTopic("movies") }
             }
         }
