@@ -15,15 +15,16 @@ import java.util.function.Consumer
 import java.util.logging.Logger
 import java.util.stream.Collectors
 
-class MoviePersistenceManager(private val movieInfoCache: ConcurrentMap<String, MutableList<Media>>, context: Context?, executorService: ExecutorService?) {
+class MoviePersistenceManager(private val movieInfoCache: ConcurrentMap<String, MutableList<Media>>, context: Context, executorService: ExecutorService) {
     private val logger = Logger.getLogger(MoviePersistenceManager::class.java.name)
     private lateinit var movieDAO: MovieDAO
 
     fun addAll(path: String, media: MutableList<Media>) {
         movieInfoCache.putIfAbsent(path, media)
-        logger.info("Adding movielistentities to database: $path")
+        logger.info("Adding media to database for path: $path")
         val movieEntities = media.stream().map { movie: Media? -> MovieEntity(path, movie!!) }.collect(Collectors.toList())
         movieDAO.insertAll(movieEntities)
+        logger.info("Successfully saved media.")
     }
 
     fun addOne(path: String, media: Media) {
@@ -48,13 +49,13 @@ class MoviePersistenceManager(private val movieInfoCache: ConcurrentMap<String, 
 
     init {
         CompletableFuture.runAsync(Runnable {
-            val db = MovieDatabase.getDatabase(context)!!
+            val db = MovieDatabase.getDatabase(context)
             movieDAO = db.movieDAO()!!
             val movieEntities = movieDAO.all
             movieEntities?.forEach(Consumer { movieEntity: MovieEntity? ->
-                logger.info("Loading MovieEntities into memory - Path: " + movieEntity?.directoryPath + " Filename: " + movieEntity?.media?.filename)
-                val media = movieInfoCache.getOrDefault(movieEntity?.directoryPath, ArrayList())
-                media.add(movieEntity!!.media)
+                logger.info("Loading media into memory for path: " + movieEntity?.directoryPath + " Filename: " + movieEntity!!.media.filename)
+                val media = movieInfoCache.getOrDefault(movieEntity.directoryPath, ArrayList())
+                media.add(movieEntity.media)
                 movieInfoCache.putIfAbsent(movieEntity.directoryPath, media)
             })
         }, executorService)

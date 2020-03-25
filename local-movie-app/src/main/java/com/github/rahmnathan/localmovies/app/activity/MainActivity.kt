@@ -115,8 +115,8 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.selectedItemId = R.id.action_movies
         bottomNavigationView.labelVisibilityMode = LabelVisibilityMode.LABEL_VISIBILITY_LABELED
         val popup = PopupMenu(this, bottomNavigationView, Gravity.END)
-        popup.setOnMenuItemClickListener { item: MenuItem? ->
-            sortVideoList(item!!, listAdapter, gridView)
+        popup.setOnMenuItemClickListener { item: MenuItem ->
+            sortVideoList(item, listAdapter, gridView)
             true
         }
         popup.menuInflater.inflate(R.menu.settings, popup.menu)

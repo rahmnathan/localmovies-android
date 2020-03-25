@@ -47,7 +47,7 @@ class MovieClickListener(
                 // If we're playing episodes, we queue up the rest of the season
                 posterPath = client.currentPath.toString()
                 titles = listAdapter.getOriginalMediaList().stream()
-                        .filter { movieInfo: Media -> Integer.valueOf(movieInfo.number!!).compareTo(Integer.valueOf(media.number!!)) > 0 || movieInfo.title == media.title }
+                        .filter { movieInfo: Media -> Integer.valueOf(movieInfo.number!!) > Integer.valueOf(media.number!!) || movieInfo.title == media.title }
                         .collect(Collectors.toList())
             } else {
                 posterPath = client.currentPath.toString() + File.separator + media.filename
@@ -88,6 +88,7 @@ class MovieClickListener(
             if (movieLoader != null && movieLoader!!.isRunning) {
                 movieLoader!!.terminate()
             }
+
             val optionalMovies = persistenceManager.getMoviesAtPath(myClient!!.currentPath.toString())
             if (optionalMovies.isPresent) {
                 movieListAdapter.clearLists()
