@@ -14,12 +14,12 @@ import java.util.*
 object ListAdapterUtils {
 
     @JvmStatic
-    fun sort(mediaList: List<Media>, order: MovieOrder?) {
+    fun sort(mediaList: MutableList<Media>, order: MovieOrder?) {
         when (order) {
-            MovieOrder.DATE_ADDED -> mediaList.sortedByDescending { media -> media.created }
-            MovieOrder.RATING -> mediaList.sortedByDescending { media -> media.imdbRating }
-            MovieOrder.RELEASE_YEAR -> mediaList.sortedByDescending { media -> media.releaseYear }
-            MovieOrder.TITLE -> mediaList.sortedBy { media -> media.title }
+            MovieOrder.DATE_ADDED -> mediaList.sortByDescending { media -> media.created }
+            MovieOrder.RATING -> mediaList.sortByDescending { media -> media.imdbRating }
+            MovieOrder.RELEASE_YEAR -> mediaList.sortByDescending { media -> media.releaseYear }
+            MovieOrder.TITLE -> mediaList.sortBy { media -> media.title }
         }
     }
 
