@@ -4,7 +4,7 @@ import androidx.room.TypeConverter
 import com.github.rahmnathan.localmovies.app.data.Media
 import com.google.gson.Gson
 
-class MovieTypeConverters {
+class MediaTypeConverters {
     @TypeConverter
     fun toMovieList(json: String?): Media? {
         return if (json == null) null else gson.fromJson(json, Media::class.java)

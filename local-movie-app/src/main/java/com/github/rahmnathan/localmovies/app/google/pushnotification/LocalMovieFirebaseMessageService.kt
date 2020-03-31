@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.github.rahmnathan.localmovies.app.activity.MainActivity
+import com.github.rahmnathan.localmovies.app.data.Client
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import rahmnathan.localmovies.R
@@ -19,8 +20,11 @@ import java.net.URL
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
+import javax.inject.Inject
 
 class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
+
+    @Inject lateinit var client: Client
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         buildChannel()
@@ -63,12 +67,12 @@ class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
 
     private fun getMoviePoster(path: String?): Optional<ByteArray> {
         var urlConnection: HttpURLConnection? = null
-        val url = MainActivity.client.computerUrl + "/localmovies/v2/media/poster?path=" + path
+        val url = client.computerUrl + "/localmovies/v2/media/poster?path=" + path
 
         try {
             urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "GET"
-            urlConnection.setRequestProperty("Authorization", "bearer " + MainActivity.client.accessToken)
+            urlConnection.setRequestProperty("Authorization", "bearer " + client.accessToken)
             urlConnection.connectTimeout = 10000
         } catch (e: IOException) {
             logger.log(Level.SEVERE, "Failed connecting to media info service", e)

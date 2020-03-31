@@ -9,10 +9,12 @@ import com.github.rahmnathan.oauth2.adapter.domain.credential.OAuth2CredentialPa
 import com.github.rahmnathan.oauth2.adapter.keycloak.resilience4j.KeycloakClientResilience4j
 import java.time.temporal.ChronoUnit
 import java.util.logging.Logger
+import javax.inject.Inject
 
 class KeycloakAuthenticator(private val client: Client) : Runnable {
     private val logger = Logger.getLogger(KeycloakAuthenticator::class.java.name)
     private val oAuth2Service: OAuth2Service
+
     override fun run() {
         updateAccessToken()
     }

@@ -2,13 +2,18 @@ package com.github.rahmnathan.localmovies.app.activity
 
 import android.app.Activity
 import android.graphics.Color
+import android.graphics.Paint
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.Gravity
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
-import com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils
+import com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils.mapImageToView
+import com.github.rahmnathan.localmovies.app.adapter.list.ListAdapterUtils.mapTitleToView
+import com.github.rahmnathan.localmovies.app.dagger.AppComponent
+import com.github.rahmnathan.localmovies.app.dagger.AppModule
+import com.github.rahmnathan.localmovies.app.dagger.DaggerAppComponent
 import com.github.rahmnathan.localmovies.app.data.Media
 import rahmnathan.localmovies.R
 
@@ -32,25 +37,48 @@ class DescriptionPopUpActivity : Activity() {
             val `object` = bundle[MOVIE]
             if (`object` != null) {
                 val media = `object` as Media
-                val titleView = findViewById<TextView>(R.id.detailedTitle)
-                val imageView = findViewById<ImageView>(R.id.detailedPoster)
-                val yearView = findViewById<TextView>(R.id.detailedYear)
-                val metaRatingView = findViewById<TextView>(R.id.detailedMetaRating)
-                val imdbRatingView = findViewById<TextView>(R.id.detailedIMDBRating)
+
                 val plotView = findViewById<TextView>(R.id.detailedPlot)
+                mapTextToViewDynamic(plotView, media.plot, 14)
+
+                val imageView = findViewById<ImageView>(R.id.detailedPoster)
+                mapImageToView(media.image, imageView)
+
+                val titleView = findViewById<TextView>(R.id.detailedTitle)
+                mapTitleToView(media.title, titleView, 22)
+
+                val yearLabelView = findViewById<TextView>(R.id.detailedYearLabel)
+                mapTextToViewLabel(yearLabelView, "Year")
+                val yearView = findViewById<TextView>(R.id.detailedYear)
+                mapTextToViewDynamic(yearView, media.releaseYear, 16)
+
+                val metaRatingLabelView = findViewById<TextView>(R.id.detailedMetaRatingLabel)
+                mapTextToViewLabel(metaRatingLabelView, "Metacritic")
+                val metaRatingView = findViewById<TextView>(R.id.detailedMetaRating)
+                mapTextToViewDynamic(metaRatingView, media.metaRating, 16)
+
+                val imdbRatingLabelView = findViewById<TextView>(R.id.detailedIMDBRatingLabel)
+                mapTextToViewLabel(imdbRatingLabelView, "IMDB")
+                val imdbRatingView = findViewById<TextView>(R.id.detailedIMDBRating)
+                mapTextToViewDynamic(imdbRatingView, media.imdbRating, 16)
+
                 val actorView = findViewById<TextView>(R.id.detailedActors)
-                ListAdapterUtils.mapImageToView(media.image, imageView)
-                ListAdapterUtils.mapTitleToView(media.title, titleView, 22)
-                ListAdapterUtils.mapYearToView(media.releaseYear, yearView, 16)
-                mapTextToView(metaRatingView, String.format("Metacritic Rating: %s", media.metaRating), 16)
-                mapTextToView(imdbRatingView, String.format("IMDB Rating: %s", media.imdbRating), 16)
-                mapTextToView(plotView, media.plot, 14)
-                mapTextToView(actorView, String.format("Starring: %s", media.actors), 14)
+                mapTextToViewDynamic(actorView, media.actors, 14)
+                val actorLabelView = findViewById<TextView>(R.id.detailedActorsLabel)
+                mapTextToViewLabel(actorLabelView, "Starring")
             }
         }
     }
 
-    private fun mapTextToView(textView: TextView, value: String, fontSize: Int) {
+    private fun mapTextToViewLabel(textView: TextView, value: String) {
+        textView.paintFlags = textView.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+        textView.setTextColor(Color.WHITE)
+        textView.gravity = Gravity.CENTER
+        textView.textSize = 18f
+        textView.text = value
+    }
+
+    private fun mapTextToViewDynamic(textView: TextView, value: String, fontSize: Int) {
         textView.setTextColor(Color.WHITE)
         textView.gravity = Gravity.CENTER
         textView.textSize = fontSize.toFloat()

@@ -4,19 +4,22 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
-import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MovieFacade.getMovieInfo
+import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MediaFacade
 
-import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter
+import com.github.rahmnathan.localmovies.app.adapter.list.MediaListAdapter
 import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.data.MovieRequest
+import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
 
 import java.util.ArrayList
 import java.util.logging.Level
 import java.util.logging.Logger
 
-class MovieLoader internal constructor(private val movieListAdapter: MovieListAdapter, private val client: Client,
-                                       private val persistenceManager: MoviePersistenceManager, private val context: Context) : Runnable {
-    private val logger = Logger.getLogger(MovieLoader::class.java.name)
+class MediaLoaderRunnable internal constructor(private val mediaListAdapter: MediaListAdapter,
+                                               private val client: Client,
+                                               private val context: Context,
+                                               private val mediaFacade: MediaFacade) : Runnable {
+    private val logger = Logger.getLogger(MediaLoaderRunnable::class.java.name)
     private val UIHandler = Handler(Looper.getMainLooper())
     @Volatile
     var isRunning = true
@@ -29,7 +32,7 @@ class MovieLoader internal constructor(private val movieListAdapter: MovieListAd
             return
         }
 
-        movieListAdapter.clearLists()
+        mediaListAdapter.clearLists()
         var page = 0
         do {
             val movieRequest = MovieRequest(
@@ -39,22 +42,18 @@ class MovieLoader internal constructor(private val movieListAdapter: MovieListAd
                     order = "TITLE"
             )
 
-            val infoList = getMovieInfo(client, movieRequest)
+            val infoList = mediaFacade.getMovieInfo(movieRequest)
 
             if (!isRunning) break
 
-            movieListAdapter.updateList(infoList)
-            UIHandler.post { movieListAdapter.notifyDataSetChanged() }
-            if (movieListAdapter.chars != "") {
-                UIHandler.post { movieListAdapter.filter.filter(movieListAdapter.chars) }
+            mediaListAdapter.updateList(infoList)
+            UIHandler.post { mediaListAdapter.notifyDataSetChanged() }
+            if (mediaListAdapter.chars != "") {
+                UIHandler.post { mediaListAdapter.filter.filter(mediaListAdapter.chars) }
             }
 
             page++
         } while (page <= client.movieCount!! / ITEMS_PER_PAGE)
-
-        if (isRunning) {
-            persistenceManager.addAll(client.currentPath.toString(), ArrayList(movieListAdapter.getOriginalMediaList()))
-        }
 
         isRunning = false
     }

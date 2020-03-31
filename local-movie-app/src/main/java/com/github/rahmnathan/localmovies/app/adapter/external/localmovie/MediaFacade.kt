@@ -4,8 +4,8 @@ import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.data.Media
 import com.github.rahmnathan.localmovies.app.data.MovieEvent
 import com.github.rahmnathan.localmovies.app.data.MovieRequest
+import com.google.common.net.HttpHeaders
 import com.google.gson.Gson
-import com.google.gson.JsonArray
 import org.json.JSONArray
 import org.json.JSONException
 import java.io.BufferedReader
@@ -16,32 +16,29 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.util.*
-import java.util.function.Supplier
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.collections.ArrayList
 
-object MovieFacade {
-    private val logger = Logger.getLogger(MovieFacade::class.java.name)
-    private const val X_CORRELATION_ID = "x-correlation-id"
-    private const val COUNT_HEADER = "Count"
+class MediaFacade(private val client: Client) {
+    private val logger = Logger.getLogger(MediaFacade::class.java.name)
+
     private val GSON = Gson()
 
-    fun getMovieInfo(client: Client, movieRequest: MovieRequest): List<Media> {
+    fun getMovieInfo(movieRequest: MovieRequest): List<Media> {
         val xCorrelationId = UUID.randomUUID().toString()
         logger.info("Requesting movies with x-correlation-id: $xCorrelationId")
 
         val movieInfoJson = getMovieInfoJson(client, movieRequest, xCorrelationId)
-        return movieInfoJson.map { obj: JSONArray -> JSONtoMovieMapper.jsonArrayToMovieInfoList(obj) }.orElseGet { ArrayList() }
+        return movieInfoJson.map { obj: JSONArray -> JSONtoMediaMapper.jsonArrayToMovieInfoList(obj) }.orElseGet { ArrayList() }
     }
 
-    @JvmStatic
-    fun getMovieEvents(client: Client, page: Int, size: Int): List<MovieEvent> {
+    fun getMovieEvents(page: Int, size: Int): List<MovieEvent> {
         val xCorrelationId = UUID.randomUUID().toString()
         logger.info("Requesting media events with x-correlation-id: $xCorrelationId")
 
-        val movieInfoJson = getMovieEventJson(client, xCorrelationId, page, size)
-        return movieInfoJson.map { obj: JSONArray -> JSONtoMovieMapper.jsonArrayToMovieEventList(obj) }.orElseGet{ ArrayList() }
+        val movieInfoJson = getMovieEventJson(xCorrelationId, page, size)
+        return movieInfoJson.map { obj: JSONArray -> JSONtoMediaMapper.jsonArrayToMovieEventList(obj) }.orElseGet{ ArrayList() }
     }
 
     private fun getMovieInfoJson(client: Client, movieRequest: MovieRequest, xCorrelationId: String): Optional<JSONArray> {
@@ -88,8 +85,7 @@ object MovieFacade {
         return Optional.empty()
     }
 
-    @JvmStatic
-    fun getMovieEventCount(client: Client): Optional<Long> {
+    fun getMovieEventCount(): Optional<Long> {
         val xCorrelationId = UUID.randomUUID().toString()
         logger.info("Requesting media event count with x-correlation-id: $xCorrelationId")
         var urlConnection: HttpURLConnection? = null
@@ -102,7 +98,7 @@ object MovieFacade {
             urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "GET"
             urlConnection.setRequestProperty(X_CORRELATION_ID, xCorrelationId)
-            urlConnection.setRequestProperty("Authorization", "bearer " + client.accessToken)
+            urlConnection.setRequestProperty(HttpHeaders.AUTHORIZATION, "bearer " + client.accessToken)
             urlConnection.connectTimeout = 10000
             return Optional.of(urlConnection.getHeaderField(COUNT_HEADER).toLong())
         } catch (e: IOException) {
@@ -113,7 +109,7 @@ object MovieFacade {
         return Optional.empty()
     }
 
-    private fun getMovieEventJson(client: Client, xCorrelationId: String, page: Int, size: Int): Optional<JSONArray> {
+    private fun getMovieEventJson(xCorrelationId: String, page: Int, size: Int): Optional<JSONArray> {
         var urlConnection: HttpURLConnection? = null
         if (client.lastUpdate == null) {
             client.lastUpdate = System.currentTimeMillis()
@@ -128,7 +124,7 @@ object MovieFacade {
             urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "GET"
             urlConnection.setRequestProperty(X_CORRELATION_ID, xCorrelationId)
-            urlConnection.setRequestProperty("Authorization", "bearer " + client.accessToken)
+            urlConnection.setRequestProperty(HttpHeaders.AUTHORIZATION, "bearer " + client.accessToken)
             urlConnection.connectTimeout = 10000
         } catch (e: IOException) {
             logger.log(Level.SEVERE, "Failed connecting to media info service", e)
@@ -153,5 +149,10 @@ object MovieFacade {
         }
 
         return Optional.empty()
+    }
+
+    companion object MovieFacadeConstants {
+        const val X_CORRELATION_ID = "x-correlation-id"
+        const val COUNT_HEADER = "Count"
     }
 }

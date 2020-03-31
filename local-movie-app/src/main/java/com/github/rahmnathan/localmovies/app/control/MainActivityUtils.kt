@@ -2,7 +2,7 @@ package com.github.rahmnathan.localmovies.app.control
 
 import android.view.MenuItem
 import android.widget.GridView
-import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter
+import com.github.rahmnathan.localmovies.app.adapter.list.MediaListAdapter
 import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.data.MovieGenre
 import com.github.rahmnathan.localmovies.app.data.MovieOrder
@@ -13,7 +13,7 @@ import java.io.ObjectInputStream
 
 object MainActivityUtils {
     @JvmStatic
-    fun sortVideoList(item: MenuItem, listAdapter: MovieListAdapter, gridView: GridView) {
+    fun sortVideoList(item: MenuItem, listAdapter: MediaListAdapter, gridView: GridView) {
         when (item.itemId) {
             R.id.order_date_added -> sort(MovieOrder.DATE_ADDED, listAdapter, gridView)
             R.id.order_year -> sort(MovieOrder.RELEASE_YEAR, listAdapter, gridView)
@@ -37,18 +37,18 @@ object MainActivityUtils {
                 return client
             }
         } catch (e: IOException) {
-            throw RuntimeException()
+            throw RuntimeException(e)
         } catch (e: ClassNotFoundException) {
-            throw RuntimeException()
+            throw RuntimeException(e)
         }
     }
 
-    private fun sort(order: MovieOrder, listAdapter: MovieListAdapter, gridView: GridView) {
+    private fun sort(order: MovieOrder, listAdapter: MediaListAdapter, gridView: GridView) {
         listAdapter.sort(order)
         gridView.smoothScrollToPosition(0)
     }
 
-    private fun filterGenre(genre: MovieGenre, listAdapter: MovieListAdapter, gridView: GridView) {
+    private fun filterGenre(genre: MovieGenre, listAdapter: MediaListAdapter, gridView: GridView) {
         listAdapter.filterGenre(genre)
         gridView.smoothScrollToPosition(0)
     }

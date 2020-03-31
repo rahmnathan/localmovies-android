@@ -10,8 +10,8 @@ import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
-class MovieHistory(private val context: Context) {
-    private val logger = Logger.getLogger(MovieHistory::class.java.name)
+class MediaHistory(private val context: Context) {
+    private val logger = Logger.getLogger(MediaHistory::class.java.name)
     private var mediaQueue: Queue<Media?>
 
     val historyList: List<Media>

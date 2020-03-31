@@ -8,6 +8,7 @@
     <uses-permission-sdk-23 android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
+        android:name="com.github.rahmnathan.localmovies.app.LocalMoviesApplication"
         android:allowBackup="true"
         android:icon="@drawable/movie_icon"
         android:supportsRtl="true"

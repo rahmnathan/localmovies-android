@@ -6,7 +6,7 @@ import java.util.ArrayList
 import org.json.JSONArray
 import org.json.JSONObject
 
-internal object JSONtoMovieMapper {
+internal object JSONtoMediaMapper {
 
     fun jsonArrayToMovieInfoList(jsonList: JSONArray): List<Media> {
         val movieList = ArrayList<Media>()

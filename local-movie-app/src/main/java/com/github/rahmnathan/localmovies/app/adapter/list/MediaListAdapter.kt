@@ -17,7 +17,7 @@ import java.util.*
 import java.util.Comparator.comparing
 import java.util.stream.Collectors
 
-class MovieListAdapter(private val context: Activity, private var media: MutableList<Media>?) : ArrayAdapter<Media?>(context, R.layout.my_adapter, media!! as List<Media?>), Filterable {
+class MediaListAdapter(private val context: Activity, private var media: MutableList<Media>) : ArrayAdapter<Media?>(context, R.layout.my_adapter, media as List<Media?>), Filterable {
     private val originalMediaList: MutableList<Media> = ArrayList()
     private val adapterFilter = AdapterFilter()
     var chars: CharSequence = ""
@@ -27,18 +27,20 @@ class MovieListAdapter(private val context: Activity, private var media: Mutable
         var rowView = rowView
         val inflater = context.layoutInflater
         if (rowView == null) rowView = inflater.inflate(R.layout.my_adapter, parent, false)
-        if (position >= media!!.size) return View(context)
+        if (position >= media.size) return View(context)
         val titleView = rowView!!.findViewById<TextView>(R.id.textView)
         val imageView = rowView.findViewById<ImageView>(R.id.imageView)
         val yearView = rowView.findViewById<TextView>(R.id.year)
         val ratingView = rowView.findViewById<TextView>(R.id.rating)
-        val media = media!![position]
+        val media = media[position]
+
         var title = media.title
         if (media.type.equals("episode", ignoreCase = true)) {
             title = "#" + media.number + " - " + title
         } else if (media.title.startsWith("Episode ") && media.number != null) {
             title = "#" + media.number
         }
+
         mapTitleToView(title, titleView, 16)
         mapImageToView(media.image, imageView)
         mapYearToView(media.releaseYear, yearView, 12)
@@ -59,12 +61,12 @@ class MovieListAdapter(private val context: Activity, private var media: Mutable
     }
 
     fun clearLists() {
-        media!!.clear()
+        media.clear()
         originalMediaList.clear()
     }
 
     fun updateList(mediaList: List<Media>?) {
-        media!!.addAll(mediaList!!)
+        media.addAll(mediaList!!)
         originalMediaList.addAll(mediaList)
     }
 
@@ -73,29 +75,27 @@ class MovieListAdapter(private val context: Activity, private var media: Mutable
     }
 
     fun getMovie(position: Int): Media {
-        return media!![position]
+        return media[position]
     }
 
     override fun getCount(): Int {
-        return media!!.size
+        return media.size
     }
 
     private inner class AdapterFilter : Filter() {
         override fun performFiltering(charSequence: CharSequence): FilterResults {
             chars = charSequence
             val filterResults = FilterResults()
-            if (media != null) {
-                media!!.clear()
-                if (charSequence.isEmpty()) {
-                    media!!.addAll(originalMediaList)
-                } else {
-                    media!!.addAll(originalMediaList.stream()
-                            .filter { movie: Media -> movie.title.toLowerCase(Locale.getDefault()).contains(charSequence.toString().toLowerCase(Locale.getDefault())) }
-                            .collect(Collectors.toList()))
-                }
-                filterResults.values = media
-                filterResults.count = media!!.size
+            media.clear()
+            if (charSequence.isEmpty()) {
+                media.addAll(originalMediaList)
+            } else {
+                media.addAll(originalMediaList.stream()
+                        .filter { movie: Media -> movie.title.toLowerCase(Locale.getDefault()).contains(charSequence.toString().toLowerCase(Locale.getDefault())) }
+                        .collect(Collectors.toList()))
             }
+            filterResults.values = media
+            filterResults.count = media.size
             return filterResults
         }
 
@@ -106,14 +106,13 @@ class MovieListAdapter(private val context: Activity, private var media: Mutable
     }
 
     fun display(newMedia: List<Media>) {
-        media!!.clear()
-        media!!.addAll(newMedia)
+        media.clear()
+        media.addAll(newMedia)
         notifyDataSetChanged()
     }
 
     fun sort(order: MovieOrder?) {
-        sort(media!!, order)
+        sort(media, order)
         notifyDataSetChanged()
     }
-
 }

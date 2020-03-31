@@ -39,12 +39,36 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Starring"
+        android:id="@+id/detailedActorsLabel"
+        android:gravity="bottom"
+        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_below="@+id/detailedPlot"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="Actors"
         android:id="@+id/detailedActors"
         android:gravity="bottom"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="2dp"
         android:layout_marginHorizontal="10dp"
-        android:layout_below="@+id/detailedPlot"
+        android:layout_below="@+id/detailedActorsLabel"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Year"
+        android:id="@+id/detailedYearLabel"
+        android:gravity="bottom"
+        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_below="@+id/detailedActors"
         android:layout_centerHorizontal="true"/>
 
     <TextView
@@ -54,8 +78,21 @@
         android:id="@+id/detailedYear"
         android:text="Year"
         android:gravity="bottom"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="2dp"
+        android:layout_below="@+id/detailedYearLabel"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="IMDB"
+        android:id="@+id/detailedIMDBRatingLabel"
+        android:gravity="bottom"
+        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="10dp"
         android:layout_below="@+id/detailedActors"
+        android:layout_toStartOf="@+id/detailedYearLabel"
         android:layout_centerHorizontal="true"/>
 
     <TextView
@@ -64,8 +101,23 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="IMDB Rating"
         android:id="@+id/detailedIMDBRating"
+        android:layout_marginTop="2dp"
         android:gravity="bottom"
-        android:layout_below="@+id/detailedYear"
+        android:layout_below="@+id/detailedIMDBRatingLabel"
+        android:layout_toStartOf="@+id/detailedYear"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Metacritic"
+        android:id="@+id/detailedMetaRatingLabel"
+        android:gravity="bottom"
+        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_below="@+id/detailedActors"
+        android:layout_toEndOf="@+id/detailedYearLabel"
         android:layout_centerHorizontal="true"/>
 
     <TextView
@@ -75,8 +127,9 @@
         android:text="Metacritic Rating"
         android:id="@+id/detailedMetaRating"
         android:gravity="bottom"
-        android:layout_below="@+id/detailedIMDBRating"
-        android:layout_marginBottom="10dp"
+        android:layout_below="@+id/detailedMetaRatingLabel"
+        android:layout_toEndOf="@+id/detailedYear"
+        android:layout_marginBottom="2dp"
         android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>

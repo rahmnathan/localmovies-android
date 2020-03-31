@@ -7,23 +7,29 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import com.github.rahmnathan.localmovies.app.activity.SetupActivity
+import com.github.rahmnathan.localmovies.app.LocalMoviesApplication
 import com.github.rahmnathan.localmovies.app.data.Client
-import com.github.rahmnathan.localmovies.app.persistence.MovieDatabase
+import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaDAO
+import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaDatabase
 import rahmnathan.localmovies.R
 import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.lang.Exception
 import java.util.concurrent.CompletableFuture
 import java.util.logging.Level
 import java.util.logging.Logger
+import javax.inject.Inject
 
 class SetupActivity : Activity() {
+
+    @Inject lateinit var mediaDAO: MediaDAO
+    @Inject lateinit var client: Client
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.setup_main)
@@ -33,13 +39,14 @@ class SetupActivity : Activity() {
                 REQUEST_EXTERNAL_STORAGE
         )
 
+        (application as LocalMoviesApplication).appComponent.inject(this)
+
         val userName = findViewById<EditText>(R.id.userName)
         userName.background.setColorFilter(Color.RED, PorterDuff.Mode.DARKEN)
         val password = findViewById<EditText>(R.id.password)
         password.background.setColorFilter(Color.RED, PorterDuff.Mode.DARKEN)
 
         // Populating our text fields with our saved data if it exists
-        val client = phoneInfo
         userName.setText(client.userName)
         password.setText(client.password)
 
@@ -53,29 +60,15 @@ class SetupActivity : Activity() {
         val clearMovies = findViewById<Button>(R.id.clearMovies)
         clearMovies.setOnClickListener {
             CompletableFuture.runAsync {
-                val movieDAO = MovieDatabase.getDatabase(this)!!.movieDAO()
-                movieDAO!!.deleteAll()
+                mediaDAO.deleteAll()
                 startActivity(Intent(this@SetupActivity, MainActivity::class.java))
             }
         }
     }
 
-    private val phoneInfo: Client
-        get() {
-            try {
-                ObjectInputStream(openFileInput(SETUP_FILE)).use { objectInputStream -> return objectInputStream.readObject() as Client }
-            } catch (e: IOException) {
-                logger.log(Level.SEVERE, "Failed to get client data", e)
-                return Client()
-            } catch (e: ClassNotFoundException) {
-                logger.log(Level.SEVERE, "Failed to get client data", e)
-                return Client()
-            }
-        }
-
     companion object {
         private val logger = Logger.getLogger(SetupActivity::class.java.name)
-        private const val SETUP_FILE = "setup"
+        const val SETUP_FILE = "setup"
         private const val REQUEST_EXTERNAL_STORAGE = 1
         private val PERMISSIONS_STORAGE = arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,

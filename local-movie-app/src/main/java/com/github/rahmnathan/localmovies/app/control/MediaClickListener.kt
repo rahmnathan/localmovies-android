@@ -10,12 +10,14 @@ import android.widget.AdapterView.OnItemClickListener
 import android.widget.ProgressBar
 import com.github.rahmnathan.localmovies.app.activity.PlayerActivity
 import com.github.rahmnathan.localmovies.app.adapter.external.keycloak.KeycloakAuthenticator
-import com.github.rahmnathan.localmovies.app.adapter.list.MovieListAdapter
+import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MediaFacade
+import com.github.rahmnathan.localmovies.app.adapter.list.MediaListAdapter
 import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.data.Media
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity
 import com.github.rahmnathan.localmovies.app.google.cast.control.GoogleCastUtils
-import com.github.rahmnathan.localmovies.app.persistence.MovieHistory
+import com.github.rahmnathan.localmovies.app.persistence.MediaHistory
+import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.cast.framework.CastContext
 import com.google.firebase.messaging.FirebaseMessaging
@@ -25,12 +27,11 @@ import java.util.concurrent.Executors
 import java.util.logging.Logger
 import java.util.stream.Collectors
 
-class MovieClickListener(
-        val persistenceManager: MoviePersistenceManager,
-        val listAdapter: MovieListAdapter,
-        val progressBar: ProgressBar,
+class MediaClickListener(
+        private val mediaRepository: MediaRepository,
+        val listAdapter: MediaListAdapter,
         val castContext: CastContext,
-        val history: MovieHistory,
+        val history: MediaHistory,
         val context: Context,
         val client: Client) : OnItemClickListener {
 
@@ -57,7 +58,7 @@ class MovieClickListener(
             queueVideos(queueItems)
         } else {
             client.appendToCurrentPath(media.filename)
-            getVideos(persistenceManager, client, listAdapter, context, progressBar)
+            mediaRepository.getVideos()
         }
     }
 
@@ -72,36 +73,6 @@ class MovieClickListener(
             val url = queueItems[0].media.contentId
             intent.putExtra("url", url)
             context.startActivity(intent)
-        }
-    }
-
-    companion object {
-        private val logger = Logger.getLogger(MovieClickListener::class.java.name)
-        private val executorService = Executors.newSingleThreadExecutor()
-        private val UIHandler = Handler(Looper.getMainLooper())
-
-        @Volatile
-        private var movieLoader: MovieLoader? = null
-
-        @JvmStatic
-        fun getVideos(persistenceManager: MoviePersistenceManager, myClient: Client?, movieListAdapter: MovieListAdapter, context: Context, progressBar: ProgressBar) {
-            if (movieLoader != null && movieLoader!!.isRunning) {
-                movieLoader!!.terminate()
-            }
-
-            val optionalMovies = persistenceManager.getMoviesAtPath(myClient!!.currentPath.toString())
-            if (optionalMovies.isPresent) {
-                movieListAdapter.clearLists()
-                movieListAdapter.updateList(optionalMovies.get())
-                UIHandler.post { movieListAdapter.notifyDataSetChanged() }
-                UIHandler.post { progressBar.visibility = View.INVISIBLE }
-            } else {
-                UIHandler.post { progressBar.visibility = View.VISIBLE }
-                movieLoader = MovieLoader(movieListAdapter, myClient, persistenceManager, context)
-                CompletableFuture.runAsync(movieLoader, executorService)
-                        .thenRun { UIHandler.post { progressBar.visibility = View.GONE } }
-                        .thenRun { FirebaseMessaging.getInstance().subscribeToTopic("movies") }
-            }
         }
     }
 }
