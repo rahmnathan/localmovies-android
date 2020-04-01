@@ -10,6 +10,7 @@ import com.github.rahmnathan.localmovies.app.adapter.list.MediaListAdapter
 import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.data.MovieRequest
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
+import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
 
 import java.util.ArrayList
 import java.util.logging.Level
@@ -21,16 +22,10 @@ class MediaLoaderRunnable internal constructor(private val mediaListAdapter: Med
                                                private val mediaFacade: MediaFacade) : Runnable {
     private val logger = Logger.getLogger(MediaLoaderRunnable::class.java.name)
     private val UIHandler = Handler(Looper.getMainLooper())
-    @Volatile
-    var isRunning = true
+    @Volatile var isRunning = true
 
     override fun run() {
         logger.log(Level.INFO, "Dynamically loading titles")
-
-        if (client.accessToken == null) {
-            UIHandler.post { Toast.makeText(context, "Login failed - Check credentials", Toast.LENGTH_LONG).show() }
-            return
-        }
 
         mediaListAdapter.clearLists()
         var page = 0

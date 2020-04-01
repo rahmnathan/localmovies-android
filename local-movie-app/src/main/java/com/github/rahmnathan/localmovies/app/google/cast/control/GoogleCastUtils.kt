@@ -3,6 +3,7 @@ package com.github.rahmnathan.localmovies.app.google.cast.control
 import android.net.Uri
 import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.data.Media
+import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaMetadata
 import com.google.android.gms.cast.MediaQueueItem
@@ -15,23 +16,27 @@ import java.nio.charset.StandardCharsets
 import java.util.logging.Level
 import java.util.logging.Logger
 import java.util.stream.Collectors
+import javax.inject.Inject
 
-object GoogleCastUtils {
+class GoogleCastUtils @Inject constructor(
+        private val oAuth2Service: OAuth2Service,
+        private val client: Client
+) {
     private val logger = Logger.getLogger(GoogleCastUtils::class.java.name)
 
-    fun assembleMediaQueue(media: List<Media>, posterPath: String, myClient: Client): List<MediaQueueItem> {
+    fun assembleMediaQueue(media: List<Media>, posterPath: String): List<MediaQueueItem> {
         return media.stream()
-                .map { title: Media -> buildMediaQueueItem(title, posterPath, myClient) }
+                .map { title: Media -> buildMediaQueueItem(title, posterPath) }
                 .collect(Collectors.toList())
     }
 
-    private fun buildMediaQueueItem(media: Media, posterPath: String, myClient: Client): MediaQueueItem {
-        val image = WebImage(Uri.parse(myClient.computerUrl
-                + "/localmovie/v2/media/poster?access_token=" + myClient.accessToken
+    private fun buildMediaQueueItem(media: Media, posterPath: String): MediaQueueItem {
+        val image = WebImage(Uri.parse(client.computerUrl
+                + "/localmovie/v2/media/poster?access_token=" + oAuth2Service.accessToken.serialize()
                 + "&path=" + posterPath))
-        val movieUrl = (myClient.computerUrl
-                + "/localmovie/v2/media/stream.mp4?access_token=" + myClient.accessToken
-                + "&path=" + encodeParameter(myClient.currentPath.toString() + File.separator + media.filename))
+        val movieUrl = (client.computerUrl
+                + "/localmovie/v2/media/stream.mp4?access_token=" + oAuth2Service.accessToken.serialize()
+                + "&path=" + encodeParameter(client.currentPath.toString() + File.separator + media.filename))
         val metaData = MediaMetadata()
         metaData.putString(MediaMetadata.KEY_TITLE, media.title)
         metaData.addImage(image)

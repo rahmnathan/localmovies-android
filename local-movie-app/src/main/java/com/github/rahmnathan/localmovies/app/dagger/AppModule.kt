@@ -10,10 +10,17 @@ import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceS
 import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaDAO
 import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaDatabase
 import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaPersistenceServiceRoom
+import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
+import com.github.rahmnathan.oauth2.adapter.domain.client.OAuth2Client
+import com.github.rahmnathan.oauth2.adapter.domain.client.OAuth2ClientConfig
+import com.github.rahmnathan.oauth2.adapter.domain.credential.Duration
+import com.github.rahmnathan.oauth2.adapter.domain.credential.OAuth2CredentialPassword
+import com.github.rahmnathan.oauth2.adapter.keycloak.resilience4j.KeycloakClientResilience4j
 import com.google.android.gms.cast.framework.CastContext
 import dagger.Module
 import dagger.Provides
 import java.lang.Exception
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.logging.Logger
@@ -28,9 +35,11 @@ class AppModule(private val app: Application) {
     fun provideContext(): Context = app
 
     @Provides
+    @Singleton
     fun provideExecutorService(): ExecutorService = Executors.newSingleThreadExecutor()
 
     @Provides
+    @Singleton
     fun provideCastContext(context: Context): CastContext = CastContext.getSharedInstance(context)
 
     @Provides
@@ -45,7 +54,8 @@ class AppModule(private val app: Application) {
     }
 
     @Provides
-    fun provideMediaFacade(client: Client): MediaFacade = MediaFacade(client)
+    @Singleton
+    fun provideMediaFacade(client: Client, oAuth2Service: OAuth2Service): MediaFacade = MediaFacade(client,oAuth2Service)
 
     @Provides
     @Singleton
@@ -55,5 +65,28 @@ class AppModule(private val app: Application) {
     @Singleton
     fun provideMediaPersistenceService(mediaDAO: MediaDAO, executorService: ExecutorService): MediaPersistenceService {
         return MediaPersistenceServiceRoom(mediaDAO, executorService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOAuth2Service(client: Client): OAuth2Service {
+        val clientConfig = OAuth2ClientConfig.builder()
+                .initialRetryDelay(500)
+                .retryCount(3)
+                .url("https://login.nathanrahm.com/auth")
+                .timoutMs(3000)
+                .build()
+
+        val keycloakClient: OAuth2Client = KeycloakClientResilience4j(clientConfig)
+
+        val passwordConfig = OAuth2CredentialPassword.builder()
+                .password(client.password!!)
+                .clientId("localmovies")
+                .username(client.userName!!)
+                .realm("LocalMovies")
+                .tokenRefreshThreshold(Duration(ChronoUnit.SECONDS, 30))
+                .build()
+
+        return OAuth2Service(passwordConfig, keycloakClient)
     }
 }

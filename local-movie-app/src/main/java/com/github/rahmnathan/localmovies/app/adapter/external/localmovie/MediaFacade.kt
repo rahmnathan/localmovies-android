@@ -4,6 +4,7 @@ import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.data.Media
 import com.github.rahmnathan.localmovies.app.data.MovieEvent
 import com.github.rahmnathan.localmovies.app.data.MovieRequest
+import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
 import com.google.common.net.HttpHeaders
 import com.google.gson.Gson
 import org.json.JSONArray
@@ -18,11 +19,16 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.collections.ArrayList
 
-class MediaFacade(private val client: Client) {
-    private val logger = Logger.getLogger(MediaFacade::class.java.name)
+@Singleton
+class MediaFacade @Inject constructor(
+        private val client: Client,
+        private val oAuth2Service: OAuth2Service) {
 
+    private val logger = Logger.getLogger(MediaFacade::class.java.name)
     private val GSON = Gson()
 
     fun getMovieInfo(movieRequest: MovieRequest): List<Media> {
@@ -51,7 +57,7 @@ class MediaFacade(private val client: Client) {
             urlConnection.doOutput = true
             urlConnection.doInput = true
             urlConnection.setRequestProperty("Content-Type", "application/json")
-            urlConnection.setRequestProperty("Authorization", "bearer " + client.accessToken)
+            urlConnection.setRequestProperty("Authorization", "bearer " + oAuth2Service.accessToken.serialize())
             urlConnection.connectTimeout = 10000
         } catch (e: IOException) {
             logger.log(Level.SEVERE, "Failed connecting to media info service", e)
@@ -98,7 +104,7 @@ class MediaFacade(private val client: Client) {
             urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "GET"
             urlConnection.setRequestProperty(X_CORRELATION_ID, xCorrelationId)
-            urlConnection.setRequestProperty(HttpHeaders.AUTHORIZATION, "bearer " + client.accessToken)
+            urlConnection.setRequestProperty(HttpHeaders.AUTHORIZATION, "bearer " + oAuth2Service.accessToken.serialize())
             urlConnection.connectTimeout = 10000
             return Optional.of(urlConnection.getHeaderField(COUNT_HEADER).toLong())
         } catch (e: IOException) {
@@ -124,7 +130,7 @@ class MediaFacade(private val client: Client) {
             urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "GET"
             urlConnection.setRequestProperty(X_CORRELATION_ID, xCorrelationId)
-            urlConnection.setRequestProperty(HttpHeaders.AUTHORIZATION, "bearer " + client.accessToken)
+            urlConnection.setRequestProperty(HttpHeaders.AUTHORIZATION, "bearer " + oAuth2Service.accessToken.serialize())
             urlConnection.connectTimeout = 10000
         } catch (e: IOException) {
             logger.log(Level.SEVERE, "Failed connecting to media info service", e)

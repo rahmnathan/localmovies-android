@@ -3,7 +3,6 @@ package com.github.rahmnathan.localmovies.app.control
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
 import com.github.rahmnathan.localmovies.app.activity.SetupActivity.Companion.saveData
 import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MediaFacade
 import com.github.rahmnathan.localmovies.app.adapter.list.MediaListAdapter
@@ -26,10 +25,6 @@ class MediaEventLoader(private val mediaListAdapter: MediaListAdapter,
 
     override fun run() {
         logger.log(Level.INFO, "Dynamically loading events.")
-        if (client.accessToken == null) {
-            UIHandler.post { Toast.makeText(context, "Login failed - Check credentials", Toast.LENGTH_LONG).show() }
-            return
-        }
         val count = mediaFacade.getMovieEventCount()
         if (!count.isPresent) {
             logger.severe("Error retrieving media event count.")

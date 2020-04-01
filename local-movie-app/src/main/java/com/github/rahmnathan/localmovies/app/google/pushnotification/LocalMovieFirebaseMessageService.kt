@@ -9,6 +9,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.github.rahmnathan.localmovies.app.activity.MainActivity
 import com.github.rahmnathan.localmovies.app.data.Client
+import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import rahmnathan.localmovies.R
@@ -22,9 +23,9 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import javax.inject.Inject
 
-class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
-
-    @Inject lateinit var client: Client
+class LocalMovieFirebaseMessageService @Inject constructor(
+        private val client: Client,
+        private val oAuth2Service: OAuth2Service) : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         buildChannel()
@@ -72,7 +73,7 @@ class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
         try {
             urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "GET"
-            urlConnection.setRequestProperty("Authorization", "bearer " + client.accessToken)
+            urlConnection.setRequestProperty("Authorization", "bearer " + oAuth2Service.accessToken.serialize())
             urlConnection.connectTimeout = 10000
         } catch (e: IOException) {
             logger.log(Level.SEVERE, "Failed connecting to media info service", e)

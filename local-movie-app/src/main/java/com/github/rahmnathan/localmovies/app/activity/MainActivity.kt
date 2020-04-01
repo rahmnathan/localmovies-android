@@ -15,12 +15,12 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.MenuItemCompat
 import com.github.rahmnathan.localmovies.app.LocalMoviesApplication
 import com.github.rahmnathan.localmovies.app.activity.SetupActivity.Companion.SETUP_FILE
-import com.github.rahmnathan.localmovies.app.adapter.external.keycloak.KeycloakAuthenticator
 import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MediaFacade
 import com.github.rahmnathan.localmovies.app.adapter.list.MediaListAdapter
 import com.github.rahmnathan.localmovies.app.control.*
 import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity
+import com.github.rahmnathan.localmovies.app.google.cast.control.GoogleCastUtils
 import com.github.rahmnathan.localmovies.app.persistence.MediaHistory
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
 import com.google.android.gms.cast.framework.CastButtonFactory
@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var castContext: CastContext
     @Inject @Volatile lateinit var client: Client
     @Inject lateinit var mediaFacade: MediaFacade
+    @Inject lateinit var castUtils: GoogleCastUtils
     lateinit var mediaRepository: MediaRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,8 +96,7 @@ class MainActivity : AppCompatActivity() {
 
         // Trigger initial media loading
         client.appendToCurrentPath(MOVIES)
-        CompletableFuture.runAsync(KeycloakAuthenticator(client), executorService)
-                .thenRun { mediaRepository.getVideos() }
+        CompletableFuture.runAsync(Runnable {mediaRepository.getVideos()}, executorService)
                 .thenRun(MediaEventLoader(listAdapter, client, mediaFacade, persistenceService, this))
 
         // Initialize media click listeners
@@ -106,7 +106,8 @@ class MainActivity : AppCompatActivity() {
                 castContext = castContext,
                 mediaRepository = mediaRepository,
                 history = mediaHistory,
-                client = client
+                client = client,
+                castUtils = castUtils
         )
 
         gridView.setOnItemLongClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
