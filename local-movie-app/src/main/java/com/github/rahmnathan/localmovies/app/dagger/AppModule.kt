@@ -19,6 +19,7 @@ import com.github.rahmnathan.oauth2.adapter.keycloak.resilience4j.KeycloakClient
 import com.google.android.gms.cast.framework.CastContext
 import dagger.Module
 import dagger.Provides
+import java.io.ObjectInputStream
 import java.lang.Exception
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.ExecutorService
@@ -46,7 +47,11 @@ class AppModule(private val app: Application) {
     @Singleton
     fun provideClient(context: Context): Client {
         return try {
-            MainActivityUtils.getPhoneInfo(context.openFileInput("setup"))
+            ObjectInputStream(context.openFileInput("setup")).use { objectInputStream ->
+                val client = objectInputStream.readObject() as Client
+                client.resetCurrentPath()
+                return client
+            }
         } catch (e: Exception) {
             logger.severe("Failure loading stored client data. $e")
             Client()

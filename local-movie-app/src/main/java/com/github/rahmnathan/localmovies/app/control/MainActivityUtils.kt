@@ -28,21 +28,6 @@ object MainActivityUtils {
         }
     }
 
-    @JvmStatic
-    fun getPhoneInfo(inputStream: InputStream?): Client {
-        try {
-            ObjectInputStream(inputStream).use { objectInputStream ->
-                val client = objectInputStream.readObject() as Client
-                client.resetCurrentPath()
-                return client
-            }
-        } catch (e: IOException) {
-            throw RuntimeException(e)
-        } catch (e: ClassNotFoundException) {
-            throw RuntimeException(e)
-        }
-    }
-
     private fun sort(order: MovieOrder, listAdapter: MediaListAdapter, gridView: GridView) {
         listAdapter.sort(order)
         gridView.smoothScrollToPosition(0)
