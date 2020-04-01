@@ -23,9 +23,10 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import javax.inject.Inject
 
-class LocalMovieFirebaseMessageService @Inject constructor(
-        private val client: Client,
-        private val oAuth2Service: OAuth2Service) : FirebaseMessagingService() {
+class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
+
+    @Inject lateinit var client: Client
+    @Inject lateinit var oAuth2Service: OAuth2Service
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         buildChannel()
@@ -68,7 +69,7 @@ class LocalMovieFirebaseMessageService @Inject constructor(
 
     private fun getMoviePoster(path: String?): Optional<ByteArray> {
         var urlConnection: HttpURLConnection? = null
-        val url = client.computerUrl + "/localmovies/v2/media/poster?path=" + path
+        val url = client.serverUrl + "/localmovies/v2/media/poster?path=" + path
 
         try {
             urlConnection = URL(url).openConnection() as HttpURLConnection

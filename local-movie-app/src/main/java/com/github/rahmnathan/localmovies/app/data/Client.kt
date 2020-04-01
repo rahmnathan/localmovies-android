@@ -5,21 +5,13 @@ import java.util.*
 
 class Client : Serializable {
     private val mainPath = LocalMediaPath()
-    val computerUrl = "https://movies.nathanrahm.com"
+    val serverUrl = "https://movies.nathanrahm.com"
     var currentPath = mainPath
         private set
     var movieCount: Int? = null
-    var accessToken: String? = null
     var lastUpdate: Long? = null
     var userName: String? = null
     var password: String? = null
-
-    constructor(userName: String?, password: String?) {
-        this.userName = userName
-        this.password = password
-    }
-
-    constructor()
 
     val isViewingEpisodes: Boolean
         get() = currentPath.size == 3

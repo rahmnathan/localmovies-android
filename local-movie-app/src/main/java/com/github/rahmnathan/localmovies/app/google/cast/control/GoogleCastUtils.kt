@@ -31,10 +31,10 @@ class GoogleCastUtils @Inject constructor(
     }
 
     private fun buildMediaQueueItem(media: Media, posterPath: String): MediaQueueItem {
-        val image = WebImage(Uri.parse(client.computerUrl
+        val image = WebImage(Uri.parse(client.serverUrl
                 + "/localmovie/v2/media/poster?access_token=" + oAuth2Service.accessToken.serialize()
                 + "&path=" + posterPath))
-        val movieUrl = (client.computerUrl
+        val movieUrl = (client.serverUrl
                 + "/localmovie/v2/media/stream.mp4?access_token=" + oAuth2Service.accessToken.serialize()
                 + "&path=" + encodeParameter(client.currentPath.toString() + File.separator + media.filename))
         val metaData = MediaMetadata()
