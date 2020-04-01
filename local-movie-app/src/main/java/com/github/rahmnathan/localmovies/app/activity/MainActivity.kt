@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var executorService: ExecutorService
     @Inject lateinit var persistenceService: MediaPersistenceService
     @Inject lateinit var castContext: CastContext
-    @Inject lateinit var client: Client
+    @Inject @Volatile lateinit var client: Client
     @Inject lateinit var mediaFacade: MediaFacade
     lateinit var mediaRepository: MediaRepository
 

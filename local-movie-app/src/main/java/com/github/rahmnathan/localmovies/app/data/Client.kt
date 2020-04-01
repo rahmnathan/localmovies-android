@@ -12,9 +12,7 @@ class Client : Serializable {
     var accessToken: String? = null
     var lastUpdate: Long? = null
     var userName: String? = null
-        private set
     var password: String? = null
-        private set
 
     constructor(userName: String?, password: String?) {
         this.userName = userName

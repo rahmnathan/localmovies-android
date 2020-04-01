@@ -28,7 +28,7 @@ import javax.inject.Inject
 class SetupActivity : Activity() {
 
     @Inject lateinit var mediaDAO: MediaDAO
-    @Inject lateinit var client: Client
+    @Inject @Volatile lateinit var client: Client
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,8 +52,9 @@ class SetupActivity : Activity() {
 
         val set = findViewById<Button>(R.id.set)
         set.setOnClickListener {
-            val client1 = Client(userName.text.toString(), password.text.toString())
-            saveData(client1, this)
+            client.password = password.text.toString()
+            client.userName = userName.text.toString()
+            saveData(client, this)
             startActivity(Intent(this@SetupActivity, MainActivity::class.java))
         }
 

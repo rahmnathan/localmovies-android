@@ -13,12 +13,15 @@ import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaPersist
 import com.google.android.gms.cast.framework.CastContext
 import dagger.Module
 import dagger.Provides
+import java.lang.Exception
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.logging.Logger
 import javax.inject.Singleton
 
 @Module
 class AppModule(private val app: Application) {
+    private val logger = Logger.getLogger(AppModule::class.java.name)
 
     @Provides
     @Singleton
@@ -32,7 +35,14 @@ class AppModule(private val app: Application) {
 
     @Provides
     @Singleton
-    fun provideClient(context: Context): Client = MainActivityUtils.getPhoneInfo(context.openFileInput("setup"))
+    fun provideClient(context: Context): Client {
+        return try {
+            MainActivityUtils.getPhoneInfo(context.openFileInput("setup"))
+        } catch (e: Exception) {
+            logger.severe("Failure loading stored client data. $e")
+            Client()
+        }
+    }
 
     @Provides
     fun provideMediaFacade(client: Client): MediaFacade = MediaFacade(client)
