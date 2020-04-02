@@ -42,7 +42,7 @@
         android:text="Starring"
         android:id="@+id/detailedActorsLabel"
         android:gravity="bottom"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:layout_marginHorizontal="10dp"
         android:layout_below="@+id/detailedPlot"
         android:layout_centerHorizontal="true"/>
@@ -62,6 +62,7 @@
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:layout_marginTop="12dp"
         android:layout_below="@+id/detailedActors"
         android:orientation="horizontal" >
 
