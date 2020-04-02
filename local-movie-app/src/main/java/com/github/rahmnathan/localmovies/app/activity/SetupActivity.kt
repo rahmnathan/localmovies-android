@@ -31,6 +31,8 @@ class SetupActivity : Activity() {
     @Inject @Volatile lateinit var client: Client
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        (application as LocalMoviesApplication).appComponent.inject(this)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.setup_main)
         ActivityCompat.requestPermissions(
@@ -38,8 +40,6 @@ class SetupActivity : Activity() {
                 PERMISSIONS_STORAGE,
                 REQUEST_EXTERNAL_STORAGE
         )
-
-        (application as LocalMoviesApplication).appComponent.inject(this)
 
         val userName = findViewById<EditText>(R.id.userName)
         userName.background.setColorFilter(Color.RED, PorterDuff.Mode.DARKEN)

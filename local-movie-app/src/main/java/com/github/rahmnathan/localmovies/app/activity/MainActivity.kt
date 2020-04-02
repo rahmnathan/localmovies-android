@@ -54,14 +54,14 @@ class MainActivity : AppCompatActivity() {
     lateinit var mediaRepository: MediaRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
         if (!File(this.filesDir, SETUP_FILE).exists()) {
             startActivity(Intent(this@MainActivity, SetupActivity::class.java))
         }
 
         (application as LocalMoviesApplication).appComponent.inject(this)
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
         // Initialize required vars
         progressBar = findViewById(R.id.progressBar)
