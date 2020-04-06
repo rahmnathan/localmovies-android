@@ -12,6 +12,7 @@ import com.github.rahmnathan.localmovies.app.persistence.MediaHistory
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
+import rahmnathan.localmovies.R
 
 object MenuDrawer {
 
@@ -49,8 +50,10 @@ object MenuDrawer {
                     activity.startActivity(Intent(activity, SetupActivity::class.java))
                     false
                 }
+
         val result = DrawerBuilder()
                 .withActivity(activity)
+                .withHeader(R.layout.menu_drawer_header)
                 .withToolbar(toolbar)
                 .addDrawerItems(homeItem, historyItem, settingsItem)
                 .withSliderBackgroundColor(Color.BLACK)
