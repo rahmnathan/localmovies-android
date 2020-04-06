@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.app.media
+package com.github.rahmnathan.localmovies.app.media.provider.control
 
 import java.io.File
 import java.util.*

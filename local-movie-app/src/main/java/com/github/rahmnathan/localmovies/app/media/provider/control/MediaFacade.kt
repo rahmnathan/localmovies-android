@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.app.media.provider
+package com.github.rahmnathan.localmovies.app.media.provider.control
 
 import com.github.rahmnathan.localmovies.app.Client
 import com.github.rahmnathan.localmovies.app.media.data.Media

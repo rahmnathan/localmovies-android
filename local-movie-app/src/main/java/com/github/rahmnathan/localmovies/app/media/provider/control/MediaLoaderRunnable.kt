@@ -1,4 +1,4 @@
-package com.github.rahmnathan.localmovies.app.media.provider
+package com.github.rahmnathan.localmovies.app.media.provider.control
 
 import android.os.Handler
 import android.os.Looper

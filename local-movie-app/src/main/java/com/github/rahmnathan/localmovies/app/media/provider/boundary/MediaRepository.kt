@@ -1,12 +1,13 @@
-package com.github.rahmnathan.localmovies.app.media.provider
+package com.github.rahmnathan.localmovies.app.media.provider.boundary
 
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.ProgressBar
 import com.github.rahmnathan.localmovies.app.activity.main.view.MediaListAdapter
 import com.github.rahmnathan.localmovies.app.Client
+import com.github.rahmnathan.localmovies.app.media.provider.control.MediaFacade
+import com.github.rahmnathan.localmovies.app.media.provider.control.MediaLoaderRunnable
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
 import com.google.firebase.messaging.FirebaseMessaging
 import java.util.ArrayList
@@ -19,7 +20,6 @@ class MediaRepository(
         private val mediaListAdapter: MediaListAdapter,
         private val mediaFacade: MediaFacade,
         private val progressBar: ProgressBar,
-        private val context: Context,
         private val client: Client,
         private val executorService: ExecutorService){
 

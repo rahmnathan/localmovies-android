@@ -1,12 +1,12 @@
-package com.github.rahmnathan.localmovies.app.media.provider.event
+package com.github.rahmnathan.localmovies.app.media.provider.boundary
 
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import com.github.rahmnathan.localmovies.app.activity.setup.SetupActivity.Companion.saveData
-import com.github.rahmnathan.localmovies.app.media.provider.MediaFacade
+import com.github.rahmnathan.localmovies.app.media.provider.control.MediaFacade
 import com.github.rahmnathan.localmovies.app.activity.main.view.MediaListAdapter
-import com.github.rahmnathan.localmovies.app.media.MediaPathUtils.getParentPath
+import com.github.rahmnathan.localmovies.app.media.provider.control.MediaPathUtils.getParentPath
 import com.github.rahmnathan.localmovies.app.Client
 import com.github.rahmnathan.localmovies.app.media.data.MediaEvent
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService

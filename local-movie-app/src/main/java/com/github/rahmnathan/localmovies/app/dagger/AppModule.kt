@@ -2,7 +2,7 @@ package com.github.rahmnathan.localmovies.app.dagger
 
 import android.app.Application
 import android.content.Context
-import com.github.rahmnathan.localmovies.app.media.provider.MediaFacade
+import com.github.rahmnathan.localmovies.app.media.provider.control.MediaFacade
 import com.github.rahmnathan.localmovies.app.auth.OAuth2ServiceProvider.getOAuth2Service
 import com.github.rahmnathan.localmovies.app.Client
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService

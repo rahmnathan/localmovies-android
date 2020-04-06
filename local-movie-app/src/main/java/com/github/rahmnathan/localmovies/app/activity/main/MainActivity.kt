@@ -13,12 +13,12 @@ import androidx.core.view.MenuItemCompat
 import com.github.rahmnathan.localmovies.app.LocalMoviesApplication
 import com.github.rahmnathan.localmovies.app.activity.setup.SetupActivity
 import com.github.rahmnathan.localmovies.app.activity.setup.SetupActivity.Companion.SETUP_FILE
-import com.github.rahmnathan.localmovies.app.media.provider.MediaFacade
+import com.github.rahmnathan.localmovies.app.media.provider.control.MediaFacade
 import com.github.rahmnathan.localmovies.app.Client
 import com.github.rahmnathan.localmovies.app.activity.main.view.*
 import com.github.rahmnathan.localmovies.app.cast.control.GoogleCastUtils
-import com.github.rahmnathan.localmovies.app.media.provider.event.MediaEventLoader
-import com.github.rahmnathan.localmovies.app.media.provider.MediaRepository
+import com.github.rahmnathan.localmovies.app.media.provider.boundary.MediaEventLoader
+import com.github.rahmnathan.localmovies.app.media.provider.boundary.MediaRepository
 import com.github.rahmnathan.localmovies.app.persistence.MediaHistory
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
 import com.google.android.gms.cast.framework.CastButtonFactory
@@ -79,7 +79,6 @@ class MainActivity : AppCompatActivity() {
                 listAdapter,
                 mediaFacade,
                 progressBar,
-                this,
                 client,
                 executorService
         )
