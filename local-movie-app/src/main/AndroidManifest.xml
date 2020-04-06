@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme"
         android:fullBackupContent="true">
         <activity
-            android:name="com.github.rahmnathan.localmovies.app.activity.MainActivity"
+            android:name="com.github.rahmnathan.localmovies.app.activity.main.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:theme="@style/Theme.AppCompat.NoActionBar"
@@ -32,7 +32,7 @@
         </activity>
 
         <service
-            android:name="com.github.rahmnathan.localmovies.app.google.pushnotification.LocalMovieFirebaseMessageService">
+            android:name="com.github.rahmnathan.localmovies.app.notification.LocalMovieFirebaseMessageService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
@@ -40,7 +40,7 @@
         </service>
 
         <activity
-            android:name="com.github.rahmnathan.localmovies.app.google.cast.config.ExpandedControlActivity"
+            android:name="com.github.rahmnathan.localmovies.app.cast.config.ExpandedControlActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:launchMode="singleTask"
@@ -51,28 +51,28 @@
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.github.rahmnathan.localmovies.app.activity.MainActivity"/>
+                android:value="com.github.rahmnathan.localmovies.app.activity.main.MainActivity"/>
         </activity>
 
         <activity
-            android:name="com.github.rahmnathan.localmovies.app.activity.SetupActivity"
+            android:name="com.github.rahmnathan.localmovies.app.activity.setup.SetupActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
         <activity
-            android:name="com.github.rahmnathan.localmovies.app.activity.PlayerActivity"
+            android:name="com.github.rahmnathan.localmovies.app.activity.player.PlayerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
         </activity>
 
-        <activity android:name="com.github.rahmnathan.localmovies.app.activity.DescriptionPopUpActivity"
+        <activity android:name="com.github.rahmnathan.localmovies.app.activity.main.view.DescriptionPopUpActivity"
             android:theme="@style/AppTheme.TransparentBackground"/>
 
         <meta-data
             android:name=
                 "com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="com.github.rahmnathan.localmovies.app.google.cast.config.CastOptionsProvider" />
+            android:value="com.github.rahmnathan.localmovies.app.cast.config.CastOptionsProvider" />
     </application>
 
 </manifest>

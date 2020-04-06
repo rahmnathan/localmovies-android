@@ -2,26 +2,19 @@ package com.github.rahmnathan.localmovies.app.dagger
 
 import android.app.Application
 import android.content.Context
-import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MediaFacade
-import com.github.rahmnathan.localmovies.app.control.MainActivityUtils
-import com.github.rahmnathan.localmovies.app.control.MediaRepository
-import com.github.rahmnathan.localmovies.app.data.Client
+import com.github.rahmnathan.localmovies.app.media.provider.MediaFacade
+import com.github.rahmnathan.localmovies.app.auth.OAuth2ServiceProvider.getOAuth2Service
+import com.github.rahmnathan.localmovies.app.Client
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
 import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaDAO
 import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaDatabase
 import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaPersistenceServiceRoom
 import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
-import com.github.rahmnathan.oauth2.adapter.domain.client.OAuth2Client
-import com.github.rahmnathan.oauth2.adapter.domain.client.OAuth2ClientConfig
-import com.github.rahmnathan.oauth2.adapter.domain.credential.Duration
-import com.github.rahmnathan.oauth2.adapter.domain.credential.OAuth2CredentialPassword
-import com.github.rahmnathan.oauth2.adapter.keycloak.resilience4j.KeycloakClientResilience4j
 import com.google.android.gms.cast.framework.CastContext
 import dagger.Module
 import dagger.Provides
 import java.io.ObjectInputStream
 import java.lang.Exception
-import java.time.temporal.ChronoUnit
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.logging.Logger
@@ -60,7 +53,7 @@ class AppModule(private val app: Application) {
 
     @Provides
     @Singleton
-    fun provideMediaFacade(client: Client, oAuth2Service: OAuth2Service): MediaFacade = MediaFacade(client,oAuth2Service)
+    fun provideMediaFacade(client: Client, oAuth2Service: OAuth2Service): MediaFacade = MediaFacade(client, oAuth2Service)
 
     @Provides
     @Singleton
@@ -75,23 +68,6 @@ class AppModule(private val app: Application) {
     @Provides
     @Singleton
     fun provideOAuth2Service(client: Client): OAuth2Service {
-        val clientConfig = OAuth2ClientConfig.builder()
-                .initialRetryDelay(500)
-                .retryCount(3)
-                .url("https://login.nathanrahm.com/auth")
-                .timoutMs(3000)
-                .build()
-
-        val keycloakClient: OAuth2Client = KeycloakClientResilience4j(clientConfig)
-
-        val passwordConfig = OAuth2CredentialPassword.builder()
-                .password(client.password!!)
-                .clientId("localmovies")
-                .username(client.userName!!)
-                .realm("LocalMovies")
-                .tokenRefreshThreshold(Duration(ChronoUnit.SECONDS, 30))
-                .build()
-
-        return OAuth2Service(passwordConfig, keycloakClient)
+        return getOAuth2Service(client.userName.toString(), client.password.toString())
     }
 }
