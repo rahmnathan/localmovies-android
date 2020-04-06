@@ -12,12 +12,11 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.github.rahmnathan.localmovies.app.LocalMoviesApplication
+import com.github.rahmnathan.localmovies.app.control.OAuth2ServiceProvider.getOAuth2Service
 import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaDAO
-import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaDatabase
 import rahmnathan.localmovies.R
 import java.io.IOException
-import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.lang.Exception
 import java.util.concurrent.CompletableFuture
@@ -27,6 +26,7 @@ import javax.inject.Inject
 
 class SetupActivity : Activity() {
 
+    private val logger = Logger.getLogger(SetupActivity::class.java.name)
     @Inject lateinit var mediaDAO: MediaDAO
     @Inject @Volatile lateinit var client: Client
 
@@ -54,8 +54,18 @@ class SetupActivity : Activity() {
         set.setOnClickListener {
             client.password = password.text.toString()
             client.userName = userName.text.toString()
-            saveData(client, this)
-            startActivity(Intent(this@SetupActivity, MainActivity::class.java))
+
+            try {
+                val oAuth2Service = getOAuth2Service(client.userName.toString(), client.password.toString())
+                oAuth2Service.accessToken
+                saveData(client, this)
+                startActivity(Intent(this@SetupActivity, MainActivity::class.java))
+            } catch (ex: Exception) {
+                logger.severe("Failure logging in with provided credentials. $ex")
+                Toast.makeText(this, "Wrong username or password.", Toast.LENGTH_LONG).show()
+                password.setText("")
+                userName.setText("")
+            }
         }
 
         val clearMovies = findViewById<Button>(R.id.clearMovies)

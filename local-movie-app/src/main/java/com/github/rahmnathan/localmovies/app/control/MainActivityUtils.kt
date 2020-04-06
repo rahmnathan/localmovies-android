@@ -3,13 +3,9 @@ package com.github.rahmnathan.localmovies.app.control
 import android.view.MenuItem
 import android.widget.GridView
 import com.github.rahmnathan.localmovies.app.adapter.list.MediaListAdapter
-import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.data.MovieGenre
 import com.github.rahmnathan.localmovies.app.data.MovieOrder
 import rahmnathan.localmovies.R
-import java.io.IOException
-import java.io.InputStream
-import java.io.ObjectInputStream
 
 object MainActivityUtils {
     @JvmStatic

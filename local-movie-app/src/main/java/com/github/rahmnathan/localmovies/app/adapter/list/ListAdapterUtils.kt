@@ -9,7 +9,6 @@ import android.widget.TextView
 import com.github.rahmnathan.localmovies.app.data.Media
 import com.github.rahmnathan.localmovies.app.data.MovieOrder
 import rahmnathan.localmovies.R
-import java.util.*
 
 object ListAdapterUtils {
 

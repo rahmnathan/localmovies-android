@@ -3,16 +3,12 @@ package com.github.rahmnathan.localmovies.app.control
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
 import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MediaFacade
 
 import com.github.rahmnathan.localmovies.app.adapter.list.MediaListAdapter
 import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.data.MovieRequest
-import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
-import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
 
-import java.util.ArrayList
 import java.util.logging.Level
 import java.util.logging.Logger
 
