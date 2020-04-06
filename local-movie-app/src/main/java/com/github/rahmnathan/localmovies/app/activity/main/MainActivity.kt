@@ -3,10 +3,7 @@ package com.github.rahmnathan.localmovies.app.activity.main
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.view.Gravity
-import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -17,11 +14,8 @@ import com.github.rahmnathan.localmovies.app.LocalMoviesApplication
 import com.github.rahmnathan.localmovies.app.activity.setup.SetupActivity
 import com.github.rahmnathan.localmovies.app.activity.setup.SetupActivity.Companion.SETUP_FILE
 import com.github.rahmnathan.localmovies.app.media.provider.MediaFacade
-import com.github.rahmnathan.localmovies.app.activity.main.view.MediaListAdapter
 import com.github.rahmnathan.localmovies.app.Client
-import com.github.rahmnathan.localmovies.app.activity.main.view.DescriptionPopUpActivity
-import com.github.rahmnathan.localmovies.app.activity.main.view.MediaSearchTextWatcher
-import com.github.rahmnathan.localmovies.app.cast.config.ExpandedControlActivity
+import com.github.rahmnathan.localmovies.app.activity.main.view.*
 import com.github.rahmnathan.localmovies.app.cast.control.GoogleCastUtils
 import com.github.rahmnathan.localmovies.app.media.provider.event.MediaEventLoader
 import com.github.rahmnathan.localmovies.app.media.provider.MediaRepository
@@ -29,11 +23,6 @@ import com.github.rahmnathan.localmovies.app.persistence.MediaHistory
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
 import com.google.android.gms.cast.framework.CastButtonFactory
 import com.google.android.gms.cast.framework.CastContext
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.bottomnavigation.LabelVisibilityMode
-import com.mikepenz.materialdrawer.DrawerBuilder
-import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
 import rahmnathan.localmovies.R
 import java.io.File
 import java.util.*
@@ -96,8 +85,8 @@ class MainActivity : AppCompatActivity() {
         )
 
         val mediaHistory = MediaHistory(this)
-        assembleMenuDrawer(searchView, toolbar, mediaHistory)
-        assembleNavigationButtons(searchView)
+        MenuDrawer.build(searchView, client, this, mediaHistory, listAdapter, toolbar)
+        NavigationButtons.build(searchView, this, listAdapter, gridView, castContext)
 
         // Trigger initial media loading
         client.appendToCurrentPath(MOVIES)
@@ -123,72 +112,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun assembleNavigationButtons(searchView: SearchView) {
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNavigationView.selectedItemId = R.id.action_movies
-        bottomNavigationView.labelVisibilityMode = LabelVisibilityMode.LABEL_VISIBILITY_LABELED
-        val popup = PopupMenu(this, bottomNavigationView, Gravity.END)
-        popup.setOnMenuItemClickListener { item: MenuItem ->
-            MainActivityUtils.sortVideoList(item, listAdapter, gridView)
-            true
-        }
-        popup.menuInflater.inflate(R.menu.settings, popup.menu)
-        bottomNavigationView.menu.setGroupCheckable(0, false, true)
-        bottomNavigationView.setOnNavigationItemSelectedListener { item: MenuItem ->
-            when (item.itemId) {
-                R.id.action_controls -> {
-                    val session = castContext.sessionManager!!.currentCastSession
-                    if (session != null && session.isConnected) {
-                        startActivity(Intent(this@MainActivity, ExpandedControlActivity::class.java))
-                    } else {
-                        Toast.makeText(this, "No video playing", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                R.id.action_movies -> getRootVideos(MOVIES, searchView)
-                R.id.action_series -> getRootVideos(SERIES, searchView)
-                R.id.action_more -> popup.show()
-            }
-            true
-        }
-    }
-
-    private fun assembleMenuDrawer(searchView: SearchView, toolbar: Toolbar, mediaHistory: MediaHistory) {
-        // Initialize menu
-        val homeItem = PrimaryDrawerItem()
-                .withIdentifier(1)
-                .withName("Home")
-                .withTextColor(Color.WHITE)
-                .withOnDrawerItemClickListener { _: View?, _: Int, _: IDrawerItem<*, *>? ->
-                    getRootVideos(MOVIES, searchView)
-                    false
-                }
-        val historyItem = PrimaryDrawerItem()
-                .withIdentifier(2)
-                .withName("History")
-                .withTextColor(Color.WHITE)
-                .withOnDrawerItemClickListener { _: View?, _: Int, _: IDrawerItem<*, *>? ->
-                    client.resetCurrentPath()
-                    client.appendToCurrentPath(MOVIES)
-                    listAdapter.display(mediaHistory.historyList)
-                    false
-                }
-        val settingsItem = PrimaryDrawerItem()
-                .withIdentifier(3)
-                .withName("My Account")
-                .withTextColor(Color.WHITE)
-                .withOnDrawerItemClickListener { _: View?, _: Int, _: IDrawerItem<*, *>? ->
-                    this@MainActivity.startActivity(Intent(this@MainActivity, SetupActivity::class.java))
-                    false
-                }
-        val result = DrawerBuilder()
-                .withActivity(this)
-                .withToolbar(toolbar)
-                .addDrawerItems(homeItem, historyItem, settingsItem)
-                .withSliderBackgroundColor(Color.BLACK)
-                .build()
-    }
-
-    private fun getRootVideos(path: String, searchText: SearchView) {
+    fun getRootVideos(path: String, searchText: SearchView) {
         client.resetCurrentPath()
         searchText.setQuery("", false)
         client.appendToCurrentPath(path)
@@ -203,7 +127,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val MOVIES = "Movies"
-        private const val SERIES = "Series"
+        const val MOVIES = "Movies"
+        const val SERIES = "Series"
     }
 }
