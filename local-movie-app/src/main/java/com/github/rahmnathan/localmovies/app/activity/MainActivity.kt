@@ -56,6 +56,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         if (!File(this.filesDir, SETUP_FILE).exists()) {
             startActivity(Intent(this@MainActivity, SetupActivity::class.java))
+            return
         }
 
         (application as LocalMoviesApplication).appComponent.inject(this)

@@ -43,7 +43,7 @@ class MediaRepository(
             UIHandler.post { progressBar.visibility = View.INVISIBLE }
         } else {
             UIHandler.post { progressBar.visibility = View.VISIBLE }
-            mediaLoaderRunnable = MediaLoaderRunnable(mediaListAdapter, client, context, mediaFacade)
+            mediaLoaderRunnable = MediaLoaderRunnable(mediaListAdapter, client, mediaFacade)
 
             CompletableFuture.runAsync(mediaLoaderRunnable, executorService)
                     .thenRun { UIHandler.post { progressBar.visibility = View.GONE } }

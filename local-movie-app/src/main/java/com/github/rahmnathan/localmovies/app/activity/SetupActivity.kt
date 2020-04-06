@@ -7,18 +7,18 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.github.rahmnathan.localmovies.app.LocalMoviesApplication
-import com.github.rahmnathan.localmovies.app.control.OAuth2ServiceProvider.getOAuth2Service
 import com.github.rahmnathan.localmovies.app.data.Client
 import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaDAO
 import rahmnathan.localmovies.R
 import java.io.IOException
 import java.io.ObjectOutputStream
-import java.lang.Exception
 import java.util.concurrent.CompletableFuture
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -54,18 +54,10 @@ class SetupActivity : Activity() {
         set.setOnClickListener {
             client.password = password.text.toString()
             client.userName = userName.text.toString()
+            password.clearFocus()
+            userName.clearFocus()
 
-            try {
-                val oAuth2Service = getOAuth2Service(client.userName.toString(), client.password.toString())
-                oAuth2Service.accessToken
-                saveData(client, this)
-                startActivity(Intent(this@SetupActivity, MainActivity::class.java))
-            } catch (ex: Exception) {
-                logger.severe("Failure logging in with provided credentials. $ex")
-                Toast.makeText(this, "Wrong username or password.", Toast.LENGTH_LONG).show()
-                password.setText("")
-                userName.setText("")
-            }
+            CompletableFuture.runAsync(LoginHandler(client, this))
         }
 
         val clearMovies = findViewById<Button>(R.id.clearMovies)
@@ -79,6 +71,8 @@ class SetupActivity : Activity() {
 
     companion object {
         private val logger = Logger.getLogger(SetupActivity::class.java.name)
+        private val UIHandler = Handler(Looper.getMainLooper())
+
         const val SETUP_FILE = "setup"
         private const val REQUEST_EXTERNAL_STORAGE = 1
         private val PERMISSIONS_STORAGE = arrayOf(
@@ -91,7 +85,7 @@ class SetupActivity : Activity() {
             try {
                 ObjectOutputStream(context.openFileOutput(SETUP_FILE, Context.MODE_PRIVATE)).use { os ->
                     os.writeObject(client)
-                    Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()
+                    UIHandler.post {Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()}
                 }
             } catch (e: IOException) {
                 logger.log(Level.SEVERE, "Failed to save client data", e)

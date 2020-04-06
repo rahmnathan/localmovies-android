@@ -1,6 +1,5 @@
 package com.github.rahmnathan.localmovies.app.control
 
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MediaFacade
@@ -14,7 +13,6 @@ import java.util.logging.Logger
 
 class MediaLoaderRunnable internal constructor(private val mediaListAdapter: MediaListAdapter,
                                                private val client: Client,
-                                               private val context: Context,
                                                private val mediaFacade: MediaFacade) : Runnable {
     private val logger = Logger.getLogger(MediaLoaderRunnable::class.java.name)
     private val UIHandler = Handler(Looper.getMainLooper())
