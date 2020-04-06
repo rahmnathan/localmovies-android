@@ -2,9 +2,9 @@ package com.github.rahmnathan.localmovies.app.dagger
 
 import android.app.Application
 import android.content.Context
-import com.github.rahmnathan.localmovies.app.adapter.external.localmovie.MediaFacade
-import com.github.rahmnathan.localmovies.app.control.OAuth2ServiceProvider.getOAuth2Service
-import com.github.rahmnathan.localmovies.app.data.Client
+import com.github.rahmnathan.localmovies.app.media.provider.MediaFacade
+import com.github.rahmnathan.localmovies.app.auth.OAuth2ServiceProvider.getOAuth2Service
+import com.github.rahmnathan.localmovies.app.Client
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
 import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaDAO
 import com.github.rahmnathan.localmovies.app.persistence.media.room.MediaDatabase
@@ -53,7 +53,7 @@ class AppModule(private val app: Application) {
 
     @Provides
     @Singleton
-    fun provideMediaFacade(client: Client, oAuth2Service: OAuth2Service): MediaFacade = MediaFacade(client,oAuth2Service)
+    fun provideMediaFacade(client: Client, oAuth2Service: OAuth2Service): MediaFacade = MediaFacade(client, oAuth2Service)
 
     @Provides
     @Singleton

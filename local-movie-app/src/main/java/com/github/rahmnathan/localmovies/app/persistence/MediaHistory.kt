@@ -1,7 +1,7 @@
 package com.github.rahmnathan.localmovies.app.persistence
 
 import android.content.Context
-import com.github.rahmnathan.localmovies.app.data.Media
+import com.github.rahmnathan.localmovies.app.media.data.Media
 import com.google.common.collect.EvictingQueue
 import java.io.IOException
 import java.io.ObjectInputStream

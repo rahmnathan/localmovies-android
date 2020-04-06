@@ -1,6 +1,6 @@
 package com.github.rahmnathan.localmovies.app.persistence.media
 
-import com.github.rahmnathan.localmovies.app.data.Media
+import com.github.rahmnathan.localmovies.app.media.data.Media
 import java.util.*
 
 interface MediaPersistenceService {

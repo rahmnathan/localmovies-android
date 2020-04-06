@@ -1,8 +1,8 @@
 package com.github.rahmnathan.localmovies.app.persistence.media.room
 
-import com.github.rahmnathan.localmovies.app.control.MediaPathUtils.getFilename
-import com.github.rahmnathan.localmovies.app.control.MediaPathUtils.getParentPath
-import com.github.rahmnathan.localmovies.app.data.Media
+import com.github.rahmnathan.localmovies.app.media.MediaPathUtils.getFilename
+import com.github.rahmnathan.localmovies.app.media.MediaPathUtils.getParentPath
+import com.github.rahmnathan.localmovies.app.media.data.Media
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
 import java.util.*
 import java.util.concurrent.CompletableFuture

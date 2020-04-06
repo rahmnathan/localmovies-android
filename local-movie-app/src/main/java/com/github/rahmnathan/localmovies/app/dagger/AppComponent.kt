@@ -1,7 +1,7 @@
 package com.github.rahmnathan.localmovies.app.dagger
 
-import com.github.rahmnathan.localmovies.app.activity.MainActivity
-import com.github.rahmnathan.localmovies.app.activity.SetupActivity
+import com.github.rahmnathan.localmovies.app.activity.main.MainActivity
+import com.github.rahmnathan.localmovies.app.activity.setup.SetupActivity
 import dagger.Component
 import javax.inject.Singleton
 
