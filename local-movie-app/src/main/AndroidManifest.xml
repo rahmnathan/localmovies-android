@@ -72,7 +72,7 @@
         <meta-data
             android:name=
                 "com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="com.github.rahmnathan.localmovies.app.google.cast.config.CastOptionsProvider" />
+            android:value="com.github.rahmnathan.localmovies.app.cast.config.CastOptionsProvider" />
     </application>
 
 </manifest>
