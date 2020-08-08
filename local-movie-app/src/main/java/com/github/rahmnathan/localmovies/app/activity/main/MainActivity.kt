@@ -114,17 +114,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun getRootVideos(path: String, searchText: SearchView) {
-        client.resetCurrentPath()
-        searchText.setQuery("", false)
-        client.appendToCurrentPath(path)
-        CompletableFuture.runAsync(Runnable {mediaRepository.getVideos()}, executorService)
+        CompletableFuture.runAsync(Runnable {client.resetCurrentPath()}, executorService)
+                .thenRun{searchText.setQuery("", false)}
+                .thenRun{client.appendToCurrentPath(path)}
+                .thenRun{mediaRepository.getVideos()}
     }
 
     override fun onBackPressed() {
         val currentDirectory = client.currentPath.peekLast()
         if (currentDirectory.equals(SERIES, ignoreCase = true) || currentDirectory.equals(MOVIES, ignoreCase = true)) exitProcess(8)
-        client.popOneDirectory()
-        CompletableFuture.runAsync(Runnable {mediaRepository.getVideos()}, executorService)
+        CompletableFuture.runAsync(Runnable {client.popOneDirectory()}, executorService)
+                .thenRun{mediaRepository.getVideos()}
     }
 
     companion object {

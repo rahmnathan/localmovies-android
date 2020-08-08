@@ -51,8 +51,8 @@ class MediaClickListener(
             val queueItems = castUtils.assembleMediaQueue(titles, posterPath)
             queueVideos(queueItems)
         } else {
-            client.appendToCurrentPath(media.filename)
-            CompletableFuture.runAsync(Runnable {mediaRepository.getVideos()}, executorService)
+            CompletableFuture.runAsync(Runnable {client.appendToCurrentPath(media.filename)}, executorService)
+                    .thenRun {mediaRepository.getVideos()}
         }
     }
 
