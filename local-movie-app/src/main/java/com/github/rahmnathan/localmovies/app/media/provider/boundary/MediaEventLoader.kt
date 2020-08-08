@@ -40,12 +40,12 @@ class MediaEventLoader(private val mediaListAdapter: MediaListAdapter,
                     persistenceService.deleteMovie(event.relativePath)
                     persistenceService.addOne(getParentPath(event.relativePath), media!!)
                     mediaListAdapter.clearLists()
-                    mediaListAdapter.updateList(persistenceService.getMoviesAtPath(client.currentPath.toString()).orElse(ArrayList()))
+                    mediaListAdapter.updateList(persistenceService.getMoviesAtPath(client.currentPath.toString()))
                     UIHandler.post { mediaListAdapter.notifyDataSetChanged() }
                 } else {
                     persistenceService.deleteMovie(event.relativePath)
                     mediaListAdapter.clearLists()
-                    mediaListAdapter.updateList(persistenceService.getMoviesAtPath(client.currentPath.toString()).orElse(ArrayList()))
+                    mediaListAdapter.updateList(persistenceService.getMoviesAtPath(client.currentPath.toString()))
                     UIHandler.post { mediaListAdapter.notifyDataSetChanged() }
                 }
             })

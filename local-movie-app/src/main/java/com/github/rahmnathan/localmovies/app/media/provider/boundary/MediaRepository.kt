@@ -35,9 +35,9 @@ class MediaRepository(
         }
 
         val optionalMovies = persistenceService.getMoviesAtPath(client.currentPath.toString())
-        if (optionalMovies.isPresent) {
+        if (optionalMovies.isNotEmpty()) {
             mediaListAdapter.clearLists()
-            mediaListAdapter.updateList(optionalMovies.get())
+            mediaListAdapter.updateList(optionalMovies)
             UIHandler.post { mediaListAdapter.notifyDataSetChanged() }
             UIHandler.post { progressBar.visibility = View.INVISIBLE }
         } else {

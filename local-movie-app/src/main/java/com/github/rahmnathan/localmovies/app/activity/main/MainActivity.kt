@@ -57,9 +57,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
         // Initialize required vars
         progressBar = findViewById(R.id.progressBar)
-        listAdapter = MediaListAdapter(this, ArrayList())
+        listAdapter = MediaListAdapter(this@MainActivity, ArrayList())
         gridView = findViewById(R.id.gridView)
         gridView.adapter = listAdapter
 
@@ -95,12 +96,13 @@ class MainActivity : AppCompatActivity() {
         // Initialize media click listeners
         gridView.onItemClickListener = MediaClickListener(
                 listAdapter = listAdapter,
-                context = this,
+                context = this@MainActivity,
                 castContext = castContext,
                 mediaRepository = mediaRepository,
                 history = mediaHistory,
                 client = client,
-                castUtils = castUtils
+                castUtils = castUtils,
+                executorService = executorService
         )
 
         gridView.setOnItemLongClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
@@ -115,14 +117,14 @@ class MainActivity : AppCompatActivity() {
         client.resetCurrentPath()
         searchText.setQuery("", false)
         client.appendToCurrentPath(path)
-        mediaRepository.getVideos()
+        CompletableFuture.runAsync(Runnable {mediaRepository.getVideos()}, executorService)
     }
 
     override fun onBackPressed() {
         val currentDirectory = client.currentPath.peekLast()
         if (currentDirectory.equals(SERIES, ignoreCase = true) || currentDirectory.equals(MOVIES, ignoreCase = true)) exitProcess(8)
         client.popOneDirectory()
-        mediaRepository.getVideos()
+        CompletableFuture.runAsync(Runnable {mediaRepository.getVideos()}, executorService)
     }
 
     companion object {

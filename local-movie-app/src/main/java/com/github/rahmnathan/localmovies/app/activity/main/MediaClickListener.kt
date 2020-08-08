@@ -16,6 +16,8 @@ import com.github.rahmnathan.localmovies.app.persistence.MediaHistory
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.cast.framework.CastContext
 import java.io.File
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutorService
 import java.util.stream.Collectors
 
 class MediaClickListener(
@@ -25,7 +27,8 @@ class MediaClickListener(
         private val history: MediaHistory,
         private val context: Context,
         private val client: Client,
-        private val castUtils: GoogleCastUtils) : OnItemClickListener {
+        private val castUtils: GoogleCastUtils,
+        private val executorService: ExecutorService) : OnItemClickListener {
 
     override fun onItemClick(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
         val posterPath: String
@@ -49,7 +52,7 @@ class MediaClickListener(
             queueVideos(queueItems)
         } else {
             client.appendToCurrentPath(media.filename)
-            mediaRepository.getVideos()
+            CompletableFuture.runAsync(Runnable {mediaRepository.getVideos()}, executorService)
         }
     }
 

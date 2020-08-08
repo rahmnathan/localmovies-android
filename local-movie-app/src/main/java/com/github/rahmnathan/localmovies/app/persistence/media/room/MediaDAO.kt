@@ -13,6 +13,9 @@ interface MediaDAO {
     @Query("select * from MediaEntity where directoryPath = :path and filename = :name limit 1")
     fun getByPathAndFilename(path: String?, name: String?): MediaEntity?
 
+    @Query("select * from MediaEntity where directoryPath = :path")
+    fun getByPath(path: String?): List<MediaEntity?>?
+
     @Insert
     fun insertAll(mediaEntities: List<MediaEntity?>?)
 
@@ -20,7 +23,7 @@ interface MediaDAO {
     fun insert(mediaEntity: MediaEntity?)
 
     @Query("delete from MediaEntity")
-    fun deleteAll()
+    fun deleteAll(): Int
 
     @Delete
     fun delete(media: MediaEntity?)

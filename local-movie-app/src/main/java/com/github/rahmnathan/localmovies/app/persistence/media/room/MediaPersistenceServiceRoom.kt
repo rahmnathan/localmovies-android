@@ -13,13 +13,10 @@ import java.util.function.Consumer
 import java.util.logging.Logger
 import java.util.stream.Collectors
 
-class MediaPersistenceServiceRoom(private val mediaDAO: MediaDAO,
-                                  executorService: ExecutorService) : MediaPersistenceService {
+class MediaPersistenceServiceRoom(private val mediaDAO: MediaDAO) : MediaPersistenceService {
     private val logger = Logger.getLogger(MediaPersistenceServiceRoom::class.java.name)
-    private val mediaCache: ConcurrentMap<String, MutableList<Media>> = ConcurrentHashMap()
 
     override fun addAll(path: String, media: MutableList<Media>) {
-        mediaCache.putIfAbsent(path, media)
         logger.info("Adding media to database for path: $path")
         val movieEntities = media.stream().map { movie: Media? -> MediaEntity(path, movie!!) }.collect(Collectors.toList())
         mediaDAO.insertAll(movieEntities)
@@ -27,33 +24,24 @@ class MediaPersistenceServiceRoom(private val mediaDAO: MediaDAO,
     }
 
     override fun addOne(path: String, media: Media) {
-        val mediaList = mediaCache.getOrDefault(path, ArrayList())
-        mediaList.add(media)
-        mediaCache[path] = mediaList
         mediaDAO.insert(MediaEntity(path, media))
     }
 
-    override fun getMoviesAtPath(path: String): Optional<List<Media>> {
-        return Optional.ofNullable(mediaCache[path])
+    override fun getMoviesAtPath(path: String):List<Media> {
+        val entities = Optional.ofNullable(mediaDAO.getByPath(path))
+        return if(entities.isPresent) {
+            entities.get().stream()
+                    .map { entity -> entity?.media!! }
+                    .collect(Collectors.toList())
+        } else {
+            Collections.emptyList();
+        }
     }
 
     override fun deleteMovie(path: String?) {
         val parentPath = getParentPath(path!!)
         val filename = getFilename(path)
-        val cachedMedia = mediaCache[parentPath]
-        cachedMedia?.removeIf { movie: Media -> movie.filename.equals(filename, ignoreCase = true) }
         val movieEntity = mediaDAO.getByPathAndFilename(parentPath, filename)
         if (movieEntity != null) mediaDAO.delete(movieEntity)
-    }
-
-    init {
-        CompletableFuture.runAsync(Runnable {
-            val movieEntities = mediaDAO.all
-            movieEntities?.forEach(Consumer { mediaEntity: MediaEntity? ->
-                val media = mediaCache.getOrDefault(mediaEntity!!.directoryPath, ArrayList())
-                media.add(mediaEntity.media)
-                mediaCache.putIfAbsent(mediaEntity.directoryPath, media)
-            })
-        }, executorService)
     }
 }

@@ -65,6 +65,7 @@ class SetupActivity : Activity() {
         clearMovies.setOnClickListener {
             CompletableFuture.runAsync {
                 mediaDAO.deleteAll()
+                client.resetCurrentPath()
                 startActivity(Intent(this@SetupActivity, MainActivity::class.java))
             }
         }

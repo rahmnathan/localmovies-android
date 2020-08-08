@@ -8,7 +8,7 @@ interface MediaPersistenceService {
 
     fun addOne(path: String, media: Media)
 
-    fun getMoviesAtPath(path: String): Optional<List<Media>>
+    fun getMoviesAtPath(path: String): List<Media>
 
     fun deleteMovie(path: String?)
 }

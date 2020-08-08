@@ -61,8 +61,8 @@ class AppModule(private val app: Application) {
 
     @Provides
     @Singleton
-    fun provideMediaPersistenceService(mediaDAO: MediaDAO, executorService: ExecutorService): MediaPersistenceService {
-        return MediaPersistenceServiceRoom(mediaDAO, executorService)
+    fun provideMediaPersistenceService(mediaDAO: MediaDAO): MediaPersistenceService {
+        return MediaPersistenceServiceRoom(mediaDAO)
     }
 
     @Provides
