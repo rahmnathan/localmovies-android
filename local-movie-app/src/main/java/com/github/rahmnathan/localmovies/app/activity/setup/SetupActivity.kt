@@ -87,7 +87,6 @@ class SetupActivity : Activity() {
             try {
                 ObjectOutputStream(context.openFileOutput(SETUP_FILE, Context.MODE_PRIVATE)).use { os ->
                     os.writeObject(client)
-                    UIHandler.post {Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show()}
                 }
             } catch (e: IOException) {
                 logger.log(Level.SEVERE, "Failed to save client data", e)
