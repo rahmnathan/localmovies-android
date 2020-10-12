@@ -28,6 +28,7 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.logging.Logger
 import javax.inject.Inject
 import kotlin.system.exitProcess
@@ -38,7 +39,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var gridView: GridView
 
-    @Inject lateinit var executorService: ExecutorService
+    private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
     @Inject lateinit var persistenceService: MediaPersistenceService
     @Inject lateinit var castContext: CastContext
     @Inject @Volatile lateinit var client: Client

@@ -15,7 +15,6 @@ class MediaLoaderRunnable internal constructor(private val mediaListAdapter: Med
                                                private val mediaFacade: MediaFacade) : Runnable {
     private val logger = Logger.getLogger(MediaLoaderRunnable::class.java.name)
     private val UIHandler = Handler(Looper.getMainLooper())
-    @Volatile var isRunning = true
 
     override fun run() {
         logger.log(Level.INFO, "Dynamically loading titles")
@@ -32,8 +31,6 @@ class MediaLoaderRunnable internal constructor(private val mediaListAdapter: Med
 
             val infoList = mediaFacade.getMovieInfo(movieRequest)
 
-            if (!isRunning) break
-
             mediaListAdapter.updateList(infoList)
             UIHandler.post { mediaListAdapter.notifyDataSetChanged() }
             if (mediaListAdapter.chars != "") {
@@ -42,12 +39,6 @@ class MediaLoaderRunnable internal constructor(private val mediaListAdapter: Med
 
             page++
         } while (page <= client.movieCount!! / ITEMS_PER_PAGE)
-
-        isRunning = false
-    }
-
-    fun terminate() {
-        isRunning = false
     }
 
     companion object {

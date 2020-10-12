@@ -5,11 +5,6 @@ import com.github.rahmnathan.localmovies.app.media.provider.control.MediaPathUti
 import com.github.rahmnathan.localmovies.app.media.data.Media
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
 import java.util.*
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
-import java.util.concurrent.ExecutorService
-import java.util.function.Consumer
 import java.util.logging.Logger
 import java.util.stream.Collectors
 

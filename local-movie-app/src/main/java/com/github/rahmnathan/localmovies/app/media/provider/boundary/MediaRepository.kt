@@ -30,10 +30,6 @@ class MediaRepository(
     private var mediaLoaderRunnable: MediaLoaderRunnable? = null
 
     fun getVideos() {
-        if (mediaLoaderRunnable != null && mediaLoaderRunnable!!.isRunning) {
-            mediaLoaderRunnable!!.terminate()
-        }
-
         val optionalMovies = persistenceService.getMoviesAtPath(client.currentPath.toString())
         if (optionalMovies.isNotEmpty()) {
             mediaListAdapter.clearLists()

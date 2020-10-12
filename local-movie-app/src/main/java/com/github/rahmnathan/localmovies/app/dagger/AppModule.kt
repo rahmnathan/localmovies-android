@@ -15,8 +15,6 @@ import dagger.Module
 import dagger.Provides
 import java.io.ObjectInputStream
 import java.lang.Exception
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import java.util.logging.Logger
 import javax.inject.Singleton
 
@@ -27,10 +25,6 @@ class AppModule(private val app: Application) {
     @Provides
     @Singleton
     fun provideContext(): Context = app
-
-    @Provides
-    @Singleton
-    fun provideExecutorService(): ExecutorService = Executors.newSingleThreadExecutor()
 
     @Provides
     @Singleton
