@@ -124,8 +124,8 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         val currentDirectory = client.currentPath.peekLast()
         if (currentDirectory.equals(SERIES, ignoreCase = true) || currentDirectory.equals(MOVIES, ignoreCase = true)) exitProcess(8)
-        CompletableFuture.runAsync(Runnable {client.popOneDirectory()}, executorService)
-                .thenRun{mediaRepository.getVideos()}
+        client.popOneDirectory()
+        CompletableFuture.runAsync(Runnable {mediaRepository.getVideos()}, executorService)
     }
 
     companion object {
