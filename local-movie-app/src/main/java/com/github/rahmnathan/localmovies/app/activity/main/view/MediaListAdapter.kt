@@ -68,6 +68,16 @@ class MediaListAdapter(private val context: Activity, private var media: Mutable
     fun updateList(mediaList: List<Media>?) {
         media.addAll(mediaList!!)
         originalMediaList.addAll(mediaList)
+
+        // If we have media, apply default sorting.
+        if(mediaList.isNotEmpty()){
+            val mediaType = mediaList[0].type.toLowerCase(Locale.US);
+            if("episode" == mediaType || "season" == mediaType){
+                sort(media, MediaOrder.NUMBER)
+            } else {
+                sort(media, MediaOrder.TITLE)
+            }
+        }
     }
 
     fun getOriginalMediaList(): List<Media> {

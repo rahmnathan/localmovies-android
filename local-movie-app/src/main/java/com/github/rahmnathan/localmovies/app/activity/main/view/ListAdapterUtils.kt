@@ -22,6 +22,7 @@ object ListAdapterUtils {
             MediaOrder.RATING -> mediaList.sortByDescending { media -> media.imdbRating }
             MediaOrder.RELEASE_YEAR -> mediaList.sortByDescending { media -> media.releaseYear }
             MediaOrder.TITLE -> mediaList.sortBy { media -> media.title }
+            MediaOrder.NUMBER -> mediaList.sortBy { media -> Integer.parseInt(media.number!!) }
         }
     }
 

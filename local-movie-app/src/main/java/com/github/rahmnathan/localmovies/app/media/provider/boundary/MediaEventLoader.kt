@@ -10,7 +10,6 @@ import com.github.rahmnathan.localmovies.app.media.provider.control.MediaPathUti
 import com.github.rahmnathan.localmovies.app.Client
 import com.github.rahmnathan.localmovies.app.media.data.MediaEvent
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
-import java.util.*
 import java.util.function.Consumer
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -31,10 +30,16 @@ class MediaEventLoader(private val mediaListAdapter: MediaListAdapter,
             return
         }
 
+        var eventsImpactCurrentView = false;
+
         for (page in 0..count.get() / ITEMS_PER_PAGE) {
             val events = mediaFacade.getMovieEvents(page.toInt(), ITEMS_PER_PAGE)
             events.forEach(Consumer { event: MediaEvent ->
                 logger.info("Found media event: $event")
+                if(!eventsImpactCurrentView && getParentPath(event.relativePath) == client.currentPath.toString()){
+                    eventsImpactCurrentView = true;
+                }
+
                 if (event.event.equals("CREATE", ignoreCase = true)) {
                     val media = event.media
                     persistenceService.deleteMovie(event.relativePath)
@@ -45,13 +50,15 @@ class MediaEventLoader(private val mediaListAdapter: MediaListAdapter,
             })
         }
 
-        mediaListAdapter.clearLists()
-        mediaListAdapter.updateList(persistenceService.getMoviesAtPath(client.currentPath.toString()))
-        UIHandler.post { mediaListAdapter.notifyDataSetChanged() }
-
-        if (mediaListAdapter.chars != "") {
-            UIHandler.post { mediaListAdapter.filter.filter(mediaListAdapter.chars) }
+        if(eventsImpactCurrentView){
+            mediaListAdapter.clearLists()
+            mediaListAdapter.updateList(persistenceService.getMoviesAtPath(client.currentPath.toString()))
+            UIHandler.post { mediaListAdapter.notifyDataSetChanged() }
+            if (mediaListAdapter.chars != "") {
+                UIHandler.post { mediaListAdapter.filter.filter(mediaListAdapter.chars) }
+            }
         }
+
 
         client.lastUpdate = System.currentTimeMillis()
         saveData(client, context)
