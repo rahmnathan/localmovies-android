@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion '29.0.3'
     defaultConfig {
         applicationId "rahm.nathan.localmovies"
         minSdkVersion 26
-        targetSdkVersion 29
-        versionName '2.0.9'
-        versionCode 109
+        targetSdkVersion 30
+        versionName '2.1.0'
+        versionCode 110
 
         javaCompileOptions {
             annotationProcessorOptions {
