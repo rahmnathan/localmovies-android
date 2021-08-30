@@ -26,7 +26,8 @@ class MediaLoaderRunnable internal constructor(private val mediaListAdapter: Med
                     page = page,
                     resultsPerPage = ITEMS_PER_PAGE,
                     path = client.currentPath.toString(),
-                    order = "TITLE"
+                    order = "TITLE",
+                    client = "ANDROID"
             )
 
             val infoList = mediaFacade.getMovieInfo(movieRequest)
