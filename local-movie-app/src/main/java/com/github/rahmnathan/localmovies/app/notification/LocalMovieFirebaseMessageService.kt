@@ -69,7 +69,7 @@ class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
 
     private fun getMoviePoster(path: String?): Optional<ByteArray> {
         var urlConnection: HttpURLConnection? = null
-        val url = client.serverUrl + "/localmovies/v2/media/poster?path=" + path
+        val url = client.serverUrl + "/localmovies/v1/media/poster?path=" + path
 
         try {
             urlConnection = URL(url).openConnection() as HttpURLConnection

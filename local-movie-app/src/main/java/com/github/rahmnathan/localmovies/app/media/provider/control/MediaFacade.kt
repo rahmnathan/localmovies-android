@@ -49,7 +49,7 @@ class MediaFacade @Inject constructor(
 
     private fun getMovieInfoJson(client: Client, mediaRequest: MediaRequest, xCorrelationId: String): Optional<JSONArray> {
         var urlConnection: HttpURLConnection? = null
-        val url = client.serverUrl + "/localmovie/v2/media"
+        val url = client.serverUrl + "/localmovie/mobile/v1/media"
         try {
             urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "POST"
@@ -99,7 +99,7 @@ class MediaFacade @Inject constructor(
             client.lastUpdate = System.currentTimeMillis()
         }
         val url = (client.serverUrl
-                + "/localmovie/v2/media/events/count?timestamp=" + client.lastUpdate)
+                + "/localmovie/mobile/v1/media/events/count?timestamp=" + client.lastUpdate)
         try {
             urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "GET"
@@ -122,7 +122,7 @@ class MediaFacade @Inject constructor(
         }
 
         val url = (client.serverUrl
-                + "/localmovie/v2/media/events?timestamp=" + client.lastUpdate
+                + "/localmovie/mobile/v1/media/events?timestamp=" + client.lastUpdate
                 + "&page=" + page
                 + "&size=" + size)
 
