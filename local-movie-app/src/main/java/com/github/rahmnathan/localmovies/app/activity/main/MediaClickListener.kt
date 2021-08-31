@@ -15,7 +15,6 @@ import com.github.rahmnathan.localmovies.app.cast.control.GoogleCastUtils
 import com.github.rahmnathan.localmovies.app.persistence.MediaHistory
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.cast.framework.CastContext
-import java.io.File
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.stream.Collectors
@@ -31,7 +30,6 @@ class MediaClickListener(
         private val executorService: ExecutorService) : OnItemClickListener {
 
     override fun onItemClick(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
-        val posterPath: String
         val titles: List<Media>
         val media = listAdapter.getMovie(position)
         history.addHistoryItem(media)
@@ -40,19 +38,17 @@ class MediaClickListener(
             // If we're viewing movies or episodes we start the video
             if (client.isViewingEpisodes) {
                 // If we're playing episodes, we queue up the rest of the season
-                posterPath = client.currentPath.toString()
                 titles = listAdapter.getOriginalMediaList().stream()
                         .filter { movieInfo: Media -> Integer.valueOf(movieInfo.number!!) > Integer.valueOf(media.number!!) || movieInfo.title == media.title }
                         .collect(Collectors.toList())
             } else {
-                posterPath = client.currentPath.toString() + File.separator + media.filename
                 titles = listOf(media)
             }
-            val queueItems = castUtils.assembleMediaQueue(titles, posterPath)
+            val queueItems = castUtils.assembleMediaQueue(titles)
             queueVideos(queueItems)
         } else {
             client.appendToCurrentPath(media.filename)
-            CompletableFuture.runAsync(Runnable {mediaRepository.getVideos()}, executorService)
+            CompletableFuture.runAsync({mediaRepository.getVideos()}, executorService)
         }
     }
 

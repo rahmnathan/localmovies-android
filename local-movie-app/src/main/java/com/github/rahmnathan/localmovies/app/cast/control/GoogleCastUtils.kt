@@ -24,19 +24,19 @@ class GoogleCastUtils @Inject constructor(
 ) {
     private val logger = Logger.getLogger(GoogleCastUtils::class.java.name)
 
-    fun assembleMediaQueue(media: List<Media>, posterPath: String): List<MediaQueueItem> {
+    fun assembleMediaQueue(media: List<Media>): List<MediaQueueItem> {
         return media.stream()
-                .map { title: Media -> buildMediaQueueItem(title, posterPath) }
+                .map { title: Media -> buildMediaQueueItem(title) }
                 .collect(Collectors.toList())
     }
 
-    private fun buildMediaQueueItem(media: Media, posterPath: String): MediaQueueItem {
+    private fun buildMediaQueueItem(media: Media): MediaQueueItem {
         val image = WebImage(Uri.parse(client.serverUrl
-                + "/localmovie/v1/media/poster?access_token=" + oAuth2Service.accessToken.serialize()
-                + "&path=" + posterPath))
+                + "/localmovie/v1/media/" + media.mediaFileId
+                + "/poster?access_token=" + oAuth2Service.accessToken.serialize()))
         val movieUrl = (client.serverUrl
-                + "/localmovie/v1/media/stream.mp4?access_token=" + oAuth2Service.accessToken.serialize()
-                + "&path=" + encodeParameter(client.currentPath.toString() + File.separator + media.filename))
+                + "/localmovie/v1/media/" + media.mediaFileId
+                + "/stream.mp4?access_token=" + oAuth2Service.accessToken.serialize())
         val metaData = MediaMetadata()
         metaData.putString(MediaMetadata.KEY_TITLE, media.title)
         metaData.addImage(image)

@@ -18,22 +18,23 @@ internal object JSONtoMediaMapper {
     }
 
     private fun mediaFileToMovie(mediaFile: JSONObject): Media {
-        val movieInfo = mediaFile.getJSONObject("media")
+        val media = mediaFile.getJSONObject("media")
 
         return Media(
-                releaseYear = movieInfo.getString("releaseYear"),
-                metaRating = movieInfo.getString("metaRating"),
-                imdbRating = movieInfo.getString("imdbRating"),
+                mediaFileId = mediaFile.getString("mediaFileId"),
+                releaseYear = media.getString("releaseYear"),
+                metaRating = media.getString("metaRating"),
+                imdbRating = media.getString("imdbRating"),
                 created = mediaFile.getLong("created"),
                 filename = mediaFile.getString("fileName"),
-                title = movieInfo.getString("title"),
-                genre = movieInfo.getString("genre"),
-                image = movieInfo.getString("image"),
-                actors = movieInfo.getString("actors"),
-                plot =  movieInfo.getString("plot"),
+                title = media.getString("title"),
+                genre = media.getString("genre"),
+                image = media.getString("image"),
+                actors = media.getString("actors"),
+                plot =  media.getString("plot"),
                 path = mediaFile.getString("path"),
-                type = movieInfo.getString("mediaType"),
-                number = movieInfo.getString("number")
+                type = media.getString("mediaType"),
+                number = media.getString("number")
         )
     }
 
