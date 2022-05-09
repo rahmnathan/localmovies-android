@@ -48,6 +48,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var mediaRepository: MediaRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         if (!File(this.filesDir, SETUP_FILE).exists()) {
             startActivity(Intent(this@MainActivity, SetupActivity::class.java))
             return
@@ -55,7 +57,6 @@ class MainActivity : AppCompatActivity() {
 
         (application as LocalMoviesApplication).appComponent.inject(this)
 
-        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
 
