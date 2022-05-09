@@ -15,6 +15,7 @@ import com.github.rahmnathan.localmovies.app.cast.control.GoogleCastUtils
 import com.github.rahmnathan.localmovies.app.persistence.MediaHistory
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.cast.framework.CastContext
+import org.json.JSONObject
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.stream.Collectors
@@ -56,11 +57,11 @@ class MediaClickListener(
         val session = castContext.sessionManager.currentCastSession
         if (session != null && session.isConnected) {
             val remoteMediaClient = session.remoteMediaClient
-            remoteMediaClient.queueLoad(queueItems.toTypedArray(), 0, 0, null)
+            remoteMediaClient?.queueLoad(queueItems.toTypedArray(), 0, 0, JSONObject())
             context.startActivity(Intent(context, ExpandedControlActivity::class.java))
         } else {
             val intent = Intent(context, PlayerActivity::class.java)
-            val url = queueItems[0].media.contentId
+            val url = queueItems[0].media?.contentId
             intent.putExtra("url", url)
             context.startActivity(intent)
         }
