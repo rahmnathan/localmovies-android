@@ -11,7 +11,7 @@ import com.github.rahmnathan.localmovies.app.activity.main.MainActivity
 import com.github.rahmnathan.localmovies.app.cast.config.ExpandedControlActivity
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.bottomnavigation.LabelVisibilityMode
+import com.google.android.material.navigation.NavigationBarView
 import rahmnathan.localmovies.R
 
 object NavigationButtons {
@@ -20,7 +20,7 @@ object NavigationButtons {
     fun build(searchView: SearchView, activity: MainActivity, listAdapter: MediaListAdapter, gridView: GridView, castContext: CastContext) {
         val bottomNavigationView = activity.findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.action_movies
-        bottomNavigationView.labelVisibilityMode = LabelVisibilityMode.LABEL_VISIBILITY_LABELED
+        bottomNavigationView.labelVisibilityMode = NavigationBarView.LABEL_VISIBILITY_AUTO
         val popup = PopupMenu(activity, bottomNavigationView, Gravity.END)
         popup.setOnMenuItemClickListener { item: MenuItem ->
             ListAdapterUtils.sortVideoList(item, listAdapter, gridView)
