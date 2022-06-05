@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 
         // Trigger initial media loading
         client.appendToCurrentPath(MOVIES)
-        CompletableFuture.runAsync(Runnable {mediaRepository.getVideos()}, executorService)
+        CompletableFuture.runAsync({mediaRepository.getVideos()}, executorService)
                 .thenRun(MediaEventLoader(listAdapter, client, mediaFacade, persistenceService, this))
 
         // Initialize media click listeners
@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun getRootVideos(path: String, searchText: SearchView) {
-        CompletableFuture.runAsync(Runnable {client.resetCurrentPath()}, executorService)
+        CompletableFuture.runAsync({client.resetCurrentPath()}, executorService)
                 .thenRun{searchText.setQuery("", false)}
                 .thenRun{client.appendToCurrentPath(path)}
                 .thenRun{mediaRepository.getVideos()}
@@ -126,7 +126,7 @@ class MainActivity : AppCompatActivity() {
         val currentDirectory = client.currentPath.peekLast()
         if (currentDirectory.equals(SERIES, ignoreCase = true) || currentDirectory.equals(MOVIES, ignoreCase = true)) exitProcess(8)
         client.popOneDirectory()
-        CompletableFuture.runAsync(Runnable {mediaRepository.getVideos()}, executorService)
+        CompletableFuture.runAsync({mediaRepository.getVideos()}, executorService)
     }
 
     companion object {

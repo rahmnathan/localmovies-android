@@ -40,9 +40,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        app:menu="@menu/bottom_nav_menu"
         app:itemBackground="@android:color/background_dark"
-        app:itemTextColor="@android:color/white" />
+        app:itemTextColor="@android:color/white"
+        app:menu="@menu/bottom_nav_menu" />
 
     <ProgressBar
         android:id="@+id/progressBar"

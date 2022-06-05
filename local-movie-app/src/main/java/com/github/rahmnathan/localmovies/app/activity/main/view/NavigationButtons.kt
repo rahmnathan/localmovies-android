@@ -31,7 +31,7 @@ object NavigationButtons {
         bottomNavigationView.setOnNavigationItemSelectedListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.action_controls -> {
-                    val session = castContext.sessionManager!!.currentCastSession
+                    val session = castContext.sessionManager.currentCastSession
                     if (session != null && session.isConnected) {
                         activity.startActivity(Intent(activity, ExpandedControlActivity::class.java))
                     } else {
