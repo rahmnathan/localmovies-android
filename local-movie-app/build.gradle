@@ -7,8 +7,8 @@ android {
         applicationId "rahm.nathan.localmovies"
         minSdkVersion 26
         targetSdkVersion 32
-        versionName '2.1.7'
-        versionCode 117
+        versionName '2.1.8'
+        versionCode 118
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -54,19 +54,19 @@ apply plugin: 'com.google.gms.google-services'
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.google.firebase:firebase-messaging:23.0.5'
+    implementation 'com.google.firebase:firebase-messaging:23.1.0'
     implementation 'com.github.rahmnathan.oauth2:keycloak-resilience4j:2.5:jdk8'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'com.google.android.material:material:1.7.0'
     implementation 'com.google.guava:guava:24.1-jre'
     implementation 'com.google.code.gson:gson:2.8.9'
-    implementation 'androidx.mediarouter:mediarouter:1.3.0'
-    implementation 'com.google.android.gms:play-services-cast-framework:21.0.1'
-    def room_version = "2.4.2"
+    implementation 'androidx.mediarouter:mediarouter:1.3.1'
+    implementation 'com.google.android.gms:play-services-cast-framework:21.2.0'
+    def room_version = "2.4.3"
     implementation "androidx.room:room-runtime:$room_version"
     kapt("androidx.room:room-compiler:$room_version")
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21"
-    implementation 'androidx.navigation:navigation-runtime-ktx:2.4.2'
+    implementation 'androidx.navigation:navigation-runtime-ktx:2.5.3'
     implementation "com.mikepenz:materialdrawer:6.1.2"
 
     implementation 'com.google.dagger:dagger:2.28.3'
@@ -75,8 +75,8 @@ dependencies {
 
 //required support lib modules
     implementation "androidx.recyclerview:recyclerview:1.2.1"
-    implementation "androidx.annotation:annotation:1.3.0"
-    implementation "com.google.android.material:material:1.6.1"
+    implementation "androidx.annotation:annotation:1.5.0"
+    implementation "com.google.android.material:material:1.7.0"
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
 
 // Add for NavController support
