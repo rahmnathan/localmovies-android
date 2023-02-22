@@ -7,8 +7,8 @@ android {
         applicationId "rahm.nathan.localmovies"
         minSdkVersion 26
         targetSdkVersion 32
-        versionName '2.1.8'
-        versionCode 118
+        versionName '2.1.9'
+        versionCode 119
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -65,7 +65,7 @@ dependencies {
     def room_version = "2.4.3"
     implementation "androidx.room:room-runtime:$room_version"
     kapt("androidx.room:room-compiler:$room_version")
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.0"
     implementation 'androidx.navigation:navigation-runtime-ktx:2.5.3'
     implementation "com.mikepenz:materialdrawer:6.1.2"
 
@@ -83,4 +83,4 @@ dependencies {
     implementation "com.mikepenz:materialdrawer:6.1.2"
 }
 
-googleServices { disableVersionCheck = true }
+googleServices { disableVersionCheck = false }
