@@ -37,13 +37,13 @@ class MediaClickListener(
 
         if (client.isViewingVideos) {
             // If we're viewing movies or episodes we start the video
-            if (client.isViewingEpisodes) {
+            titles = if (client.isViewingEpisodes) {
                 // If we're playing episodes, we queue up the rest of the season
-                titles = listAdapter.getOriginalMediaList().stream()
-                        .filter { movieInfo: Media -> Integer.valueOf(movieInfo.number!!) > Integer.valueOf(media.number!!) || movieInfo.title == media.title }
-                        .collect(Collectors.toList())
+                listAdapter.getOriginalMediaList().stream()
+                    .filter { movieInfo: Media -> Integer.valueOf(movieInfo.number!!) > Integer.valueOf(media.number!!) || movieInfo.title == media.title }
+                    .collect(Collectors.toList())
             } else {
-                titles = listOf(media)
+                listOf(media)
             }
             val queueItems = castUtils.assembleMediaQueue(titles)
             queueVideos(queueItems)

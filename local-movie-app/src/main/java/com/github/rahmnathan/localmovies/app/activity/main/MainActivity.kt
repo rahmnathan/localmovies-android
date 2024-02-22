@@ -122,7 +122,9 @@ class MainActivity : AppCompatActivity() {
                 .thenRun{mediaRepository.getVideos()}
     }
 
+    @Deprecated("")
     override fun onBackPressed() {
+        super.onBackPressed()
         val currentDirectory = client.currentPath.peekLast()
         if (currentDirectory.equals(SERIES, ignoreCase = true) || currentDirectory.equals(MOVIES, ignoreCase = true)) exitProcess(8)
         client.popOneDirectory()

@@ -17,14 +17,14 @@ interface MediaDAO {
     fun getByPath(path: String?): List<MediaEntity?>?
 
     @Insert
-    fun insertAll(mediaEntities: List<MediaEntity?>?)
+    fun insertAll(mediaEntities: List<MediaEntity>)
 
     @Insert
-    fun insert(mediaEntity: MediaEntity?)
+    fun insert(mediaEntity: MediaEntity)
 
     @Query("delete from MediaEntity")
     fun deleteAll(): Int
 
     @Delete
-    fun delete(media: MediaEntity?)
+    fun delete(media: MediaEntity)
 }

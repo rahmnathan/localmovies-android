@@ -37,8 +37,12 @@ class GoogleCastUtils @Inject constructor(
         val movieUrl = (client.serverUrl
                 + "/localmovie/v1/media/" + media.mediaFileId
                 + "/stream.mp4?access_token=" + oAuth2Service.accessToken.serialize())
+        val subtitleUrl = (client.serverUrl
+                + "/localmovie/v1/media/" + media.mediaFileId
+                + "/subtitle?access_token=" + oAuth2Service.accessToken.serialize())
         val metaData = MediaMetadata()
         metaData.putString(MediaMetadata.KEY_TITLE, media.title)
+        metaData.putString(MediaMetadata.KEY_SUBTITLE, subtitleUrl);
         metaData.addImage(image)
         val mediaInfo = MediaInfo.Builder(movieUrl)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
