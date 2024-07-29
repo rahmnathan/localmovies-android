@@ -24,9 +24,9 @@ class MediaLoaderRunnable internal constructor(private val mediaListAdapter: Med
         do {
             val movieRequest = MediaRequest(
                     page = page,
-                    resultsPerPage = ITEMS_PER_PAGE,
+                    pageSize = ITEMS_PER_PAGE,
                     path = client.currentPath.toString(),
-                    order = "TITLE",
+                    order = "title",
                     client = "ANDROID"
             )
 
