@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
@@ -31,7 +32,6 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.logging.Logger
 import javax.inject.Inject
-import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
     private val logger: Logger = Logger.getLogger(MainActivity::class.qualifiedName!!);
@@ -113,6 +113,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             true
         }
+
+        onBackPressedDispatcher.addCallback(this) {
+            val currentDirectory = client.currentPath.peekLast()
+            if (currentDirectory.equals(SERIES, ignoreCase = true) || currentDirectory.equals(MOVIES, ignoreCase = true)) finish()
+            client.popOneDirectory()
+            CompletableFuture.runAsync({mediaRepository.getVideos()}, executorService)
+        }
     }
 
     fun getRootVideos(path: String, searchText: SearchView) {
@@ -120,15 +127,6 @@ class MainActivity : AppCompatActivity() {
                 .thenRun{searchText.setQuery("", false)}
                 .thenRun{client.appendToCurrentPath(path)}
                 .thenRun{mediaRepository.getVideos()}
-    }
-
-    @Deprecated("")
-    override fun onBackPressed() {
-        super.onBackPressed()
-        val currentDirectory = client.currentPath.peekLast()
-        if (currentDirectory.equals(SERIES, ignoreCase = true) || currentDirectory.equals(MOVIES, ignoreCase = true)) exitProcess(8)
-        client.popOneDirectory()
-        CompletableFuture.runAsync({mediaRepository.getVideos()}, executorService)
     }
 
     companion object {
