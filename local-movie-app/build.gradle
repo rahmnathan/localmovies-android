@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 34
     defaultConfig {
         applicationId "rahm.nathan.localmovies"
+        compileSdk 34
         minSdkVersion 26
         targetSdkVersion 34
-        versionName '2.1.12'
-        versionCode 122
+        versionName '2.1.13'
+        versionCode 123
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -64,7 +64,6 @@ dependencies {
     def room_version = "2.6.1"
     implementation "androidx.room:room-runtime:$room_version"
     kapt("androidx.room:room-compiler:$room_version")
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20"
     implementation 'androidx.navigation:navigation-runtime-ktx:2.7.7'
     implementation "com.mikepenz:materialdrawer:6.1.2"
 
