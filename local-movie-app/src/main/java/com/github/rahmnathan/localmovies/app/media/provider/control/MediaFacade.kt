@@ -2,6 +2,7 @@ package com.github.rahmnathan.localmovies.app.media.provider.control
 
 import com.github.rahmnathan.localmovies.app.Client
 import com.github.rahmnathan.localmovies.app.media.data.Media
+import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
 import com.github.rahmnathan.localmovies.app.media.data.MediaEvent
 import com.github.rahmnathan.localmovies.app.media.data.MediaRequest
 import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
@@ -31,11 +32,11 @@ class MediaFacade @Inject constructor(
     private val logger = Logger.getLogger(MediaFacade::class.java.name)
     private val GSON = Gson()
 
-    fun getMovieInfo(mediaRequest: MediaRequest): List<Media> {
+    fun getMovieInfo(mediaRequest: MediaRequest, endpoint: MediaEndpoint): List<Media> {
         val xCorrelationId = UUID.randomUUID().toString()
         logger.info("Requesting movies with x-correlation-id: $xCorrelationId")
 
-        val movieInfoJson = getMovieInfoJson(client, mediaRequest, xCorrelationId)
+        val movieInfoJson = getMovieInfoJson(client, mediaRequest, xCorrelationId, endpoint)
         return movieInfoJson.map { obj: JSONArray -> JSONtoMediaMapper.jsonArrayToMovieInfoList(obj) }.orElseGet { ArrayList() }
     }
 
@@ -47,9 +48,9 @@ class MediaFacade @Inject constructor(
         return movieInfoJson.map { obj: JSONArray -> JSONtoMediaMapper.jsonArrayToMovieEventList(obj) }.orElseGet{ ArrayList() }
     }
 
-    private fun getMovieInfoJson(client: Client, mediaRequest: MediaRequest, xCorrelationId: String): Optional<JSONArray> {
+    private fun getMovieInfoJson(client: Client, mediaRequest: MediaRequest, xCorrelationId: String, endpoint: MediaEndpoint): Optional<JSONArray> {
         var urlConnection: HttpURLConnection? = null
-        val url = client.serverUrl + "/localmovie/mobile/v1/media"
+        val url = client.serverUrl + endpoint.endpoint;
         try {
             urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "POST"
@@ -155,6 +156,34 @@ class MediaFacade @Inject constructor(
         }
 
         return Optional.empty()
+    }
+
+    fun saveProgress(client: Client, mediaFileId: String?, position: String, xCorrelationId: String) {
+        var urlConnection: HttpURLConnection? = null
+        val url = client.serverUrl + "/localmovie/v1/media/" + mediaFileId + "/position/" + position;
+        try {
+            urlConnection = URL(url).openConnection() as HttpURLConnection
+            urlConnection.requestMethod = "PATCH"
+            urlConnection.setRequestProperty(X_CORRELATION_ID, xCorrelationId)
+            urlConnection.setRequestProperty("Authorization", "bearer " + oAuth2Service.accessToken.serialize())
+            urlConnection.connectTimeout = 10000
+            urlConnection.connect()
+        } catch (e: IOException) {
+            logger.log(Level.SEVERE, "Failed connecting to media info service", e)
+        }
+
+        if (urlConnection != null) {
+            val result = StringBuilder()
+            try {
+                BufferedReader(InputStreamReader(urlConnection.inputStream)).use { br ->
+                    br.lines().forEachOrdered { str: String? -> result.append(str) }
+                }
+            } catch (e: IOException) {
+                logger.log(Level.SEVERE, "Failed reading from media info service", e)
+            } finally {
+                urlConnection.disconnect()
+            }
+        }
     }
 
     companion object MovieFacadeConstants {

@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.ProgressBar
 import com.github.rahmnathan.localmovies.app.activity.main.view.MediaListAdapter
 import com.github.rahmnathan.localmovies.app.Client
+import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
 import com.github.rahmnathan.localmovies.app.media.provider.control.MediaFacade
 import com.github.rahmnathan.localmovies.app.media.provider.control.MediaLoaderRunnable
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
@@ -31,7 +32,7 @@ class MediaRepository(
 
     fun getVideos() {
         val optionalMovies = persistenceService.getMoviesAtPath(client.currentPath.toString())
-        if (optionalMovies.isNotEmpty()) {
+        if (optionalMovies.isNotEmpty() && client.endpoint == MediaEndpoint.MEDIA) {
             mediaListAdapter.clearLists()
             mediaListAdapter.updateList(optionalMovies)
             UIHandler.post { mediaListAdapter.notifyDataSetChanged() }
@@ -42,7 +43,14 @@ class MediaRepository(
 
             CompletableFuture.runAsync(mediaLoaderRunnable, executorService)
                     .thenRun { UIHandler.post { progressBar.visibility = View.GONE } }
-                    .thenRun { persistenceService.addAll(client.currentPath.toString(), ArrayList(mediaListAdapter.getOriginalMediaList()))}
+                    .thenRun {
+                        if (client.endpoint == MediaEndpoint.MEDIA) {
+                            persistenceService.addAll(
+                                client.currentPath.toString(),
+                                ArrayList(mediaListAdapter.getOriginalMediaList())
+                            )
+                        }
+                    }
                     .thenRun { FirebaseMessaging.getInstance().subscribeToTopic("movies")}
         }
     }

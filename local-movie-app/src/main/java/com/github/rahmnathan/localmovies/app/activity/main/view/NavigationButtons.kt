@@ -7,8 +7,10 @@ import android.widget.GridView
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import com.github.rahmnathan.localmovies.app.Client
 import com.github.rahmnathan.localmovies.app.activity.main.MainActivity
 import com.github.rahmnathan.localmovies.app.cast.config.ExpandedControlActivity
+import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationBarView
@@ -17,7 +19,7 @@ import rahmnathan.localmovies.R
 object NavigationButtons {
 
     @JvmStatic
-    fun build(searchView: SearchView, activity: MainActivity, listAdapter: MediaListAdapter, gridView: GridView, castContext: CastContext) {
+    fun build(searchView: SearchView, activity: MainActivity, listAdapter: MediaListAdapter, gridView: GridView, castContext: CastContext, client: Client) {
         val bottomNavigationView = activity.findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.action_movies
         bottomNavigationView.labelVisibilityMode = NavigationBarView.LABEL_VISIBILITY_AUTO
@@ -38,8 +40,14 @@ object NavigationButtons {
                         Toast.makeText(activity, "No video playing", Toast.LENGTH_SHORT).show()
                     }
                 }
-                R.id.action_movies -> activity.getRootVideos(MainActivity.MOVIES, searchView)
-                R.id.action_series -> activity.getRootVideos(MainActivity.SERIES, searchView)
+                R.id.action_movies -> {
+                    client.endpoint = MediaEndpoint.MEDIA
+                    activity.getRootVideos(MainActivity.MOVIES, searchView)
+                }
+                R.id.action_series -> {
+                    client.endpoint = MediaEndpoint.MEDIA
+                    activity.getRootVideos(MainActivity.SERIES, searchView)
+                }
                 R.id.action_more -> popup.show()
             }
             true

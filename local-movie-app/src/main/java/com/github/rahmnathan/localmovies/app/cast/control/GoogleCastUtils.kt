@@ -43,6 +43,7 @@ class GoogleCastUtils @Inject constructor(
         val metaData = MediaMetadata()
         metaData.putString(MediaMetadata.KEY_TITLE, media.title)
         metaData.putString(MediaMetadata.KEY_SUBTITLE, subtitleUrl);
+        metaData.putString("media-id", media.mediaFileId)
         metaData.addImage(image)
         val mediaInfo = MediaInfo.Builder(movieUrl)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)

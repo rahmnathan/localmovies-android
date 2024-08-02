@@ -9,9 +9,12 @@ import com.github.rahmnathan.localmovies.app.activity.player.PlayerActivity
 import com.github.rahmnathan.localmovies.app.activity.main.view.MediaListAdapter
 import com.github.rahmnathan.localmovies.app.media.provider.boundary.MediaRepository
 import com.github.rahmnathan.localmovies.app.Client
+import com.github.rahmnathan.localmovies.app.activity.player.MediaProgressListener
 import com.github.rahmnathan.localmovies.app.media.data.Media
 import com.github.rahmnathan.localmovies.app.cast.config.ExpandedControlActivity
 import com.github.rahmnathan.localmovies.app.cast.control.GoogleCastUtils
+import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
+import com.github.rahmnathan.localmovies.app.media.provider.control.MediaFacade
 import com.github.rahmnathan.localmovies.app.persistence.MediaHistory
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.cast.framework.CastContext
@@ -28,11 +31,13 @@ class MediaClickListener(
         private val context: Context,
         private val client: Client,
         private val castUtils: GoogleCastUtils,
+        private val mediaFacade: MediaFacade,
         private val executorService: ExecutorService) : OnItemClickListener {
 
     override fun onItemClick(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
         val titles: List<Media>
         val media = listAdapter.getMovie(position)
+        client.endpoint = MediaEndpoint.MEDIA;
         history.addHistoryItem(media)
 
         if (client.isViewingVideos) {
@@ -58,10 +63,15 @@ class MediaClickListener(
         if (session != null && session.isConnected) {
             val remoteMediaClient = session.remoteMediaClient
             remoteMediaClient?.queueLoad(queueItems.toTypedArray(), 0, 0, JSONObject())
+
+            val progressListener = MediaProgressListener(mediaFacade, client, remoteMediaClient)
+            remoteMediaClient?.addProgressListener(progressListener, 5000)
+
             context.startActivity(Intent(context, ExpandedControlActivity::class.java))
         } else {
             val intent = Intent(context, PlayerActivity::class.java)
             val url = queueItems[0].media?.contentId
+            intent.putExtra("media-id", queueItems[0].media?.metadata?.getString("media-id"))
             intent.putExtra("url", url)
             context.startActivity(intent)
         }

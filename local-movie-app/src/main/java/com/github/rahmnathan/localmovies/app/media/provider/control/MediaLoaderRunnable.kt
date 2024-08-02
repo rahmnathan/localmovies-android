@@ -5,6 +5,7 @@ import android.os.Looper
 
 import com.github.rahmnathan.localmovies.app.activity.main.view.MediaListAdapter
 import com.github.rahmnathan.localmovies.app.Client
+import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
 import com.github.rahmnathan.localmovies.app.media.data.MediaRequest
 
 import java.util.logging.Level
@@ -30,9 +31,13 @@ class MediaLoaderRunnable internal constructor(private val mediaListAdapter: Med
                     client = "ANDROID"
             )
 
-            val infoList = mediaFacade.getMovieInfo(movieRequest)
+            val infoList = mediaFacade.getMovieInfo(movieRequest, client.endpoint)
 
-            mediaListAdapter.updateList(infoList)
+            if(client.endpoint == MediaEndpoint.MEDIA) {
+                mediaListAdapter.updateList(infoList)
+            } else {
+                mediaListAdapter.updateHistoryList(infoList);
+            }
             UIHandler.post { mediaListAdapter.notifyDataSetChanged() }
             if (mediaListAdapter.chars != "") {
                 UIHandler.post { mediaListAdapter.filter.filter(mediaListAdapter.chars) }

@@ -65,6 +65,11 @@ class MediaListAdapter(private val context: Activity, private var media: Mutable
         originalMediaList.clear()
     }
 
+    fun updateHistoryList(mediaList: List<Media>?) {
+        media.addAll(mediaList!!)
+        originalMediaList.addAll(mediaList)
+    }
+
     fun updateList(mediaList: List<Media>?) {
         media.addAll(mediaList!!)
         originalMediaList.addAll(mediaList)

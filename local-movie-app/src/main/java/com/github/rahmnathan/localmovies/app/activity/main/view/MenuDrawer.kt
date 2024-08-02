@@ -8,7 +8,7 @@ import androidx.appcompat.widget.Toolbar
 import com.github.rahmnathan.localmovies.app.Client
 import com.github.rahmnathan.localmovies.app.activity.main.MainActivity
 import com.github.rahmnathan.localmovies.app.activity.setup.SetupActivity
-import com.github.rahmnathan.localmovies.app.persistence.MediaHistory
+import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
 import com.mikepenz.materialdrawer.DrawerBuilder
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem
@@ -20,15 +20,15 @@ object MenuDrawer {
     fun build(searchView: SearchView,
               client: Client,
               activity: MainActivity,
-              mediaHistory: MediaHistory,
-              listAdapter: MediaListAdapter,
               toolbar: Toolbar) {
 
         val homeItem = PrimaryDrawerItem()
                 .withIdentifier(1)
                 .withName("Home")
                 .withTextColor(Color.WHITE)
+                .withSelectable(false)
                 .withOnDrawerItemClickListener { _: View?, _: Int, _: IDrawerItem<*, *>? ->
+                    client.endpoint = MediaEndpoint.MEDIA
                     activity.getRootVideos(MainActivity.MOVIES, searchView)
                     false
                 }
@@ -36,16 +36,17 @@ object MenuDrawer {
                 .withIdentifier(2)
                 .withName("History")
                 .withTextColor(Color.WHITE)
+                .withSelectable(false)
                 .withOnDrawerItemClickListener { _: View?, _: Int, _: IDrawerItem<*, *>? ->
-                    client.resetCurrentPath()
-                    client.appendToCurrentPath(MainActivity.MOVIES)
-                    listAdapter.display(mediaHistory.historyList)
+                    client.endpoint = MediaEndpoint.HISTORY
+                    activity.getRootVideos(MainActivity.MOVIES, searchView)
                     false
                 }
         val settingsItem = PrimaryDrawerItem()
                 .withIdentifier(3)
                 .withName("My Account")
                 .withTextColor(Color.WHITE)
+                .withSelectable(false)
                 .withOnDrawerItemClickListener { _: View?, _: Int, _: IDrawerItem<*, *>? ->
                     activity.startActivity(Intent(activity, SetupActivity::class.java))
                     false
