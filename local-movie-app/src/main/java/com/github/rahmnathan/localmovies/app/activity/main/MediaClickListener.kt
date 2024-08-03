@@ -15,7 +15,6 @@ import com.github.rahmnathan.localmovies.app.cast.config.ExpandedControlActivity
 import com.github.rahmnathan.localmovies.app.cast.control.GoogleCastUtils
 import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
 import com.github.rahmnathan.localmovies.app.media.provider.control.MediaFacade
-import com.github.rahmnathan.localmovies.app.persistence.MediaHistory
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.cast.framework.CastContext
 import org.json.JSONObject
@@ -27,7 +26,6 @@ class MediaClickListener(
         private val mediaRepository: MediaRepository,
         private val listAdapter: MediaListAdapter,
         private val castContext: CastContext,
-        private val history: MediaHistory,
         private val context: Context,
         private val client: Client,
         private val castUtils: GoogleCastUtils,
@@ -38,7 +36,6 @@ class MediaClickListener(
         val titles: List<Media>
         val media = listAdapter.getMovie(position)
         client.endpoint = MediaEndpoint.MEDIA;
-        history.addHistoryItem(media)
 
         if (client.isViewingVideos) {
             // If we're viewing movies or episodes we start the video

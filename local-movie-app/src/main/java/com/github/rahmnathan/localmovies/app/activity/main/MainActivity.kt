@@ -29,7 +29,6 @@ import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
 import com.github.rahmnathan.localmovies.app.media.provider.boundary.MediaEventLoader
 import com.github.rahmnathan.localmovies.app.media.provider.boundary.MediaRepository
 import com.github.rahmnathan.localmovies.app.media.provider.control.MediaFacade
-import com.github.rahmnathan.localmovies.app.persistence.MediaHistory
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
 import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
 import com.google.android.gms.cast.framework.CastButtonFactory
@@ -99,7 +98,6 @@ class MainActivity : AppCompatActivity() {
                 executorService
         )
 
-        val mediaHistory = MediaHistory(this)
         MenuDrawer.build(searchView, client, this, toolbar)
         NavigationButtons.build(searchView, this, listAdapter, gridView, castContext, client)
 
@@ -114,7 +112,6 @@ class MainActivity : AppCompatActivity() {
                 context = this@MainActivity,
                 castContext = castContext,
                 mediaRepository = mediaRepository,
-                history = mediaHistory,
                 client = client,
                 castUtils = castUtils,
                 executorService = executorService,
