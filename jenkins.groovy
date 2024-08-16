@@ -20,7 +20,7 @@ node {
         }
     }
     stage('Upload') {
-        androidApkUpload googleCredentialsId: 'Google Play account',
+        androidApkUpload googleCredentialsId: 'google-play-account',
                 trackName: 'production',
                 rolloutPercentage: '100'
     }
