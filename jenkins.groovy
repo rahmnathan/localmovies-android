@@ -13,8 +13,8 @@ node {
     }
     stage('Sign') {
         withCredentials([
-                file(credentialsId: 'Localmovies Android Sign Key', variable: 'KEYSTORE'),
-                string(credentialsId: 'Localmovies Android Sign Key Password', variable: 'KEYSTORE_PASSWORD')
+                file(credentialsId: 'localmovies-android-sign-key', variable: 'KEYSTORE'),
+                string(credentialsId: 'localmovies-android-sign-key-password', variable: 'KEYSTORE_PASSWORD')
         ]) {
             sh 'jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $KEYSTORE -storepass $KEYSTORE_PASSWORD local-movie-app/build/outputs/bundle/release/local-movie-app-release.aab localmovies'
         }
