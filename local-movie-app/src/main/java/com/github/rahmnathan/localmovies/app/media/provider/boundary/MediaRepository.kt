@@ -10,7 +10,6 @@ import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
 import com.github.rahmnathan.localmovies.app.media.provider.control.MediaFacade
 import com.github.rahmnathan.localmovies.app.media.provider.control.MediaLoaderRunnable
 import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
-import com.google.firebase.messaging.FirebaseMessaging
 import java.util.ArrayList
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
@@ -51,7 +50,6 @@ class MediaRepository(
                             )
                         }
                     }
-                    .thenRun { FirebaseMessaging.getInstance().subscribeToTopic("movies")}
         }
     }
 }

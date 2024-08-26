@@ -33,6 +33,7 @@ import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceS
 import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
 import com.google.android.gms.cast.framework.CastButtonFactory
 import com.google.android.gms.cast.framework.CastContext
+import com.google.firebase.messaging.FirebaseMessaging
 import rahmnathan.localmovies.R
 import java.io.File
 import java.util.concurrent.CompletableFuture
@@ -100,6 +101,8 @@ class MainActivity : AppCompatActivity() {
 
         MenuDrawer.build(searchView, client, this, toolbar)
         NavigationButtons.build(searchView, this, listAdapter, gridView, castContext, client)
+
+        FirebaseMessaging.getInstance().subscribeToTopic("movies")
 
         // Trigger initial media loading
         client.appendToCurrentPath(MOVIES)
