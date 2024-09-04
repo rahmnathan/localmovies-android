@@ -33,7 +33,7 @@ spec:
         stage('Checkout') {
             steps {
                 checkout([$class           : 'GitSCM',
-                          branches         : [[name: '*/main']],
+                          branches         : [[name: '*/master']],
                           extensions       : scm.extensions,
                           userRemoteConfigs: [[
                                                       url          : 'git@github.com:rahmnathan/localmovies-android.git',
