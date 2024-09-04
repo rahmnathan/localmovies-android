@@ -53,7 +53,7 @@ spec:
                 KEYSTORE_PASSWORD = credentials('localmovies-android-sign-key-password')
             }
             steps {
-                sh "jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $KEYSTORE -storepass $KEYSTORE_PASSWORD local-movie-app/build/outputs/bundle/release/local-movie-app-release.aab localmovies"
+                sh 'jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore $KEYSTORE -storepass $KEYSTORE_PASSWORD local-movie-app/build/outputs/bundle/release/local-movie-app-release.aab localmovies'
             }
         }
         stage('Upload') {
