@@ -7,8 +7,11 @@ android {
         compileSdk 35
         minSdkVersion 26
         targetSdkVersion 35
-        versionName '2.1.17'
-        versionCode 127
+
+        def env = System.getenv()
+        def buildNumber = env['BUILD_NUMBER']
+        versionName buildNumber ? "3." + buildNumber : "1"
+        versionCode buildNumber ? 200 + buildNumber.toInteger() : 1
 
         javaCompileOptions {
             annotationProcessorOptions {

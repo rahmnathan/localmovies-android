@@ -1,6 +1,6 @@
 <h1>LocalMovies</h1>
 
-[![Build Status](https://jenkins.nathanrahm.com/buildStatus/icon?job=localmovies-android)](https://nathanrahm-jenkins.ddns.net/job/localmovies-android/)
+[![Build Status](https://jenkins.nathanrahm.com/buildStatus/icon?job=localmovies-android)](https://jenkins.nathanrahm.com/job/localmovies-android/)
 
 Android client for LocalMovies backend system.
 
