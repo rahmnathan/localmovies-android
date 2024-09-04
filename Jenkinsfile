@@ -11,22 +11,8 @@ spec:
     image: rahmnathan/inbound-agent
     imagePullPolicy: Always
     tty: true
-    volumeMounts:
-      - name: docker
-        mountPath: /var/run/docker.sock
-    securityContext:
-      runAsGroup: 998 # docker group on K8s node
-      runAsUser: 1000 # jenkins user in container
-  volumes:
-    - name: docker
-      hostPath:
-        path: '/var/run/docker.sock'
 """
         }
-    }
-
-    tools {
-        jdk 'Java 21'
     }
 
     stages {
