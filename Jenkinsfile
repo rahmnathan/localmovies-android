@@ -15,6 +15,10 @@ spec:
         }
     }
 
+    tools {
+        jdk 'Java 21'
+    }
+
     stages {
         stage('Checkout') {
             steps {
