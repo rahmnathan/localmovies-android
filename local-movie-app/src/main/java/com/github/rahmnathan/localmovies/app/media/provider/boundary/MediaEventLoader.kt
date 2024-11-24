@@ -65,7 +65,7 @@ class MediaEventLoader(private val mediaListAdapter: MediaListAdapter,
     }
 
     companion object {
-        private const val ITEMS_PER_PAGE = 30
+        private const val ITEMS_PER_PAGE = 90
     }
 
 }
