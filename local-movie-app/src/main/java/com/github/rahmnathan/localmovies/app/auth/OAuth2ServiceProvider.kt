@@ -15,7 +15,7 @@ internal object OAuth2ServiceProvider {
         val clientConfig = OAuth2ClientConfig.builder()
                 .initialRetryDelay(500)
                 .retryCount(3)
-                .url("https://login.nathanrahm.com/auth")
+                .url("https://login.nathanrahm.com")
                 .timoutMs(3000)
                 .build()
 
@@ -25,7 +25,7 @@ internal object OAuth2ServiceProvider {
                 .password(password)
                 .clientId("localmovies")
                 .username(username)
-                .realm("LocalMovies")
+                .realm("NathanRahm")
                 .tokenRefreshThreshold(Duration(ChronoUnit.SECONDS, 30))
                 .build()
 
