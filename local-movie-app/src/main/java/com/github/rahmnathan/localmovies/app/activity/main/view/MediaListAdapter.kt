@@ -55,7 +55,7 @@ class MediaListAdapter(private val context: Activity, private var media: Mutable
     fun filterGenre(genre: MediaGenre) {
         val filteredList = originalMediaList.stream()
                 .sorted(comparing(Media::title))
-                .filter { movieInfo: Media -> movieInfo.genre.toLowerCase(Locale.getDefault()).contains(genre.formattedName) }
+                .filter { movieInfo: Media -> movieInfo.genre.lowercase(Locale.getDefault()).contains(genre.formattedName) }
                 .collect(Collectors.toList())
         display(filteredList)
     }
@@ -76,7 +76,7 @@ class MediaListAdapter(private val context: Activity, private var media: Mutable
 
         // If we have media, apply default sorting.
         if(mediaList.isNotEmpty()){
-            val mediaType = mediaList[0].type.toLowerCase(Locale.US);
+            val mediaType = mediaList[0].type.lowercase(Locale.US)
             if("episode" == mediaType || "season" == mediaType){
                 sort(media, MediaOrder.NUMBER)
             } else {
@@ -106,7 +106,8 @@ class MediaListAdapter(private val context: Activity, private var media: Mutable
                 media.addAll(originalMediaList)
             } else {
                 media.addAll(originalMediaList.stream()
-                        .filter { movie: Media -> movie.title.toLowerCase(Locale.getDefault()).contains(charSequence.toString().toLowerCase(Locale.getDefault())) }
+                        .filter { movie: Media -> movie.title.lowercase(Locale.getDefault())
+                            .contains(charSequence.toString().lowercase(Locale.getDefault())) }
                         .collect(Collectors.toList()))
             }
             filterResults.values = media
