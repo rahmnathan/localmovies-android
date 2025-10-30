@@ -11,8 +11,8 @@ android {
 
         def env = System.getenv()
         def buildNumber = env['BUILD_NUMBER']
-        versionName buildNumber ? "3." + buildNumber : "1"
-        versionCode buildNumber ? 200 + buildNumber.toInteger() : 1
+        versionName buildNumber ? "4." + buildNumber : "1"
+        versionCode buildNumber ? 400 + buildNumber.toInteger() : 1
 
         javaCompileOptions {
             annotationProcessorOptions {
