@@ -22,6 +22,14 @@ spec:
     stages {
         stage('Checkout') {
             steps {
+                script {
+                    sh 'git config --global user.email "rahm.nathan@protonmail.com"'
+                    sh 'git config --global user.name "rahmnathan"'
+                    sshagent(credentials: ['Github-Git']) {
+                        sh 'mkdir -p /home/jenkins/.ssh'
+                        sh 'ssh-keyscan  github.com >> ~/.ssh/known_hosts'
+                    }
+                }
                 checkout([$class           : 'GitSCM',
                           branches         : [[name: '*/master']],
                           extensions       : scm.extensions,
