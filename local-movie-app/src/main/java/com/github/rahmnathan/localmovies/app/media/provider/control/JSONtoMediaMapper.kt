@@ -34,7 +34,8 @@ internal object JSONtoMediaMapper {
                 plot =  media.getString("plot"),
                 path = mediaFile.getString("path"),
                 type = media.getString("mediaType"),
-                number = media.getString("number")
+                number = media.getString("number"),
+                streamable = mediaFile.getBoolean("streamable")
         )
     }
 

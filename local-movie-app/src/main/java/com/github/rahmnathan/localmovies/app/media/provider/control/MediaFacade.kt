@@ -5,11 +5,13 @@ import com.github.rahmnathan.localmovies.app.media.data.Media
 import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
 import com.github.rahmnathan.localmovies.app.media.data.MediaEvent
 import com.github.rahmnathan.localmovies.app.media.data.MediaRequest
+import com.github.rahmnathan.localmovies.app.media.data.SignedUrls
 import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
 import com.google.common.net.HttpHeaders
 import com.google.gson.Gson
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -31,6 +33,18 @@ class MediaFacade @Inject constructor(
 
     private val logger = Logger.getLogger(MediaFacade::class.java.name)
     private val GSON = Gson()
+
+    fun getSignedUrls(mediaId: String): SignedUrls {
+        val xCorrelationId = UUID.randomUUID().toString()
+        logger.info("Requesting signed URLs with x-correlation-id: $xCorrelationId")
+
+        val signedUrlJson = JSONObject(getSignedUrlJson(xCorrelationId, mediaId))
+        return SignedUrls(
+            stream = signedUrlJson.getString("stream"),
+            poster = signedUrlJson.getString("poster"),
+            updatePosition = signedUrlJson.getString("updatePosition")
+        )
+    }
 
     fun getMovieInfo(mediaRequest: MediaRequest, endpoint: MediaEndpoint): List<Media> {
         val xCorrelationId = UUID.randomUUID().toString()
@@ -58,7 +72,7 @@ class MediaFacade @Inject constructor(
             urlConnection.doOutput = true
             urlConnection.doInput = true
             urlConnection.setRequestProperty("Content-Type", "application/json")
-            urlConnection.setRequestProperty("Authorization", "bearer " + oAuth2Service.accessToken.serialize())
+            urlConnection.setRequestProperty(HttpHeaders.AUTHORIZATION, "bearer " + oAuth2Service.accessToken.serialize())
             urlConnection.connectTimeout = 10000
         } catch (e: IOException) {
             logger.log(Level.SEVERE, "Failed connecting to media info service", e)
@@ -116,6 +130,37 @@ class MediaFacade @Inject constructor(
         return Optional.empty()
     }
 
+    fun getSignedUrlJson(xCorrelationId: String, mediaId: String): String {
+        val url = client.serverUrl + "/localmovie/v1/media/" + mediaId + "/url/signed"
+        var urlConnection: HttpURLConnection? = null
+        try {
+            urlConnection = URL(url).openConnection() as HttpURLConnection
+            urlConnection.requestMethod = "GET"
+            urlConnection.setRequestProperty(X_CORRELATION_ID, xCorrelationId)
+            urlConnection.setRequestProperty(HttpHeaders.AUTHORIZATION, "bearer " + oAuth2Service.accessToken.serialize())
+            urlConnection.connectTimeout = 10000
+            urlConnection.connect()
+        } catch (e: IOException) {
+            logger.log(Level.SEVERE, "Failed connecting to media info service", e)
+        }
+
+        if (urlConnection != null) {
+            val result = StringBuilder()
+            try {
+                BufferedReader(InputStreamReader(urlConnection.inputStream)).use { br ->
+                    br.lines().forEachOrdered { str: String? -> result.append(str) }
+                }
+                return result.toString()
+            } catch (e: IOException) {
+                logger.log(Level.SEVERE, "Failed reading from media info service", e)
+            } finally {
+                urlConnection.disconnect()
+            }
+        }
+
+        return "{}"
+    }
+
     private fun getMovieEventJson(xCorrelationId: String, page: Int, size: Int): Optional<JSONArray> {
         var urlConnection: HttpURLConnection? = null
         if (client.lastUpdate == null) {
@@ -158,14 +203,13 @@ class MediaFacade @Inject constructor(
         return Optional.empty()
     }
 
-    fun saveProgress(client: Client, mediaFileId: String?, position: String, xCorrelationId: String) {
+    fun saveProgress(signedUrl: String?, position: String, xCorrelationId: String) {
         var urlConnection: HttpURLConnection? = null
-        val url = client.serverUrl + "/localmovie/v1/media/" + mediaFileId + "/position/" + position;
+        val url = client.serverUrl + signedUrl?.split("?")[0] + "/" + position + "?" + signedUrl?.split("?")[1]
         try {
             urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "PATCH"
             urlConnection.setRequestProperty(X_CORRELATION_ID, xCorrelationId)
-            urlConnection.setRequestProperty("Authorization", "bearer " + oAuth2Service.accessToken.serialize())
             urlConnection.connectTimeout = 10000
             urlConnection.connect()
         } catch (e: IOException) {

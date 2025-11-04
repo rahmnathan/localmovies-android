@@ -1,7 +1,6 @@
 package com.github.rahmnathan.localmovies.app.activity.player
 
 import android.app.Activity
-import android.net.Uri
 import android.os.Bundle
 import android.widget.MediaController
 import android.widget.VideoView
@@ -12,6 +11,7 @@ import rahmnathan.localmovies.R
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 class PlayerActivity : Activity() {
 
@@ -33,9 +33,11 @@ class PlayerActivity : Activity() {
         mediaController.setAnchorView(videoView)
         videoView.setMediaController(mediaController)
 
-        val b = intent.extras
-        videoView.setVideoURI(Uri.parse(b!!.getString("url")))
+        val metadata = intent.extras
+        videoView.setVideoURI(metadata!!.getString("url")?.toUri())
         videoView.start()
+
+        val updatePositionUrl = metadata.getString("update-position-url")
 
         val uid = UUID.randomUUID().toString()
 
@@ -43,8 +45,7 @@ class PlayerActivity : Activity() {
             while (true) {
                 Thread.sleep(5000)
                 mediaFacade.saveProgress(
-                    client,
-                    b.getString("media-id"),
+                    updatePositionUrl,
                     videoView.currentPosition.toString(),
                     uid
                 )

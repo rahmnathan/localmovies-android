@@ -37,9 +37,9 @@ class MediaClickListener(
         val media = listAdapter.getMovie(position)
         client.endpoint = MediaEndpoint.MEDIA;
 
-        if (client.isViewingVideos) {
+        if (media.streamable) {
             // If we're viewing movies or episodes we start the video
-            titles = if (client.isViewingEpisodes) {
+            titles = if (media.type == "EPISODE") {
                 // If we're playing episodes, we queue up the rest of the season
                 listAdapter.getOriginalMediaList().stream()
                     .filter { movieInfo: Media -> Integer.valueOf(movieInfo.number!!) > Integer.valueOf(media.number!!) || movieInfo.title == media.title }
@@ -61,7 +61,7 @@ class MediaClickListener(
             val remoteMediaClient = session.remoteMediaClient
             remoteMediaClient?.queueLoad(queueItems.toTypedArray(), 0, 0, JSONObject())
 
-            val progressListener = MediaProgressListener(mediaFacade, client, remoteMediaClient)
+            val progressListener = MediaProgressListener(mediaFacade, remoteMediaClient)
             remoteMediaClient?.addProgressListener(progressListener, 5000)
 
             context.startActivity(Intent(context, ExpandedControlActivity::class.java))
@@ -70,6 +70,7 @@ class MediaClickListener(
             val url = queueItems[0].media?.contentId
             intent.putExtra("media-id", queueItems[0].media?.metadata?.getString("media-id"))
             intent.putExtra("url", url)
+            intent.putExtra("update-position-url", queueItems[0].media?.metadata?.getString("update-position-url"))
             context.startActivity(intent)
         }
     }
