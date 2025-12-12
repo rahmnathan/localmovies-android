@@ -2,6 +2,7 @@ package com.github.rahmnathan.localmovies.app.ui.cast
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
@@ -49,6 +50,11 @@ fun CastControllerScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Casting") },
+                navigationIcon = {
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
                 actions = {
                     IconButton(onClick = { viewModel.stopCasting() }) {
                         Icon(Icons.Default.Stop, contentDescription = "Stop casting")

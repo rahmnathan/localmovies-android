@@ -106,6 +106,9 @@ fun LocalMoviesApp() {
                     navController.navigate(Screen.Player.createRoute(url, updatePositionUrl, mediaId, resumePosition)) {
                         popUpTo(Screen.Player.route) { inclusive = true }
                     }
+                },
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }

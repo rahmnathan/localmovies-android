@@ -20,6 +20,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
@@ -318,15 +319,17 @@ fun MainScreen(
                     }
 
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(108.dp),
+                        columns = GridCells.Adaptive(minSize = 108.dp),
                         state = listState,
                         contentPadding = PaddingValues(4.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         items(
                             items = uiState.mediaList,
-                            key = { it.mediaFileId }
+                            key = { it.mediaFileId },
+                            contentType = { "media_card" }
                         ) { media ->
                             MediaCard(
                                 media = media,
@@ -369,38 +372,43 @@ fun MediaCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit = {}
 ) {
+    // Cache decoded image bytes to avoid re-decoding on every recomposition
+    val imageBytes = remember(media.image) {
+        if (!media.image.isNullOrBlank()) {
+            try {
+                Base64.decode(media.image, Base64.DEFAULT)
+            } catch (e: Exception) {
+                null
+            }
+        } else {
+            null
+        }
+    }
+
     Card(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(2f / 3f)
+            .graphicsLayer() // Reduce recomposition overhead
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            if (!media.image.isNullOrBlank()) {
-                // Decode base64 image
-                val imageBytes = try {
-                    Base64.decode(media.image, Base64.DEFAULT)
-                } catch (e: Exception) {
-                    null
-                }
-
-                if (imageBytes != null) {
-                    AsyncImage(
-                        model = imageBytes,
-                        contentDescription = media.title,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                } else {
-                    // Fallback if base64 decode fails
-                    Icon(
-                        imageVector = Icons.Default.Movie,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .size(48.dp)
-                    )
-                }
+            if (imageBytes != null) {
+                AsyncImage(
+                    model = imageBytes,
+                    contentDescription = media.title,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else if (!media.image.isNullOrBlank()) {
+                // Fallback if base64 decode fails
+                Icon(
+                    imageVector = Icons.Default.Movie,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(48.dp)
+                )
             } else {
                 // No image available
                 Column(
