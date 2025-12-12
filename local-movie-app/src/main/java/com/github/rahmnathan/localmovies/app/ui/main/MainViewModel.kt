@@ -21,7 +21,7 @@ data class MainUiState(
     val currentPage: Int = 0,
     val hasMorePages: Boolean = true,
     val totalCount: Long = 0,
-    val sortOrder: String = "added", // title, year, rating, added
+    val sortOrder: String = "title", // title, year, rating, added
     val genreFilter: String? = null,
     val typeFilter: String? = null
 )
@@ -208,7 +208,19 @@ class MainViewModel @Inject constructor(
                 // Check if Cast is active
                 if (googleCastUtils.isCastSessionActive()) {
                     android.util.Log.d("MainViewModel", "Cast session active, playing on Cast device")
-                    val success = googleCastUtils.playOnCast(media)
+
+                    // Find remaining episodes to queue for casting
+                    val currentMediaList = _uiState.value.mediaList
+                    val currentIndex = currentMediaList.indexOfFirst { it.mediaFileId == media.mediaFileId }
+                    val remainingEpisodes = if (currentIndex >= 0 && currentIndex < currentMediaList.size - 1) {
+                        currentMediaList.subList(currentIndex + 1, currentMediaList.size)
+                    } else {
+                        emptyList()
+                    }
+
+                    android.util.Log.d("MainViewModel", "Queueing ${remainingEpisodes.size} remaining episodes for cast")
+
+                    val success = googleCastUtils.playOnCast(media, remainingEpisodes)
                     if (success) {
                         android.util.Log.d("MainViewModel", "Successfully sent media to Cast device")
                         _uiState.update { it.copy(isLoading = false) }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,7 +25,8 @@ data class CastControllerUiState(
     val imageUrl: String = "",
     val currentPosition: Long = 0,
     val duration: Long = 0,
-    val isConnected: Boolean = false
+    val isConnected: Boolean = false,
+    val hasNextQueueItem: Boolean = false
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -121,22 +123,42 @@ fun CastControllerScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Play/Pause button
-            FloatingActionButton(
-                onClick = {
-                    if (uiState.isPlaying) {
-                        viewModel.pause()
-                    } else {
-                        viewModel.play()
-                    }
-                },
-                modifier = Modifier.size(64.dp)
+            // Control buttons
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = if (uiState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = if (uiState.isPlaying) "Pause" else "Play",
-                    modifier = Modifier.size(32.dp)
-                )
+                // Play/Pause button
+                FloatingActionButton(
+                    onClick = {
+                        if (uiState.isPlaying) {
+                            viewModel.pause()
+                        } else {
+                            viewModel.play()
+                        }
+                    },
+                    modifier = Modifier.size(64.dp)
+                ) {
+                    Icon(
+                        imageVector = if (uiState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        contentDescription = if (uiState.isPlaying) "Pause" else "Play",
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+
+                // Next Episode button (only shown when there's a next item in queue)
+                if (uiState.hasNextQueueItem) {
+                    FloatingActionButton(
+                        onClick = { viewModel.skipToNext() },
+                        modifier = Modifier.size(64.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.SkipNext,
+                            contentDescription = "Next Episode",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                }
             }
         }
     }

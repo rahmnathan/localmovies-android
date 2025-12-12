@@ -43,9 +43,10 @@ class GoogleCastUtils @Inject constructor(
 
     /**
      * Play media on the Cast device if a session is active
+     * Queues up all remaining episodes in the list
      * Returns true if successfully sent to Cast, false otherwise
      */
-    suspend fun playOnCast(media: Media): Boolean {
+    suspend fun playOnCast(media: Media, remainingEpisodes: List<Media> = emptyList()): Boolean {
         return try {
             val castSession = castContext?.sessionManager?.currentCastSession
             if (castSession == null) {
@@ -53,37 +54,54 @@ class GoogleCastUtils @Inject constructor(
                 return false
             }
 
-            val signedUrls = when (val result = mediaRepository.getSignedUrls(media.mediaFileId)) {
-                is Result.Success -> result.data
-                is Result.Error -> {
-                    android.util.Log.e("GoogleCastUtils", "Failed to get signed URLs", result.exception)
-                    return false
+            // Build queue items from current media and remaining episodes
+            val allEpisodes = listOf(media) + remainingEpisodes
+            val queueItems = allEpisodes.map { buildMediaQueueItem(it) }
+
+            android.util.Log.d("GoogleCastUtils", "Loading cast queue with ${queueItems.size} items")
+
+            // Load the queue (or single item if only one)
+            if (queueItems.size > 1) {
+                castSession.remoteMediaClient?.queueLoad(
+                    queueItems.toTypedArray(),
+                    0, // Start at first item
+                    com.google.android.gms.cast.MediaStatus.REPEAT_MODE_REPEAT_OFF,
+                    null
+                )
+            } else {
+                // Single item - use regular load
+                val signedUrls = when (val result = mediaRepository.getSignedUrls(media.mediaFileId)) {
+                    is Result.Success -> result.data
+                    is Result.Error -> {
+                        android.util.Log.e("GoogleCastUtils", "Failed to get signed URLs", result.exception)
+                        return false
+                    }
+                    else -> return false
                 }
-                else -> return false
+
+                val metaData = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE)
+                metaData.putString(MediaMetadata.KEY_TITLE, media.title)
+                metaData.putString("media-id", media.mediaFileId)
+                metaData.putString("update-position-url", signedUrls.updatePosition)
+
+                if (signedUrls.poster.isNotBlank()) {
+                    metaData.addImage(WebImage(signedUrls.poster.toUri()))
+                }
+
+                val mediaInfo = MediaInfo.Builder(signedUrls.stream)
+                    .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+                    .setContentType(MediaType.ANY_VIDEO_TYPE.toString())
+                    .setMetadata(metaData)
+                    .build()
+
+                val request = MediaLoadRequestData.Builder()
+                    .setMediaInfo(mediaInfo)
+                    .setAutoplay(true)
+                    .build()
+
+                castSession.remoteMediaClient?.load(request)
             }
 
-            val metaData = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE)
-            metaData.putString(MediaMetadata.KEY_TITLE, media.title)
-            metaData.putString("media-id", media.mediaFileId)
-            metaData.putString("update-position-url", signedUrls.updatePosition)
-
-            // Add poster image if available
-            if (signedUrls.poster.isNotBlank()) {
-                metaData.addImage(WebImage(signedUrls.poster.toUri()))
-            }
-
-            val mediaInfo = MediaInfo.Builder(signedUrls.stream)
-                .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                .setContentType(MediaType.ANY_VIDEO_TYPE.toString())
-                .setMetadata(metaData)
-                .build()
-
-            val request = MediaLoadRequestData.Builder()
-                .setMediaInfo(mediaInfo)
-                .setAutoplay(true)
-                .build()
-
-            castSession.remoteMediaClient?.load(request)
             android.util.Log.d("GoogleCastUtils", "Successfully loaded media on Cast device")
             true
         } catch (e: Exception) {

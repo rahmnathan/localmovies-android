@@ -67,36 +67,5 @@ class MediaRepository @Inject constructor(
             Result.Error(e)
         }
     }
-
-    suspend fun getNextEpisode(currentMediaId: String): Result<Media?> = withContext(Dispatchers.IO) {
-        try {
-            val nextEpisode = mediaApi.getNextEpisode(currentMediaId)
-            Result.Success(nextEpisode)
-        } catch (e: Exception) {
-            Result.Error(e)
-        }
-    }
-
-    fun getMediaHistory(
-        page: Int = 0,
-        size: Int = 50,
-        searchQuery: String? = null
-    ): Flow<Result<List<Media>>> = flow {
-        emit(Result.Loading)
-
-        try {
-            val response = mediaApi.getMediaList(
-                page = page,
-                size = size,
-                type = "history",
-                path = "Movies",
-                searchQuery = searchQuery
-            )
-
-            emit(Result.Success(response.mediaList, totalCount = response.totalCount))
-        } catch (e: Exception) {
-            emit(Result.Error(e))
-        }
-    }.flowOn(Dispatchers.IO)
 }
 

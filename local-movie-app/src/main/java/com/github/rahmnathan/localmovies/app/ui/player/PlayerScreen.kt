@@ -64,12 +64,6 @@ fun PlayerScreen(
                         setOnCompletionListener {
                             android.util.Log.d("PlayerScreen", "Video completed")
                             viewModel.onPlaybackPaused()
-
-                            // Auto-play next episode if available
-                            if (uiState.nextEpisode != null) {
-                                android.util.Log.d("PlayerScreen", "Auto-playing next episode")
-                                viewModel.playNextEpisode(onNavigateToNextEpisode)
-                            }
                         }
 
                         setOnErrorListener { _, what, extra ->
@@ -111,28 +105,6 @@ fun PlayerScreen(
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge
                 )
-            }
-        }
-
-        // Show "Next Episode" button if available
-        if (uiState.nextEpisode != null) {
-            FloatingActionButton(
-                onClick = { viewModel.playNextEpisode(onNavigateToNextEpisode) },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.SkipNext,
-                        contentDescription = "Next Episode"
-                    )
-                    Text("Next Episode")
-                }
             }
         }
 

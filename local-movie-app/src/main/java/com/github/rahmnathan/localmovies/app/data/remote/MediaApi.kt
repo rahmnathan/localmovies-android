@@ -102,16 +102,4 @@ class MediaApi @Inject constructor(
 
         apiClient.httpClient.patch(fullUrl)
     }
-
-    suspend fun getNextEpisode(currentMediaId: String): Media? = withContext(Dispatchers.IO) {
-        try {
-            val serverUrl = getServerUrl()
-            val response = apiClient.httpClient.get("$serverUrl/localmovie/v1/media/$currentMediaId/next")
-            val dto = response.body<MediaResponseDto>()
-            dto.toMedia()
-        } catch (e: Exception) {
-            android.util.Log.w("MediaApi", "No next episode found for $currentMediaId: ${e.message}")
-            null
-        }
-    }
 }
