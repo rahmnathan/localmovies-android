@@ -11,10 +11,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.github.rahmnathan.localmovies.app.activity.main.MainActivity
-import com.github.rahmnathan.localmovies.app.Client
-import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
+import com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore
+import com.github.rahmnathan.localmovies.app.data.remote.MediaApi
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import rahmnathan.localmovies.R
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -26,12 +29,25 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
 
-    @Inject lateinit var client: Client
-    @Inject lateinit var oAuth2Service: OAuth2Service
+    @Inject lateinit var mediaApi: MediaApi
+    @Inject lateinit var preferencesDataStore: UserPreferencesDataStore
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        // Check permission first (fixes the missing permission handling issue)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            logger.warning("POST_NOTIFICATIONS permission not granted")
+            return
+        }
+
         buildChannel()
 
         val data = remoteMessage.data
@@ -44,32 +60,30 @@ class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
                 .setAutoCancel(true)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
-        val optionalPoster = getMoviePoster(data["path"])
-        optionalPoster.ifPresent { poster: ByteArray ->
-            val bitmap = BitmapFactory.decodeByteArray(poster, 0, poster.size)
-            mBuilder.setLargeIcon(bitmap)
-            mBuilder.setStyle(NotificationCompat.BigPictureStyle().bigLargeIcon(bitmap).bigPicture(bitmap))
-        }
+        // Use coroutines for poster fetching
+        serviceScope.launch {
+            try {
+                val poster = getMoviePoster(data["path"])
+                if (poster != null) {
+                    val bitmap = BitmapFactory.decodeByteArray(poster, 0, poster.size)
+                    mBuilder.setLargeIcon(bitmap)
+                    mBuilder.setStyle(NotificationCompat.BigPictureStyle().bigLargeIcon(bitmap).bigPicture(bitmap))
+                }
+            } catch (e: Exception) {
+                logger.log(Level.WARNING, "Failed to fetch poster", e)
+            }
 
-        val pendingIntent = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_UPDATE_CURRENT)
-        mBuilder.setContentIntent(pendingIntent)
+            val pendingIntent = PendingIntent.getActivity(
+                this@LocalMovieFirebaseMessageService,
+                0,
+                Intent(this@LocalMovieFirebaseMessageService, MainActivity::class.java),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            mBuilder.setContentIntent(pendingIntent)
 
-        val mNotifyMgr = NotificationManagerCompat.from(this)
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
+            val mNotifyMgr = NotificationManagerCompat.from(this@LocalMovieFirebaseMessageService)
+            mNotifyMgr.notify(Random().nextInt(), mBuilder.build())
         }
-        mNotifyMgr.notify(Random().nextInt(), mBuilder.build())
     }
 
     override fun onNewToken(s: String) {
@@ -84,27 +98,22 @@ class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
         notificationManager?.createNotificationChannel(channel)
     }
 
-    private fun getMoviePoster(path: String?): Optional<ByteArray> {
+    private suspend fun getMoviePoster(path: String?): ByteArray? = withContext(Dispatchers.IO) {
         var urlConnection: HttpURLConnection? = null
-        val url = client.serverUrl + "/localmovies/v1/media/poster?path=" + path
+        val credentials = preferencesDataStore.userCredentialsFlow.first()
+        val url = credentials.serverUrl + "/localmovies/v1/media/poster?path=" + path
 
         try {
             urlConnection = URL(url).openConnection() as HttpURLConnection
             urlConnection.requestMethod = "GET"
-            urlConnection.setRequestProperty("Authorization", "bearer " + oAuth2Service.accessToken.serialize())
             urlConnection.connectTimeout = 10000
+            readBytes(urlConnection.inputStream)
         } catch (e: IOException) {
-            logger.log(Level.SEVERE, "Failed connecting to media info service", e)
+            logger.log(Level.SEVERE, "Failed loading poster", e)
+            null
+        } finally {
+            urlConnection?.disconnect()
         }
-
-        if (urlConnection != null) {
-            try {
-                return Optional.ofNullable(readBytes(urlConnection.inputStream))
-            } catch (e: IOException) {
-                logger.log(Level.SEVERE, "Failure loading image", e)
-            }
-        }
-        return Optional.empty()
     }
 
     @Throws(IOException::class)
@@ -117,6 +126,11 @@ class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
             byteBuffer.write(buffer, 0, len)
         }
         return byteBuffer.toByteArray()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel()
     }
 
     companion object {

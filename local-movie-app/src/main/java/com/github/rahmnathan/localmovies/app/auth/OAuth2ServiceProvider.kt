@@ -11,11 +11,11 @@ import java.time.temporal.ChronoUnit
 internal object OAuth2ServiceProvider {
 
     @JvmStatic
-    fun getOAuth2Service(username: String, password: String): OAuth2Service {
+    fun getOAuth2Service(username: String, password: String, authServerUrl: String): OAuth2Service {
         val clientConfig = OAuth2ClientConfig.builder()
                 .initialRetryDelay(500)
                 .retryCount(3)
-                .url("https://login.nathanrahm.com")
+                .url(authServerUrl)
                 .timoutMs(3000)
                 .build()
 

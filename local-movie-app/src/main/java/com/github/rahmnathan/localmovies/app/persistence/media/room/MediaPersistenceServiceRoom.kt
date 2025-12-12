@@ -39,4 +39,36 @@ class MediaPersistenceServiceRoom(private val mediaDAO: MediaDAO) : MediaPersist
         val movieEntity = mediaDAO.getByPathAndFilename(parentPath, filename)
         if (movieEntity != null) mediaDAO.delete(movieEntity)
     }
+
+    override fun deleteAll() {
+        mediaDAO.deleteAll()
+    }
+
+    // Suspend implementations for coroutines
+    override suspend fun addAllSuspend(path: String, media: List<Media>) {
+        logger.info("Adding media to database for path: $path (suspend)")
+        val movieEntities = media.map { MediaEntity(path, it) }
+        mediaDAO.insertAllSuspend(movieEntities)
+        logger.info("Successfully saved media.")
+    }
+
+    override suspend fun addOneSuspend(path: String, media: Media) {
+        mediaDAO.insertSuspend(MediaEntity(path, media))
+    }
+
+    override suspend fun getMoviesAtPathSuspend(path: String): List<Media> {
+        val entities = mediaDAO.getByPathSuspend(path)
+        return entities.map { it.media }
+    }
+
+    override suspend fun deleteMovieSuspend(path: String) {
+        val parentPath = getParentPath(path)
+        val filename = getFilename(path)
+        val movieEntity = mediaDAO.getByPathAndFilename(parentPath, filename)
+        if (movieEntity != null) mediaDAO.deleteSuspend(movieEntity)
+    }
+
+    override suspend fun deleteAllSuspend() {
+        mediaDAO.deleteAllSuspend()
+    }
 }

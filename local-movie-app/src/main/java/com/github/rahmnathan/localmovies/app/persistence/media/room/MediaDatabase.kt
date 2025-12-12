@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [MediaEntity::class], version = 1)
+@Database(entities = [MediaEntity::class], version = 2, exportSchema = false)
 abstract class MediaDatabase : RoomDatabase() {
     abstract fun movieDAO(): MediaDAO?
 
@@ -16,10 +16,12 @@ abstract class MediaDatabase : RoomDatabase() {
             return INSTANCE
                     ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
-                        context.applicationContext,
-                        MediaDatabase::class.java,
-                        "word_database"
-                ).build()
+                    context.applicationContext,
+                    MediaDatabase::class.java,
+                    "word_database"
+                )
+                    .fallbackToDestructiveMigration(true) // Recreate DB when schema changes
+                .build()
                 INSTANCE = instance
                 instance
             }
