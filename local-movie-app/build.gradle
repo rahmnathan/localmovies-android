@@ -133,6 +133,13 @@ dependencies {
     // Google Cast
     implementation 'com.google.android.gms:play-services-cast-framework:22.1.0'
 
+    // Media3 ExoPlayer
+    def media3_version = "1.5.0"
+    implementation "androidx.media3:media3-exoplayer:$media3_version"
+    implementation "androidx.media3:media3-ui:$media3_version"
+    implementation "androidx.media3:media3-exoplayer-hls:$media3_version"
+    implementation "androidx.media3:media3-common:$media3_version"
+
     // Other
     implementation 'com.google.guava:guava:33.2.1-jre'
     implementation 'com.google.code.gson:gson:2.11.0'

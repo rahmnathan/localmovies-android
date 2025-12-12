@@ -23,20 +23,36 @@ data class MainUiState(
     val totalCount: Long = 0,
     val sortOrder: String = "title", // title, year, rating, added
     val genreFilter: String? = null,
-    val typeFilter: String? = null
+    val typeFilter: String? = null,
+    val isOffline: Boolean = false
 )
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val mediaRepository: MediaRepository,
     private val googleCastUtils: GoogleCastUtils,
-    private val preferencesDataStore: com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore
+    private val preferencesDataStore: com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore,
+    private val networkConnectivityObserver: com.github.rahmnathan.localmovies.app.data.local.NetworkConnectivityObserver
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
     init {
+        // Observe network connectivity
+        viewModelScope.launch {
+            networkConnectivityObserver.isConnected.collect { isConnected ->
+                _uiState.update { it.copy(isOffline = !isConnected) }
+
+                // Show offline error message when connection is lost
+                if (!isConnected && _uiState.value.error == null) {
+                    _uiState.update {
+                        it.copy(error = "No internet connection")
+                    }
+                }
+            }
+        }
+
         // Load initial data (Movies root)
         loadMedia()
     }

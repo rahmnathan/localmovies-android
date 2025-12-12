@@ -283,6 +283,28 @@ fun MainScreen(
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
+            // Offline indicator banner
+            if (uiState.isOffline) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopCenter),
+                    color = MaterialTheme.colorScheme.errorContainer
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Offline",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                }
+            }
+
             when {
                 uiState.isLoading && uiState.mediaList.isEmpty() -> {
                     CircularProgressIndicator(
@@ -305,8 +327,10 @@ fun MainScreen(
                     }
                 }
                 uiState.mediaList.isEmpty() -> {
-                    Text(
-                        text = "No media found",
+                    EmptyState(
+                        searchQuery = uiState.searchQuery,
+                        currentPath = uiState.currentPath,
+                        typeFilter = uiState.typeFilter,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -707,4 +731,53 @@ fun SettingsDialog(
             }
         }
     )
+}
+
+@Composable
+fun EmptyState(
+    searchQuery: String,
+    currentPath: List<String>,
+    typeFilter: String?,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Movie,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+        )
+
+        val (title, message) = when {
+            searchQuery.isNotBlank() -> {
+                "No Results" to "No media found matching \"$searchQuery\""
+            }
+            typeFilter == "history" -> {
+                "No History" to "Your viewing history will appear here"
+            }
+            currentPath.size > 1 -> {
+                "Empty Folder" to "This folder doesn't contain any media"
+            }
+            else -> {
+                "No Media" to "No ${currentPath.firstOrNull() ?: "content"} available"
+            }
+        }
+
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+    }
 }
