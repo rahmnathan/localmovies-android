@@ -29,11 +29,12 @@ sealed class Screen(val route: String) {
     object Setup : Screen("setup")
     object Main : Screen("main")
     object CastController : Screen("cast_controller")
-    object Player : Screen("player/{url}/{updatePositionUrl}") {
-        fun createRoute(url: String, updatePositionUrl: String): String {
+    object Player : Screen("player/{url}/{updatePositionUrl}/{mediaId}") {
+        fun createRoute(url: String, updatePositionUrl: String, mediaId: String): String {
             val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
             val encodedUpdateUrl = URLEncoder.encode(updatePositionUrl, StandardCharsets.UTF_8.toString())
-            return "player/$encodedUrl/$encodedUpdateUrl"
+            val encodedMediaId = URLEncoder.encode(mediaId, StandardCharsets.UTF_8.toString())
+            return "player/$encodedUrl/$encodedUpdateUrl/$encodedMediaId"
         }
     }
     object Detail : Screen("detail/{mediaId}") {
@@ -74,8 +75,8 @@ fun LocalMoviesApp() {
 
         composable(Screen.Main.route) {
             MainScreen(
-                onNavigateToPlayer = { url, updatePositionUrl ->
-                    navController.navigate(Screen.Player.createRoute(url, updatePositionUrl))
+                onNavigateToPlayer = { url, updatePositionUrl, mediaId ->
+                    navController.navigate(Screen.Player.createRoute(url, updatePositionUrl, mediaId))
                 },
                 onNavigateToCastController = {
                     navController.navigate(Screen.CastController.route)
@@ -95,10 +96,17 @@ fun LocalMoviesApp() {
             route = Screen.Player.route,
             arguments = listOf(
                 navArgument("url") { type = NavType.StringType },
-                navArgument("updatePositionUrl") { type = NavType.StringType }
+                navArgument("updatePositionUrl") { type = NavType.StringType },
+                navArgument("mediaId") { type = NavType.StringType }
             )
         ) {
-            PlayerScreen()
+            PlayerScreen(
+                onNavigateToNextEpisode = { url, updatePositionUrl, mediaId ->
+                    navController.navigate(Screen.Player.createRoute(url, updatePositionUrl, mediaId)) {
+                        popUpTo(Screen.Player.route) { inclusive = true }
+                    }
+                }
+            )
         }
 
         composable(

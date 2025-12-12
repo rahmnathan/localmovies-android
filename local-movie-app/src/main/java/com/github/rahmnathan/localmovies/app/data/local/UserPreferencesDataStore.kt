@@ -28,7 +28,6 @@ class UserPreferencesDataStore @Inject constructor(
         val PASSWORD = stringPreferencesKey("password")
         val SERVER_URL = stringPreferencesKey("server_url")
         val AUTH_SERVER_URL = stringPreferencesKey("auth_server_url")
-        val LAST_UPDATE = longPreferencesKey("last_update")
     }
 
     val userCredentialsFlow: Flow<UserCredentials> = context.dataStore.data.map { prefs ->
@@ -47,19 +46,5 @@ class UserPreferencesDataStore @Inject constructor(
             prefs[PreferencesKeys.SERVER_URL] = credentials.serverUrl
             prefs[PreferencesKeys.AUTH_SERVER_URL] = credentials.authServerUrl
         }
-    }
-
-    suspend fun clearCredentials() {
-        context.dataStore.edit { it.clear() }
-    }
-
-    suspend fun updateLastUpdate(timestamp: Long) {
-        context.dataStore.edit { prefs ->
-            prefs[PreferencesKeys.LAST_UPDATE] = timestamp
-        }
-    }
-
-    val lastUpdateFlow: Flow<Long> = context.dataStore.data.map { prefs ->
-        prefs[PreferencesKeys.LAST_UPDATE] ?: System.currentTimeMillis()
     }
 }

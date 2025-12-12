@@ -18,7 +18,10 @@ data class PlayerUiState(
     val updatePositionUrl: String = "",
     val currentPosition: Long = 0,
     val isPlaying: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val currentMediaId: String = "",
+    val nextEpisode: com.github.rahmnathan.localmovies.app.media.data.Media? = null,
+    val isLoadingNextEpisode: Boolean = false
 )
 
 @HiltViewModel
@@ -35,16 +38,47 @@ class PlayerViewModel @Inject constructor(
     init {
         val encodedVideoUrl = savedStateHandle.get<String>("url") ?: ""
         val encodedUpdatePositionUrl = savedStateHandle.get<String>("updatePositionUrl") ?: ""
+        val encodedMediaId = savedStateHandle.get<String>("mediaId") ?: ""
 
         // Decode URLs from navigation parameters
         val videoUrl = URLDecoder.decode(encodedVideoUrl, StandardCharsets.UTF_8.toString())
         val updatePositionUrl = URLDecoder.decode(encodedUpdatePositionUrl, StandardCharsets.UTF_8.toString())
+        val mediaId = URLDecoder.decode(encodedMediaId, StandardCharsets.UTF_8.toString())
 
         _uiState.update {
             it.copy(
                 videoUrl = videoUrl,
-                updatePositionUrl = updatePositionUrl
+                updatePositionUrl = updatePositionUrl,
+                currentMediaId = mediaId
             )
+        }
+
+        // Load next episode information
+        loadNextEpisode(mediaId)
+    }
+
+    private fun loadNextEpisode(currentMediaId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoadingNextEpisode = true) }
+
+            when (val result = mediaRepository.getNextEpisode(currentMediaId)) {
+                is com.github.rahmnathan.localmovies.app.data.repository.Result.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            nextEpisode = result.data,
+                            isLoadingNextEpisode = false
+                        )
+                    }
+                    android.util.Log.d("PlayerViewModel", "Next episode loaded: ${result.data?.title}")
+                }
+                is com.github.rahmnathan.localmovies.app.data.repository.Result.Error -> {
+                    _uiState.update { it.copy(isLoadingNextEpisode = false) }
+                    android.util.Log.d("PlayerViewModel", "No next episode available")
+                }
+                else -> {
+                    _uiState.update { it.copy(isLoadingNextEpisode = false) }
+                }
+            }
         }
     }
 
@@ -99,6 +133,33 @@ class PlayerViewModel @Inject constructor(
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun playNextEpisode(onNavigateToNextEpisode: (url: String, updatePositionUrl: String, mediaId: String) -> Unit) {
+        val nextEpisode = _uiState.value.nextEpisode
+        if (nextEpisode != null) {
+            viewModelScope.launch {
+                try {
+                    when (val result = mediaRepository.getSignedUrls(nextEpisode.mediaFileId)) {
+                        is com.github.rahmnathan.localmovies.app.data.repository.Result.Success -> {
+                            val signedUrls = result.data
+                            android.util.Log.d("PlayerViewModel", "Playing next episode: ${nextEpisode.title}")
+                            onNavigateToNextEpisode(signedUrls.stream, signedUrls.updatePosition, nextEpisode.mediaFileId)
+                        }
+                        is com.github.rahmnathan.localmovies.app.data.repository.Result.Error -> {
+                            _uiState.update {
+                                it.copy(error = "Failed to load next episode: ${result.message}")
+                            }
+                        }
+                        else -> {}
+                    }
+                } catch (e: Exception) {
+                    _uiState.update {
+                        it.copy(error = "Failed to load next episode: ${e.message}")
+                    }
+                }
+            }
+        }
     }
 
     override fun onCleared() {

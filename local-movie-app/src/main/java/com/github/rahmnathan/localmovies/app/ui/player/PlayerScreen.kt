@@ -4,6 +4,8 @@ import android.widget.MediaController
 import android.widget.VideoView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,7 +20,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun PlayerScreen(
-    viewModel: PlayerViewModel = hiltViewModel()
+    viewModel: PlayerViewModel = hiltViewModel(),
+    onNavigateToNextEpisode: (url: String, updatePositionUrl: String, mediaId: String) -> Unit = { _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -61,6 +64,12 @@ fun PlayerScreen(
                         setOnCompletionListener {
                             android.util.Log.d("PlayerScreen", "Video completed")
                             viewModel.onPlaybackPaused()
+
+                            // Auto-play next episode if available
+                            if (uiState.nextEpisode != null) {
+                                android.util.Log.d("PlayerScreen", "Auto-playing next episode")
+                                viewModel.playNextEpisode(onNavigateToNextEpisode)
+                            }
                         }
 
                         setOnErrorListener { _, what, extra ->
@@ -102,6 +111,28 @@ fun PlayerScreen(
                     color = Color.White,
                     style = MaterialTheme.typography.bodyLarge
                 )
+            }
+        }
+
+        // Show "Next Episode" button if available
+        if (uiState.nextEpisode != null) {
+            FloatingActionButton(
+                onClick = { viewModel.playNextEpisode(onNavigateToNextEpisode) },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.SkipNext,
+                        contentDescription = "Next Episode"
+                    )
+                    Text("Next Episode")
+                }
             }
         }
 

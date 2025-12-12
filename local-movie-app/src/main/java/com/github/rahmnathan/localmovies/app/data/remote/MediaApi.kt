@@ -3,8 +3,6 @@ package com.github.rahmnathan.localmovies.app.data.remote
 import com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore
 import com.github.rahmnathan.localmovies.app.data.remote.dto.MediaResponseDto
 import com.github.rahmnathan.localmovies.app.media.data.Media
-import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
-import com.github.rahmnathan.localmovies.app.media.data.MediaEvent
 import com.github.rahmnathan.localmovies.app.media.data.MediaRequest
 import com.github.rahmnathan.localmovies.app.media.data.SignedUrls
 import io.ktor.client.call.*
@@ -31,8 +29,7 @@ class MediaApi @Inject constructor(
     )
 
     suspend fun getMediaList(
-        path: String,
-        endpoint: MediaEndpoint,
+        path: String?,
         page: Int,
         size: Int,
         order: String = "added",
@@ -42,7 +39,7 @@ class MediaApi @Inject constructor(
         type: String? = null
     ): MediaListResponse = withContext(Dispatchers.IO) {
         val serverUrl = getServerUrl()
-        val response = apiClient.httpClient.post("$serverUrl${endpoint.endpoint}") {
+        val response = apiClient.httpClient.post("${serverUrl}/localmovie/mobile/v1/media") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(MediaRequest(
@@ -106,25 +103,15 @@ class MediaApi @Inject constructor(
         apiClient.httpClient.patch(fullUrl)
     }
 
-    suspend fun getMovieEvents(
-        page: Int,
-        size: Int,
-        timestamp: Long
-    ): List<MediaEvent> = withContext(Dispatchers.IO) {
-        val serverUrl = getServerUrl()
-        val response = apiClient.httpClient.get("$serverUrl/localmovie/mobile/v1/media/events") {
-            parameter("timestamp", timestamp)
-            parameter("page", page)
-            parameter("size", size)
+    suspend fun getNextEpisode(currentMediaId: String): Media? = withContext(Dispatchers.IO) {
+        try {
+            val serverUrl = getServerUrl()
+            val response = apiClient.httpClient.get("$serverUrl/localmovie/v1/media/$currentMediaId/next")
+            val dto = response.body<MediaResponseDto>()
+            dto.toMedia()
+        } catch (e: Exception) {
+            android.util.Log.w("MediaApi", "No next episode found for $currentMediaId: ${e.message}")
+            null
         }
-        response.body()
-    }
-
-    suspend fun getMovieEventCount(timestamp: Long): Long = withContext(Dispatchers.IO) {
-        val serverUrl = getServerUrl()
-        val response = apiClient.httpClient.get("$serverUrl/localmovie/mobile/v1/media/events/count") {
-            parameter("timestamp", timestamp)
-        }
-        response.headers["Count"]?.toLong() ?: 0L
     }
 }

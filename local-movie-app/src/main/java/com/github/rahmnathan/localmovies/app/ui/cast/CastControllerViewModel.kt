@@ -33,7 +33,7 @@ class CastControllerViewModel @Inject constructor(
         viewModelScope.launch {
             while (true) {
                 updateState()
-                kotlinx.coroutines.delay(1000) // Update every second
+                kotlinx.coroutines.delay(2000) // Update every 2 seconds
             }
         }
     }

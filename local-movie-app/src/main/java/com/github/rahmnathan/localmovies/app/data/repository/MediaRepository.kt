@@ -1,12 +1,8 @@
 package com.github.rahmnathan.localmovies.app.data.repository
 
-import com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore
 import com.github.rahmnathan.localmovies.app.data.remote.MediaApi
 import com.github.rahmnathan.localmovies.app.media.data.Media
-import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
-import com.github.rahmnathan.localmovies.app.media.data.MediaEvent
 import com.github.rahmnathan.localmovies.app.media.data.SignedUrls
-import com.github.rahmnathan.localmovies.app.persistence.media.MediaPersistenceService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
@@ -21,12 +17,10 @@ sealed class Result<out T> {
 
 @Singleton
 class MediaRepository @Inject constructor(
-    private val mediaApi: MediaApi,
-    private val preferencesDataStore: UserPreferencesDataStore
+    private val mediaApi: MediaApi
 ) {
-    suspend fun getMediaList(
+    fun getMediaList(
         path: String,
-        endpoint: MediaEndpoint,
         page: Int = 0,
         size: Int = 50,
         order: String = "added",
@@ -40,7 +34,6 @@ class MediaRepository @Inject constructor(
             // Fetch from network (no caching)
             val response = mediaApi.getMediaList(
                 path = path,
-                endpoint = endpoint,
                 page = page,
                 size = size,
                 order = order,
@@ -75,26 +68,35 @@ class MediaRepository @Inject constructor(
         }
     }
 
-    suspend fun getMovieEvents(
-        page: Int,
-        size: Int
-    ): Result<List<MediaEvent>> = withContext(Dispatchers.IO) {
+    suspend fun getNextEpisode(currentMediaId: String): Result<Media?> = withContext(Dispatchers.IO) {
         try {
-            val timestamp = preferencesDataStore.lastUpdateFlow.first()
-            val events = mediaApi.getMovieEvents(page, size, timestamp)
-            Result.Success(events)
+            val nextEpisode = mediaApi.getNextEpisode(currentMediaId)
+            Result.Success(nextEpisode)
         } catch (e: Exception) {
             Result.Error(e)
         }
     }
 
-    suspend fun getMovieEventCount(): Result<Long> = withContext(Dispatchers.IO) {
+    fun getMediaHistory(
+        page: Int = 0,
+        size: Int = 50,
+        searchQuery: String? = null
+    ): Flow<Result<List<Media>>> = flow {
+        emit(Result.Loading)
+
         try {
-            val timestamp = preferencesDataStore.lastUpdateFlow.first()
-            val count = mediaApi.getMovieEventCount(timestamp)
-            Result.Success(count)
+            val response = mediaApi.getMediaList(
+                page = page,
+                size = size,
+                type = "history",
+                path = "Movies",
+                searchQuery = searchQuery
+            )
+
+            emit(Result.Success(response.mediaList, totalCount = response.totalCount))
         } catch (e: Exception) {
-            Result.Error(e)
+            emit(Result.Error(e))
         }
-    }
+    }.flowOn(Dispatchers.IO)
 }
+

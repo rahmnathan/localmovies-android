@@ -6,7 +6,6 @@ import com.github.rahmnathan.localmovies.app.cast.control.GoogleCastUtils
 import com.github.rahmnathan.localmovies.app.data.repository.MediaRepository
 import com.github.rahmnathan.localmovies.app.data.repository.Result
 import com.github.rahmnathan.localmovies.app.media.data.Media
-import com.github.rahmnathan.localmovies.app.media.data.MediaEndpoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -18,7 +17,6 @@ data class MainUiState(
     val error: String? = null,
     val searchQuery: String = "",
     val currentPath: List<String> = listOf("Movies"),
-    val endpoint: MediaEndpoint = MediaEndpoint.MEDIA,
     val selectedTab: Int = 0, // 0=Movies, 1=Series, 2=Controls, 3=More
     val currentPage: Int = 0,
     val hasMorePages: Boolean = true,
@@ -49,7 +47,15 @@ class MainViewModel @Inject constructor(
     }
 
     fun navigateToRoot(rootPath: String) {
-        _uiState.update { it.copy(currentPath = listOf(rootPath), searchQuery = "", currentPage = 0, hasMorePages = true) }
+        _uiState.update {
+            it.copy(
+                currentPath = listOf(rootPath),
+                typeFilter = null,
+                searchQuery = "",
+                currentPage = 0,
+                hasMorePages = true
+            )
+        }
         loadMedia(resetList = true)
     }
 
@@ -57,6 +63,7 @@ class MainViewModel @Inject constructor(
         _uiState.update { state ->
             state.copy(
                 currentPath = state.currentPath + directory,
+                typeFilter = null,
                 searchQuery = "",
                 currentPage = 0,
                 hasMorePages = true
@@ -67,8 +74,15 @@ class MainViewModel @Inject constructor(
 
     fun navigateBack(): Boolean {
         val currentPath = _uiState.value.currentPath
-        return if (currentPath.size > 1) {
-            _uiState.update { it.copy(currentPath = currentPath.dropLast(1), searchQuery = "", currentPage = 0, hasMorePages = true) }
+        return if (currentPath.size > 1 && _uiState.value.typeFilter != "history") {
+            _uiState.update {
+                it.copy(
+                    currentPath = currentPath.dropLast(1),
+                    searchQuery = "",
+                    currentPage = 0,
+                    hasMorePages = true
+                )
+            }
             loadMedia(resetList = true)
             true
         } else {
@@ -81,13 +95,20 @@ class MainViewModel @Inject constructor(
         when (tabIndex) {
             0 -> navigateToRoot("Movies")
             1 -> navigateToRoot("Series")
-            // 2 = Controls (handled in UI)
-            // 3 = More (handled in UI)
+            2 -> loadHistoryTab()
         }
     }
 
-    fun changeEndpoint(endpoint: MediaEndpoint) {
-        _uiState.update { it.copy(endpoint = endpoint, currentPage = 0, hasMorePages = true) }
+    private fun loadHistoryTab() {
+        _uiState.update {
+            it.copy(
+                currentPath = listOf("History"),
+                typeFilter = "history",
+                searchQuery = "",
+                currentPage = 0,
+                hasMorePages = true
+            )
+        }
         loadMedia(resetList = true)
     }
 
@@ -101,11 +122,6 @@ class MainViewModel @Inject constructor(
         loadMedia(resetList = true)
     }
 
-    fun onTypeFilterChange(type: String?) {
-        _uiState.update { it.copy(typeFilter = type, currentPage = 0, hasMorePages = true) }
-        loadMedia(resetList = true)
-    }
-
     private fun loadMedia(resetList: Boolean = false) {
         viewModelScope.launch {
             val path = _uiState.value.currentPath.joinToString("/")
@@ -116,7 +132,6 @@ class MainViewModel @Inject constructor(
 
             mediaRepository.getMediaList(
                 path = path,
-                endpoint = _uiState.value.endpoint,
                 page = page,
                 size = 50,
                 order = _uiState.value.sortOrder,
@@ -185,7 +200,7 @@ class MainViewModel @Inject constructor(
         _uiState.update { it.copy(error = null) }
     }
 
-    fun playMedia(media: Media, onNavigateToPlayer: (url: String, updatePositionUrl: String) -> Unit) {
+    fun playMedia(media: Media, onNavigateToPlayer: (url: String, updatePositionUrl: String, mediaId: String) -> Unit) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
@@ -210,7 +225,7 @@ class MainViewModel @Inject constructor(
                         val signedUrls = result.data
                         android.util.Log.d("MainViewModel", "Got signed URLs - stream: ${signedUrls.stream}")
                         android.util.Log.d("MainViewModel", "Got signed URLs - updatePosition: ${signedUrls.updatePosition}")
-                        onNavigateToPlayer(signedUrls.stream, signedUrls.updatePosition)
+                        onNavigateToPlayer(signedUrls.stream, signedUrls.updatePosition, media.mediaFileId)
                         _uiState.update { it.copy(isLoading = false) }
                     }
                     is Result.Error -> {

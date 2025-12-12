@@ -3,6 +3,8 @@ package com.github.rahmnathan.localmovies.app.ui.main
 import android.util.Base64
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -10,16 +12,17 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,7 +37,7 @@ import com.google.android.gms.cast.framework.CastButtonFactory
 @Composable
 fun MainScreen(
     viewModel: MainViewModel = hiltViewModel(),
-    onNavigateToPlayer: (url: String, updatePositionUrl: String) -> Unit = { _, _ -> },
+    onNavigateToPlayer: (url: String, updatePositionUrl: String, mediaId: String) -> Unit = { _, _, _ -> },
     onNavigateToCastController: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -43,9 +46,26 @@ fun MainScreen(
     var isSearchExpanded by remember { mutableStateOf(false) }
     var showSortMenu by remember { mutableStateOf(false) }
     var showFilterMenu by remember { mutableStateOf(false) }
+    var selectedMediaForDetails by remember { mutableStateOf<Media?>(null) }
 
     BackHandler(enabled = uiState.currentPath.size > 1) {
         viewModel.navigateBack()
+    }
+
+    // Media details dialog
+    selectedMediaForDetails?.let { media ->
+        MediaDetailsDialog(
+            media = media,
+            onDismiss = { selectedMediaForDetails = null },
+            onPlay = {
+                selectedMediaForDetails = null
+                if (media.streamable) {
+                    viewModel.playMedia(media, onNavigateToPlayer)
+                } else {
+                    viewModel.navigateToDirectory(media.filename)
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -234,6 +254,12 @@ fun MainScreen(
                         icon = {},
                         label = { Text("Series") }
                     )
+                    NavigationBarItem(
+                        selected = uiState.selectedTab == 2,
+                        onClick = { viewModel.onTabSelected(2) },
+                        icon = {},
+                        label = { Text("History") }
+                    )
                 }
             }
         }
@@ -269,6 +295,11 @@ fun MainScreen(
                 else -> {
                     val listState = rememberLazyGridState()
 
+                    // Scroll to top when tab, search, sort, or filter changes
+                    LaunchedEffect(uiState.selectedTab, uiState.searchQuery, uiState.sortOrder, uiState.genreFilter) {
+                        listState.scrollToItem(0)
+                    }
+
                     // Detect when we're near the bottom and load more
                     LaunchedEffect(listState) {
                         snapshotFlow {
@@ -287,7 +318,7 @@ fun MainScreen(
                     }
 
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(90.dp),
+                        columns = GridCells.Adaptive(108.dp),
                         state = listState,
                         contentPadding = PaddingValues(4.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -305,6 +336,9 @@ fun MainScreen(
                                     } else {
                                         viewModel.navigateToDirectory(media.filename)
                                     }
+                                },
+                                onLongClick = {
+                                    selectedMediaForDetails = media
                                 }
                             )
                         }
@@ -330,7 +364,8 @@ fun MainScreen(
 @Composable
 fun MediaCard(
     media: Media,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: () -> Unit = {}
 ) {
     Card(
         onClick = onClick,
@@ -378,10 +413,157 @@ fun MediaCard(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = media.title,
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
+
+            // Title overlay at the bottom
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+            ) {
+                Text(
+                    text = media.title,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(4.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+            }
+
+            // Info button in top right
+            IconButton(
+                onClick = onLongClick,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(32.dp)
+            ) {
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Details",
+                        modifier = Modifier.padding(4.dp),
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
         }
     }
+}
+@Composable
+fun MediaDetailsDialog(
+    media: Media,
+    onDismiss: () -> Unit,
+    onPlay: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(media.title) },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Poster
+                if (!media.image.isNullOrBlank()) {
+                    val imageBytes = try {
+                        Base64.decode(media.image, Base64.DEFAULT)
+                    } catch (e: Exception) {
+                        null
+                    }
+
+                    if (imageBytes != null) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(2f / 3f)
+                        ) {
+                            AsyncImage(
+                                model = imageBytes,
+                                contentDescription = media.title,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                    }
+                }
+
+                // Ratings and Year
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (!media.releaseYear.isNullOrBlank()) {
+                        AssistChip(
+                            onClick = {},
+                            label = { Text(media.releaseYear ?: "") }
+                        )
+                    }
+                    if (!media.imdbRating.isNullOrBlank()) {
+                        AssistChip(
+                            onClick = {},
+                            label = { Text("IMDb: ${media.imdbRating}") }
+                        )
+                    }
+                    if (!media.metaRating.isNullOrBlank()) {
+                        AssistChip(
+                            onClick = {},
+                            label = { Text("Meta: ${media.metaRating}") }
+                        )
+                    }
+                }
+
+                // Genre
+                if (!media.genre.isNullOrBlank()) {
+                    Text(
+                        text = "Genre: ${media.genre}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                // Plot
+                if (!media.plot.isNullOrBlank()) {
+                    Text(
+                        text = media.plot ?: "",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                // Actors
+                if (!media.actors.isNullOrBlank()) {
+                    Text(
+                        text = "Cast: ${media.actors}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            if (media.streamable) {
+                Button(onClick = onPlay) {
+                    Text("Play")
+                }
+            } else {
+                Button(onClick = onPlay) {
+                    Text("Open")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Close")
+            }
+        }
+    )
 }
