@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -39,7 +40,8 @@ import com.google.android.gms.cast.framework.CastButtonFactory
 fun MainScreen(
     viewModel: MainViewModel = hiltViewModel(),
     onNavigateToPlayer: (url: String, updatePositionUrl: String, mediaId: String, resumePosition: Long) -> Unit = { _, _, _, _ -> },
-    onNavigateToCastController: () -> Unit = {}
+    onNavigateToCastController: () -> Unit = {},
+    onNavigateToSetup: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -48,6 +50,7 @@ fun MainScreen(
     var showSortMenu by remember { mutableStateOf(false) }
     var showFilterMenu by remember { mutableStateOf(false) }
     var selectedMediaForDetails by remember { mutableStateOf<Media?>(null) }
+    var showSettingsDialog by remember { mutableStateOf(false) }
 
     BackHandler(enabled = uiState.currentPath.size > 1) {
         viewModel.navigateBack()
@@ -66,6 +69,15 @@ fun MainScreen(
                     viewModel.navigateToDirectory(media.filename)
                 }
             }
+        )
+    }
+
+    // Settings dialog
+    if (showSettingsDialog) {
+        SettingsDialog(
+            viewModel = viewModel,
+            onDismiss = { showSettingsDialog = false },
+            onNavigateToSetup = onNavigateToSetup
         )
     }
 
@@ -231,6 +243,11 @@ fun MainScreen(
                             .height(48.dp)
                             .padding(end = 8.dp)
                     )
+
+                    // Settings button
+                    IconButton(onClick = { showSettingsDialog = true }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
                 }
             )
         },
@@ -626,4 +643,68 @@ private fun formatResumeTime(milliseconds: Long): String {
     } else {
         String.format("%dm", minutes)
     }
+}
+
+@Composable
+fun SettingsDialog(
+    viewModel: MainViewModel,
+    onDismiss: () -> Unit,
+    onNavigateToSetup: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Settings") },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Account",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                // Show current user info if available
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "You can logout to switch accounts or change server URL",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    viewModel.logout()
+                    onDismiss()
+                    onNavigateToSetup()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Logout")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }

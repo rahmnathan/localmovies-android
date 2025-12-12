@@ -80,6 +80,11 @@ fun LocalMoviesApp() {
                 },
                 onNavigateToCastController = {
                     navController.navigate(Screen.CastController.route)
+                },
+                onNavigateToSetup = {
+                    navController.navigate(Screen.Setup.route) {
+                        popUpTo(Screen.Main.route) { inclusive = true }
+                    }
                 }
             )
         }

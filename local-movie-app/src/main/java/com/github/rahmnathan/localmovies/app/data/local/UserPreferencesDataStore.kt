@@ -47,4 +47,10 @@ class UserPreferencesDataStore @Inject constructor(
             prefs[PreferencesKeys.AUTH_SERVER_URL] = credentials.authServerUrl
         }
     }
+
+    suspend fun clearCredentials() {
+        context.dataStore.edit { prefs ->
+            prefs.clear()
+        }
+    }
 }

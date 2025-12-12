@@ -29,7 +29,8 @@ data class MainUiState(
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val mediaRepository: MediaRepository,
-    private val googleCastUtils: GoogleCastUtils
+    private val googleCastUtils: GoogleCastUtils,
+    private val preferencesDataStore: com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -269,6 +270,12 @@ class MainViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            preferencesDataStore.clearCredentials()
         }
     }
 }
