@@ -1,6 +1,5 @@
 package com.github.rahmnathan.localmovies.app.ui.main
 
-import android.util.Base64
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -31,9 +30,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.mediarouter.app.MediaRouteButton
 import coil3.compose.AsyncImage
+import com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore
 import com.github.rahmnathan.localmovies.app.media.data.Media
 import com.github.rahmnathan.localmovies.app.ui.cast.CastMiniController
 import com.google.android.gms.cast.framework.CastButtonFactory
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -413,18 +414,8 @@ fun MediaCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit = {}
 ) {
-    // Cache decoded image bytes to avoid re-decoding on every recomposition
-    val imageBytes = remember(media.image) {
-        if (!media.image.isNullOrBlank()) {
-            try {
-                Base64.decode(media.image, Base64.DEFAULT)
-            } catch (e: Exception) {
-                null
-            }
-        } else {
-            null
-        }
-    }
+    // Use poster URL from signedUrls if available
+    val posterUrl = media.signedUrls?.poster
 
     Card(
         onClick = onClick,
@@ -434,21 +425,12 @@ fun MediaCard(
             .graphicsLayer() // Reduce recomposition overhead
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            if (imageBytes != null) {
+            if (posterUrl != null) {
                 AsyncImage(
-                    model = imageBytes,
+                    model = posterUrl,
                     contentDescription = media.title,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
-                )
-            } else if (!media.image.isNullOrBlank()) {
-                // Fallback if base64 decode fails
-                Icon(
-                    imageVector = Icons.Default.Movie,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(48.dp)
                 )
             } else {
                 // No image available
@@ -530,26 +512,19 @@ fun MediaDetailsDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Poster
-                if (!media.image.isNullOrBlank()) {
-                    val imageBytes = try {
-                        Base64.decode(media.image, Base64.DEFAULT)
-                    } catch (e: Exception) {
-                        null
-                    }
-
-                    if (imageBytes != null) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(2f / 3f)
-                        ) {
-                            AsyncImage(
-                                model = imageBytes,
-                                contentDescription = media.title,
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Fit
-                            )
-                        }
+                val posterUrl = media.signedUrls?.poster
+                if (posterUrl != null) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(2f / 3f)
+                    ) {
+                        AsyncImage(
+                            model = posterUrl,
+                            contentDescription = media.title,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
                     }
                 }
 

@@ -55,10 +55,4 @@ class NetworkConnectivityObserver @Inject constructor(
             connectivityManager.unregisterNetworkCallback(callback)
         }
     }.distinctUntilChanged()
-
-    fun isCurrentlyConnected(): Boolean {
-        val currentNetwork = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(currentNetwork) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }
 }

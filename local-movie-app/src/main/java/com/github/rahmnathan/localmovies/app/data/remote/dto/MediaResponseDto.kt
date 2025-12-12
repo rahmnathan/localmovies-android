@@ -3,6 +3,7 @@ package com.github.rahmnathan.localmovies.app.data.remote.dto
 import com.github.rahmnathan.localmovies.app.media.data.Media
 import com.github.rahmnathan.localmovies.app.media.data.MediaUser
 import com.github.rahmnathan.localmovies.app.media.data.MediaView
+import com.github.rahmnathan.localmovies.app.media.data.SignedUrls
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -30,9 +31,12 @@ data class MediaResponseDto(
     val media: MediaDto?,
 
     @SerializedName("mediaViews")
-    val mediaViews: List<MediaViewDto>?
+    val mediaViews: List<MediaViewDto>?,
+
+    @SerializedName("signedUrls")
+    val signedUrls: SignedUrlsDto?
 ) {
-    fun toMedia(): Media {
+    fun toMedia(serverUrl: String): Media {
         // Determine file type from path extension
         val fileType = when {
             path.endsWith(".mp4", ignoreCase = true) -> "VIDEO"
@@ -60,10 +64,39 @@ data class MediaResponseDto(
             type = fileType,
             mediaFileId = mediaFileId,
             streamable = streamable ?: false,
-            mediaViews = mediaViews?.map { it.toMediaView() }
+            mediaViews = mediaViews?.map { it.toMediaView() },
+
+            // Map signedUrls and prepend server URL if needed
+            signedUrls = signedUrls?.let {
+                fun makeAbsoluteUrl(url: String?): String? {
+                    if (url == null) return null
+                    return when {
+                        url.startsWith("http") -> url
+                        url.startsWith("/") -> "$serverUrl$url"
+                        else -> "$serverUrl/$url"
+                    }
+                }
+
+                SignedUrls(
+                    poster = makeAbsoluteUrl(it.poster),
+                    stream = makeAbsoluteUrl(it.stream),
+                    updatePosition = makeAbsoluteUrl(it.updatePosition)
+                )
+            }
         )
     }
 }
+
+data class SignedUrlsDto(
+    @SerializedName("stream")
+    val stream: String? = null,
+
+    @SerializedName("poster")
+    val poster: String? = null,
+
+    @SerializedName("updatePosition")
+    val updatePosition: String? = null
+)
 
 data class MediaDto(
     @SerializedName("title")

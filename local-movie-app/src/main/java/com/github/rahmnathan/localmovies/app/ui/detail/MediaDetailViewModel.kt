@@ -3,8 +3,6 @@ package com.github.rahmnathan.localmovies.app.ui.detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.rahmnathan.localmovies.app.data.repository.MediaRepository
-import com.github.rahmnathan.localmovies.app.data.repository.Result
 import com.github.rahmnathan.localmovies.app.media.data.Media
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -19,7 +17,6 @@ data class MediaDetailUiState(
 
 @HiltViewModel
 class MediaDetailViewModel @Inject constructor(
-    private val mediaRepository: MediaRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 

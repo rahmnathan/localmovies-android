@@ -19,7 +19,8 @@ class Media(
     val type: String,
     val mediaFileId: String,
     val streamable: Boolean,
-    val mediaViews: List<MediaView>? = null
+    val mediaViews: List<MediaView>? = null,
+    val signedUrls: SignedUrls? = null
 ) : Serializable, Comparator<Media> {
 
     override fun toString(): String {

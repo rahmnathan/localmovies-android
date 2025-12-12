@@ -259,9 +259,20 @@ class MainViewModel @Inject constructor(
                 when (val result = mediaRepository.getSignedUrls(media.mediaFileId)) {
                     is Result.Success -> {
                         val signedUrls = result.data
-                        android.util.Log.d("MainViewModel", "Got signed URLs - stream: ${signedUrls.stream}")
-                        android.util.Log.d("MainViewModel", "Got signed URLs - updatePosition: ${signedUrls.updatePosition}")
-                        onNavigateToPlayer(signedUrls.stream, signedUrls.updatePosition, media.mediaFileId, resumePosition)
+                        val streamUrl = signedUrls.stream ?: run {
+                            android.util.Log.e("MainViewModel", "Stream URL is null in signed URLs response")
+                            _uiState.update { it.copy(isLoading = false, error = "Invalid stream URL") }
+                            return@launch
+                        }
+                        val updatePositionUrl = signedUrls.updatePosition ?: run {
+                            android.util.Log.e("MainViewModel", "UpdatePosition URL is null in signed URLs response")
+                            _uiState.update { it.copy(isLoading = false, error = "Invalid update position URL") }
+                            return@launch
+                        }
+
+                        android.util.Log.d("MainViewModel", "Got signed URLs - stream: $streamUrl")
+                        android.util.Log.d("MainViewModel", "Got signed URLs - updatePosition: $updatePositionUrl")
+                        onNavigateToPlayer(streamUrl, updatePositionUrl, media.mediaFileId, resumePosition)
                         _uiState.update { it.copy(isLoading = false) }
                     }
                     is Result.Error -> {

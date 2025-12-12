@@ -129,10 +129,6 @@ class PlayerViewModel @Inject constructor(
         }
     }
 
-    fun onPlaybackStarted() {
-        player.play()
-    }
-
     fun onPlaybackPaused() {
         player.pause()
     }

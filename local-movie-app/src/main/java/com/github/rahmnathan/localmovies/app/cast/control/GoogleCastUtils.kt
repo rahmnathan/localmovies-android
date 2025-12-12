@@ -1,7 +1,6 @@
 package com.github.rahmnathan.localmovies.app.cast.control
 
 import androidx.core.net.toUri
-import com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore
 import com.github.rahmnathan.localmovies.app.data.repository.MediaRepository
 import com.github.rahmnathan.localmovies.app.data.repository.Result
 import com.github.rahmnathan.localmovies.app.media.data.Media
@@ -10,10 +9,8 @@ import com.google.android.gms.cast.MediaLoadRequestData
 import com.google.android.gms.cast.MediaMetadata
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.cast.framework.CastContext
-import com.google.android.gms.cast.framework.CastSession
 import com.google.android.gms.common.images.WebImage
 import com.google.common.net.MediaType
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,13 +18,8 @@ import javax.inject.Singleton
 @Singleton
 class GoogleCastUtils @Inject constructor(
     private val mediaRepository: MediaRepository,
-    private val preferencesDataStore: UserPreferencesDataStore,
     private val castContext: CastContext?
 ) {
-
-    fun assembleMediaQueue(media: List<Media>): List<MediaQueueItem> {
-        return media.map { buildMediaQueueItem(it, 0) }
-    }
 
     /**
      * Check if there's an active Cast session
@@ -91,13 +83,14 @@ class GoogleCastUtils @Inject constructor(
                 val metaData = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE)
                 metaData.putString(MediaMetadata.KEY_TITLE, media.title)
                 metaData.putString("media-id", media.mediaFileId)
-                metaData.putString("update-position-url", signedUrls.updatePosition)
+                signedUrls?.updatePosition?.let { metaData.putString("update-position-url", it) }
 
-                if (signedUrls.poster.isNotBlank()) {
-                    metaData.addImage(WebImage(signedUrls.poster.toUri()))
+                signedUrls?.poster?.takeIf { it.isNotBlank() }?.let { poster ->
+                    metaData.addImage(WebImage(poster.toUri()))
                 }
 
-                val mediaInfo = MediaInfo.Builder(signedUrls.stream)
+                val streamUrl = signedUrls?.stream ?: throw IllegalStateException("Stream URL is required for casting")
+                val mediaInfo = MediaInfo.Builder(streamUrl)
                     .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                     .setContentType(MediaType.ANY_VIDEO_TYPE.toString())
                     .setMetadata(metaData)
@@ -133,14 +126,15 @@ class GoogleCastUtils @Inject constructor(
         val metaData = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE)
         metaData.putString(MediaMetadata.KEY_TITLE, media.title)
         metaData.putString("media-id", media.mediaFileId)
-        metaData.putString("update-position-url", signedUrls.updatePosition)
+        signedUrls.updatePosition?.let { metaData.putString("update-position-url", it) }
 
         // URLs are now absolute, no need to prepend server URL
-        if (signedUrls.poster.isNotBlank()) {
-            metaData.addImage(WebImage(signedUrls.poster.toUri()))
+        signedUrls.poster?.takeIf { it.isNotBlank() }?.let { poster ->
+            metaData.addImage(WebImage(poster.toUri()))
         }
 
-        val mediaInfo = MediaInfo.Builder(signedUrls.stream)
+        val streamUrl = signedUrls.stream ?: throw IllegalStateException("Stream URL is required for casting")
+        val mediaInfo = MediaInfo.Builder(streamUrl)
             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
             .setContentType(MediaType.ANY_VIDEO_TYPE.toString())
             .setMetadata(metaData)

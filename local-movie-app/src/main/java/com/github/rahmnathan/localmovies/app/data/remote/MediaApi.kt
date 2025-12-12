@@ -39,7 +39,7 @@ class MediaApi @Inject constructor(
         type: String? = null
     ): MediaListResponse = withContext(Dispatchers.IO) {
         val serverUrl = getServerUrl()
-        val response = apiClient.httpClient.post("${serverUrl}/localmovie/mobile/v1/media") {
+        val response = apiClient.httpClient.post("${serverUrl}/localmovie/v1/media") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(MediaRequest(
@@ -65,7 +65,11 @@ class MediaApi @Inject constructor(
 
         val mediaList = dtoList.map { dto ->
             android.util.Log.d("MediaApi", "Mapping: fileName=${dto.fileName}, media.title=${dto.media?.title}")
-            dto.toMedia()
+            android.util.Log.d("MediaApi", "SignedUrls DTO: stream=${dto.signedUrls?.stream}, poster=${dto.signedUrls?.poster}")
+            android.util.Log.d("MediaApi", "Server URL: $serverUrl")
+            val media = dto.toMedia(serverUrl)
+            android.util.Log.d("MediaApi", "Mapped signedUrls: stream=${media.signedUrls?.stream}, poster=${media.signedUrls?.poster}")
+            media
         }
 
         android.util.Log.d("MediaApi", "Mapped to ${mediaList.size} Media objects")
@@ -77,11 +81,21 @@ class MediaApi @Inject constructor(
         val response = apiClient.httpClient.get("$serverUrl/localmovie/v1/media/$mediaId/url/signed")
         val signedUrls = response.body<SignedUrls>()
 
+        fun makeAbsoluteUrl(url: String?): String {
+            if (url == null) throw IllegalStateException("Expected non-null URL from signed URL endpoint")
+            return when {
+                url.startsWith("http") -> url
+                url.startsWith("/") -> "$serverUrl$url"
+                else -> "$serverUrl/$url"
+            }
+        }
+
         // API returns relative paths - prepend server URL to make them absolute
+        // All fields should be non-null when fetched from this endpoint
         SignedUrls(
-            stream = if (signedUrls.stream.startsWith("http")) signedUrls.stream else "$serverUrl${signedUrls.stream}",
-            poster = if (signedUrls.poster.startsWith("http")) signedUrls.poster else "$serverUrl${signedUrls.poster}",
-            updatePosition = if (signedUrls.updatePosition.startsWith("http")) signedUrls.updatePosition else "$serverUrl${signedUrls.updatePosition}"
+            stream = makeAbsoluteUrl(signedUrls.stream),
+            poster = makeAbsoluteUrl(signedUrls.poster),
+            updatePosition = makeAbsoluteUrl(signedUrls.updatePosition)
         )
     }
 
