@@ -57,20 +57,24 @@ fun CastControllerScreen(
             )
         }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
-            if (!uiState.isConnected) {
-                Text("Not connected to Cast device")
-                return@Column
-            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (!uiState.isConnected) {
+                    Text("Not connected to Cast device")
+                    return@Scaffold
+                }
 
-            // Poster image
+                // Poster image
             if (uiState.imageUrl.isNotBlank()) {
                 Card(
                     modifier = Modifier
@@ -161,6 +165,7 @@ fun CastControllerScreen(
                 }
             }
         }
+    }
     }
 }
 

@@ -18,7 +18,8 @@ class Media(
     val number: String?,
     val type: String,
     val mediaFileId: String,
-    val streamable: Boolean
+    val streamable: Boolean,
+    val mediaViews: List<MediaView>? = null
 ) : Serializable, Comparator<Media> {
 
     override fun toString(): String {
@@ -27,5 +28,21 @@ class Media(
 
     override fun compare(info1: Media, info2: Media): Int {
         return info1.title.compareTo(info2.title)
+    }
+
+    /**
+     * Get the most recent valid resume position (in milliseconds)
+     * Returns null if no valid resume position exists
+     */
+    fun getResumePosition(): Long? {
+        val recentView = mediaViews
+            ?.filter { it.isRecent() }
+            ?.maxByOrNull { it.updated }
+
+        return if (recentView != null && recentView.position > 0) {
+            recentView.getPositionMillis()
+        } else {
+            null
+        }
     }
 }

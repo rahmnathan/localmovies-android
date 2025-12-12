@@ -19,7 +19,8 @@ data class PlayerUiState(
     val currentPosition: Long = 0,
     val isPlaying: Boolean = false,
     val error: String? = null,
-    val currentMediaId: String = ""
+    val currentMediaId: String = "",
+    val resumePosition: Long = 0
 )
 
 @HiltViewModel
@@ -37,17 +38,21 @@ class PlayerViewModel @Inject constructor(
         val encodedVideoUrl = savedStateHandle.get<String>("url") ?: ""
         val encodedUpdatePositionUrl = savedStateHandle.get<String>("updatePositionUrl") ?: ""
         val encodedMediaId = savedStateHandle.get<String>("mediaId") ?: ""
+        val resumePosition = savedStateHandle.get<Long>("resumePosition") ?: 0L
 
         // Decode URLs from navigation parameters
         val videoUrl = URLDecoder.decode(encodedVideoUrl, StandardCharsets.UTF_8.toString())
         val updatePositionUrl = URLDecoder.decode(encodedUpdatePositionUrl, StandardCharsets.UTF_8.toString())
         val mediaId = URLDecoder.decode(encodedMediaId, StandardCharsets.UTF_8.toString())
 
+        android.util.Log.d("PlayerViewModel", "Initializing player with resume position: $resumePosition ms")
+
         _uiState.update {
             it.copy(
                 videoUrl = videoUrl,
                 updatePositionUrl = updatePositionUrl,
-                currentMediaId = mediaId
+                currentMediaId = mediaId,
+                resumePosition = resumePosition
             )
         }
     }

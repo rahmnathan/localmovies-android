@@ -37,7 +37,7 @@ import com.google.android.gms.cast.framework.CastButtonFactory
 @Composable
 fun MainScreen(
     viewModel: MainViewModel = hiltViewModel(),
-    onNavigateToPlayer: (url: String, updatePositionUrl: String, mediaId: String) -> Unit = { _, _, _ -> },
+    onNavigateToPlayer: (url: String, updatePositionUrl: String, mediaId: String, resumePosition: Long) -> Unit = { _, _, _, _ -> },
     onNavigateToCastController: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -57,10 +57,10 @@ fun MainScreen(
         MediaDetailsDialog(
             media = media,
             onDismiss = { selectedMediaForDetails = null },
-            onPlay = {
+            onPlay = { resumePosition ->
                 selectedMediaForDetails = null
                 if (media.streamable) {
-                    viewModel.playMedia(media, onNavigateToPlayer)
+                    viewModel.playMedia(media, resumePosition, onNavigateToPlayer)
                 } else {
                     viewModel.navigateToDirectory(media.filename)
                 }
@@ -332,7 +332,9 @@ fun MainScreen(
                                 media = media,
                                 onClick = {
                                     if (media.streamable) {
-                                        viewModel.playMedia(media, onNavigateToPlayer)
+                                        // On direct click, always play from start (0)
+                                        // User can long-press to see resume option
+                                        viewModel.playMedia(media, 0, onNavigateToPlayer)
                                     } else {
                                         viewModel.navigateToDirectory(media.filename)
                                     }
@@ -462,8 +464,12 @@ fun MediaCard(
 fun MediaDetailsDialog(
     media: Media,
     onDismiss: () -> Unit,
-    onPlay: () -> Unit
+    onPlay: (resumePosition: Long) -> Unit
 ) {
+    val resumePosition = media.getResumePosition()
+    // Only show resume option if position is at least 1 minute (60000 ms)
+    val showResume = resumePosition != null && resumePosition >= 60000
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(media.title) },
@@ -550,20 +556,66 @@ fun MediaDetailsDialog(
             }
         },
         confirmButton = {
-            if (media.streamable) {
-                Button(onClick = onPlay) {
-                    Text("Play")
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Show resume button if there's a resume position >= 1 minute (primary action)
+                if (media.streamable && showResume) {
+                    Button(
+                        onClick = { onPlay(resumePosition!!) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Resume (${formatResumeTime(resumePosition!!)})")
+                    }
+
+                    // Secondary action - play from start
+                    FilledTonalButton(
+                        onClick = { onPlay(0) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Play from Start")
+                    }
+                } else {
+                    // No resume position - just show single play button
+                    if (media.streamable) {
+                        Button(
+                            onClick = { onPlay(0) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Play")
+                        }
+                    } else {
+                        Button(
+                            onClick = { onPlay(0) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Open")
+                        }
+                    }
                 }
-            } else {
-                Button(onClick = onPlay) {
-                    Text("Open")
+
+                // Close button at the bottom
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Close")
                 }
             }
         },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Close")
-            }
-        }
+        dismissButton = null
     )
+}
+
+private fun formatResumeTime(milliseconds: Long): String {
+    val totalSeconds = milliseconds / 1000
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+
+    return if (hours > 0) {
+        String.format("%dh %dm", hours, minutes)
+    } else {
+        String.format("%dm", minutes)
+    }
 }

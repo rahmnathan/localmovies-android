@@ -1,6 +1,8 @@
 package com.github.rahmnathan.localmovies.app.data.remote.dto
 
 import com.github.rahmnathan.localmovies.app.media.data.Media
+import com.github.rahmnathan.localmovies.app.media.data.MediaUser
+import com.github.rahmnathan.localmovies.app.media.data.MediaView
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -25,7 +27,10 @@ data class MediaResponseDto(
     val created: String?,  // API returns as string timestamp
 
     @SerializedName("media")
-    val media: MediaDto?
+    val media: MediaDto?,
+
+    @SerializedName("mediaViews")
+    val mediaViews: List<MediaViewDto>?
 ) {
     fun toMedia(): Media {
         // Determine file type from path extension
@@ -54,7 +59,8 @@ data class MediaResponseDto(
             path = path,
             type = fileType,
             mediaFileId = mediaFileId,
-            streamable = streamable ?: false
+            streamable = streamable ?: false,
+            mediaViews = mediaViews?.map { it.toMediaView() }
         )
     }
 }
@@ -87,3 +93,53 @@ data class MediaDto(
     @SerializedName("number")
     val number: String?
 )
+
+data class MediaUserDto(
+    @SerializedName("id")
+    val id: Long,
+
+    @SerializedName("userId")
+    val userId: String,
+
+    @SerializedName("created")
+    val created: String,
+
+    @SerializedName("updated")
+    val updated: String
+) {
+    fun toMediaUser(): MediaUser {
+        return MediaUser(
+            id = id,
+            userId = userId,
+            created = created.toLongOrNull() ?: 0,
+            updated = updated.toLongOrNull() ?: 0
+        )
+    }
+}
+
+data class MediaViewDto(
+    @SerializedName("id")
+    val id: Long,
+
+    @SerializedName("position")
+    val position: Double,
+
+    @SerializedName("mediaUser")
+    val mediaUser: MediaUserDto,
+
+    @SerializedName("created")
+    val created: String,
+
+    @SerializedName("updated")
+    val updated: String
+) {
+    fun toMediaView(): MediaView {
+        return MediaView(
+            id = id,
+            position = position,
+            mediaUser = mediaUser.toMediaUser(),
+            created = created.toLongOrNull() ?: 0,
+            updated = updated.toLongOrNull() ?: 0
+        )
+    }
+}

@@ -26,7 +26,7 @@ class GoogleCastUtils @Inject constructor(
 ) {
 
     fun assembleMediaQueue(media: List<Media>): List<MediaQueueItem> {
-        return media.map { buildMediaQueueItem(it) }
+        return media.map { buildMediaQueueItem(it, 0) }
     }
 
     /**
@@ -46,7 +46,7 @@ class GoogleCastUtils @Inject constructor(
      * Queues up all remaining episodes in the list
      * Returns true if successfully sent to Cast, false otherwise
      */
-    suspend fun playOnCast(media: Media, remainingEpisodes: List<Media> = emptyList()): Boolean {
+    suspend fun playOnCast(media: Media, remainingEpisodes: List<Media> = emptyList(), resumePosition: Long = 0): Boolean {
         return try {
             val castSession = castContext?.sessionManager?.currentCastSession
             if (castSession == null) {
@@ -55,17 +55,26 @@ class GoogleCastUtils @Inject constructor(
             }
 
             // Build queue items from current media and remaining episodes
+            // Only the first item gets the resume position
             val allEpisodes = listOf(media) + remainingEpisodes
-            val queueItems = allEpisodes.map { buildMediaQueueItem(it) }
+            val queueItems = allEpisodes.mapIndexed { index, episode ->
+                if (index == 0) {
+                    buildMediaQueueItem(episode, resumePosition)
+                } else {
+                    buildMediaQueueItem(episode, 0)
+                }
+            }
 
             android.util.Log.d("GoogleCastUtils", "Loading cast queue with ${queueItems.size} items")
 
             // Load the queue (or single item if only one)
             if (queueItems.size > 1) {
+                // For queue, we need to use a different approach to set start time
                 castSession.remoteMediaClient?.queueLoad(
                     queueItems.toTypedArray(),
                     0, // Start at first item
                     com.google.android.gms.cast.MediaStatus.REPEAT_MODE_REPEAT_OFF,
+                    resumePosition, // Start time in milliseconds for first item
                     null
                 )
             } else {
@@ -97,6 +106,7 @@ class GoogleCastUtils @Inject constructor(
                 val request = MediaLoadRequestData.Builder()
                     .setMediaInfo(mediaInfo)
                     .setAutoplay(true)
+                    .setCurrentTime(resumePosition)
                     .build()
 
                 castSession.remoteMediaClient?.load(request)
@@ -110,7 +120,7 @@ class GoogleCastUtils @Inject constructor(
         }
     }
 
-    private fun buildMediaQueueItem(media: Media): MediaQueueItem {
+    private fun buildMediaQueueItem(media: Media, resumePosition: Long = 0): MediaQueueItem {
         // Use runBlocking since this is called from non-coroutine context (Google Cast SDK)
         val signedUrls = runBlocking {
             when (val result = mediaRepository.getSignedUrls(media.mediaFileId)) {

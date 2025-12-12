@@ -29,12 +29,12 @@ sealed class Screen(val route: String) {
     object Setup : Screen("setup")
     object Main : Screen("main")
     object CastController : Screen("cast_controller")
-    object Player : Screen("player/{url}/{updatePositionUrl}/{mediaId}") {
-        fun createRoute(url: String, updatePositionUrl: String, mediaId: String): String {
+    object Player : Screen("player/{url}/{updatePositionUrl}/{mediaId}/{resumePosition}") {
+        fun createRoute(url: String, updatePositionUrl: String, mediaId: String, resumePosition: Long = 0): String {
             val encodedUrl = URLEncoder.encode(url, StandardCharsets.UTF_8.toString())
             val encodedUpdateUrl = URLEncoder.encode(updatePositionUrl, StandardCharsets.UTF_8.toString())
             val encodedMediaId = URLEncoder.encode(mediaId, StandardCharsets.UTF_8.toString())
-            return "player/$encodedUrl/$encodedUpdateUrl/$encodedMediaId"
+            return "player/$encodedUrl/$encodedUpdateUrl/$encodedMediaId/$resumePosition"
         }
     }
     object Detail : Screen("detail/{mediaId}") {
@@ -75,8 +75,8 @@ fun LocalMoviesApp() {
 
         composable(Screen.Main.route) {
             MainScreen(
-                onNavigateToPlayer = { url, updatePositionUrl, mediaId ->
-                    navController.navigate(Screen.Player.createRoute(url, updatePositionUrl, mediaId))
+                onNavigateToPlayer = { url, updatePositionUrl, mediaId, resumePosition ->
+                    navController.navigate(Screen.Player.createRoute(url, updatePositionUrl, mediaId, resumePosition))
                 },
                 onNavigateToCastController = {
                     navController.navigate(Screen.CastController.route)
@@ -97,12 +97,13 @@ fun LocalMoviesApp() {
             arguments = listOf(
                 navArgument("url") { type = NavType.StringType },
                 navArgument("updatePositionUrl") { type = NavType.StringType },
-                navArgument("mediaId") { type = NavType.StringType }
+                navArgument("mediaId") { type = NavType.StringType },
+                navArgument("resumePosition") { type = NavType.LongType }
             )
         ) {
             PlayerScreen(
-                onNavigateToNextEpisode = { url, updatePositionUrl, mediaId ->
-                    navController.navigate(Screen.Player.createRoute(url, updatePositionUrl, mediaId)) {
+                onNavigateToNextEpisode = { url, updatePositionUrl, mediaId, resumePosition ->
+                    navController.navigate(Screen.Player.createRoute(url, updatePositionUrl, mediaId, resumePosition)) {
                         popUpTo(Screen.Player.route) { inclusive = true }
                     }
                 }

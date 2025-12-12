@@ -200,27 +200,34 @@ class MainViewModel @Inject constructor(
         _uiState.update { it.copy(error = null) }
     }
 
-    fun playMedia(media: Media, onNavigateToPlayer: (url: String, updatePositionUrl: String, mediaId: String) -> Unit) {
+    fun playMedia(media: Media, resumePosition: Long = 0, onNavigateToPlayer: (url: String, updatePositionUrl: String, mediaId: String, resumePosition: Long) -> Unit) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
             try {
+                android.util.Log.d("MainViewModel", "Playing ${media.title} with resume position: $resumePosition ms")
+
                 // Check if Cast is active
                 if (googleCastUtils.isCastSessionActive()) {
                     android.util.Log.d("MainViewModel", "Cast session active, playing on Cast device")
 
-                    // Find remaining episodes to queue for casting
-                    val currentMediaList = _uiState.value.mediaList
-                    val currentIndex = currentMediaList.indexOfFirst { it.mediaFileId == media.mediaFileId }
-                    val remainingEpisodes = if (currentIndex >= 0 && currentIndex < currentMediaList.size - 1) {
-                        currentMediaList.subList(currentIndex + 1, currentMediaList.size)
+                    // Only queue remaining episodes if this is a series episode (has episode number)
+                    val remainingEpisodes = if (!media.number.isNullOrBlank()) {
+                        val currentMediaList = _uiState.value.mediaList
+                        val currentIndex = currentMediaList.indexOfFirst { it.mediaFileId == media.mediaFileId }
+                        if (currentIndex >= 0 && currentIndex < currentMediaList.size - 1) {
+                            currentMediaList.subList(currentIndex + 1, currentMediaList.size)
+                        } else {
+                            emptyList()
+                        }
                     } else {
+                        // Not a series episode, don't queue anything
                         emptyList()
                     }
 
-                    android.util.Log.d("MainViewModel", "Queueing ${remainingEpisodes.size} remaining episodes for cast")
+                    android.util.Log.d("MainViewModel", "Media is ${if (media.number.isNullOrBlank()) "movie" else "series episode"}, queueing ${remainingEpisodes.size} remaining episodes for cast")
 
-                    val success = googleCastUtils.playOnCast(media, remainingEpisodes)
+                    val success = googleCastUtils.playOnCast(media, remainingEpisodes, resumePosition)
                     if (success) {
                         android.util.Log.d("MainViewModel", "Successfully sent media to Cast device")
                         _uiState.update { it.copy(isLoading = false) }
@@ -237,7 +244,7 @@ class MainViewModel @Inject constructor(
                         val signedUrls = result.data
                         android.util.Log.d("MainViewModel", "Got signed URLs - stream: ${signedUrls.stream}")
                         android.util.Log.d("MainViewModel", "Got signed URLs - updatePosition: ${signedUrls.updatePosition}")
-                        onNavigateToPlayer(signedUrls.stream, signedUrls.updatePosition, media.mediaFileId)
+                        onNavigateToPlayer(signedUrls.stream, signedUrls.updatePosition, media.mediaFileId, resumePosition)
                         _uiState.update { it.copy(isLoading = false) }
                     }
                     is Result.Error -> {

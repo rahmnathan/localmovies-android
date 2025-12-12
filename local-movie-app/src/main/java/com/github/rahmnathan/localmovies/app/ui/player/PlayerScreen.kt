@@ -21,7 +21,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun PlayerScreen(
     viewModel: PlayerViewModel = hiltViewModel(),
-    onNavigateToNextEpisode: (url: String, updatePositionUrl: String, mediaId: String) -> Unit = { _, _, _ -> }
+    onNavigateToNextEpisode: (url: String, updatePositionUrl: String, mediaId: String, resumePosition: Long) -> Unit = { _, _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -38,8 +38,6 @@ fun PlayerScreen(
                 android.util.Log.d("PlayerScreen", "Update URL: ${uiState.updatePositionUrl}")
             }
 
-            var videoView by remember { mutableStateOf<VideoView?>(null) }
-
             AndroidView(
                 factory = { context ->
                     VideoView(context).apply {
@@ -51,12 +49,12 @@ fun PlayerScreen(
                         // Setup listeners
                         setOnPreparedListener { mediaPlayer ->
                             android.util.Log.d("PlayerScreen", "Video prepared, starting playback")
-                            // Seek to saved position if available
-                            if (uiState.currentPosition > 0) {
-                                mediaPlayer.seekTo(uiState.currentPosition.toInt())
-                            }
 
-                            // Start playback
+                            // Seek to resume position if provided
+                            if (uiState.resumePosition > 0) {
+                                android.util.Log.d("PlayerScreen", "Seeking to resume position: ${uiState.resumePosition} ms")
+                                seekTo(uiState.resumePosition.toInt())
+                            }
                             start()
                             viewModel.onPlaybackStarted()
                         }
@@ -72,7 +70,6 @@ fun PlayerScreen(
                             false // Return false to show default error dialog
                         }
 
-                        videoView = this
                     }
                 },
                 update = { view ->
