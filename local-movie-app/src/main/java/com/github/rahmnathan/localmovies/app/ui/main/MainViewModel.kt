@@ -2,7 +2,7 @@ package com.github.rahmnathan.localmovies.app.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.rahmnathan.localmovies.app.cast.control.GoogleCastUtils
+import com.github.rahmnathan.localmovies.app.cast.GoogleCastUtils
 import com.github.rahmnathan.localmovies.app.data.repository.MediaRepository
 import com.github.rahmnathan.localmovies.app.data.repository.Result
 import com.github.rahmnathan.localmovies.app.media.data.Media
@@ -38,6 +38,9 @@ class MainViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
+    // Search query flow with debouncing
+    private val searchQueryFlow = MutableStateFlow("")
+
     init {
         // Observe network connectivity
         viewModelScope.launch {
@@ -53,14 +56,26 @@ class MainViewModel @Inject constructor(
             }
         }
 
+        // Debounce search queries (300ms delay after user stops typing)
+        viewModelScope.launch {
+            searchQueryFlow
+                .debounce(300)
+                .distinctUntilChanged()
+                .collect { query ->
+                    _uiState.update { it.copy(searchQuery = query, currentPage = 0, hasMorePages = true) }
+                    loadMedia(resetList = true)
+                }
+        }
+
         // Load initial data (Movies root)
         loadMedia()
     }
 
     fun onSearchQueryChange(query: String) {
-        _uiState.update { it.copy(searchQuery = query, currentPage = 0, hasMorePages = true) }
-        // Reload with new search query
-        loadMedia(resetList = true)
+        // Update UI immediately for responsive typing
+        _uiState.update { it.copy(searchQuery = query) }
+        // Emit to debounced flow for actual search
+        searchQueryFlow.value = query
     }
 
     fun navigateToRoot(rootPath: String) {

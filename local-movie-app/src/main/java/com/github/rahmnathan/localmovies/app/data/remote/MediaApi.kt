@@ -94,7 +94,7 @@ class MediaApi @Inject constructor(
         // All fields should be non-null when fetched from this endpoint
         SignedUrls(
             stream = makeAbsoluteUrl(signedUrls.stream),
-            poster = makeAbsoluteUrl(signedUrls.poster),
+            poster = makeAbsoluteUrl("/localmovie/v1/signed/media/${mediaId}/poster"),
             updatePosition = makeAbsoluteUrl(signedUrls.updatePosition)
         )
     }

@@ -392,7 +392,10 @@ fun MainScreen(
 
                         // Show loading indicator at the bottom when loading more
                         if (uiState.isLoading && uiState.mediaList.isNotEmpty()) {
-                            item {
+                            item(
+                                key = "loading_indicator",
+                                contentType = "loading"
+                            ) {
                                 Box(
                                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                                     contentAlignment = Alignment.Center
@@ -414,8 +417,8 @@ fun MediaCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit = {}
 ) {
-    // Use poster URL from signedUrls if available
-    val posterUrl = media.signedUrls?.poster
+    // Use poster URL from signedUrls if available - remember to avoid recalculation
+    val posterUrl = remember(media.mediaFileId) { media.signedUrls?.poster }
 
     Card(
         onClick = onClick,
@@ -497,7 +500,7 @@ fun MediaDetailsDialog(
     onDismiss: () -> Unit,
     onPlay: (resumePosition: Long) -> Unit
 ) {
-    val resumePosition = media.getResumePosition()
+    val resumePosition = remember(media.mediaFileId) { media.getResumePosition() }
     // Only show resume option if position is at least 1 minute (60000 ms)
     val showResume = resumePosition != null && resumePosition >= 60000
 
@@ -512,7 +515,7 @@ fun MediaDetailsDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Poster
-                val posterUrl = media.signedUrls?.poster
+                val posterUrl = remember(media.mediaFileId) { media.signedUrls?.poster }
                 if (posterUrl != null) {
                     Card(
                         modifier = Modifier

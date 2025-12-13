@@ -1,5 +1,6 @@
-package com.github.rahmnathan.localmovies.app.cast.control
+package com.github.rahmnathan.localmovies.app.cast
 
+import android.util.Log
 import androidx.core.net.toUri
 import com.github.rahmnathan.localmovies.app.data.repository.MediaRepository
 import com.github.rahmnathan.localmovies.app.data.repository.Result
@@ -8,6 +9,7 @@ import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaLoadRequestData
 import com.google.android.gms.cast.MediaMetadata
 import com.google.android.gms.cast.MediaQueueItem
+import com.google.android.gms.cast.MediaStatus
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.common.images.WebImage
 import com.google.common.net.MediaType
@@ -28,7 +30,7 @@ class GoogleCastUtils @Inject constructor(
         return try {
             castContext?.sessionManager?.currentCastSession != null
         } catch (e: Exception) {
-            android.util.Log.e("GoogleCastUtils", "Error checking Cast session", e)
+            Log.e("GoogleCastUtils", "Error checking Cast session", e)
             false
         }
     }
@@ -42,7 +44,7 @@ class GoogleCastUtils @Inject constructor(
         return try {
             val castSession = castContext?.sessionManager?.currentCastSession
             if (castSession == null) {
-                android.util.Log.w("GoogleCastUtils", "No active Cast session")
+                Log.w("GoogleCastUtils", "No active Cast session")
                 return false
             }
 
@@ -57,7 +59,7 @@ class GoogleCastUtils @Inject constructor(
                 }
             }
 
-            android.util.Log.d("GoogleCastUtils", "Loading cast queue with ${queueItems.size} items")
+            Log.d("GoogleCastUtils", "Loading cast queue with ${queueItems.size} items")
 
             // Load the queue (or single item if only one)
             if (queueItems.size > 1) {
@@ -65,7 +67,7 @@ class GoogleCastUtils @Inject constructor(
                 castSession.remoteMediaClient?.queueLoad(
                     queueItems.toTypedArray(),
                     0, // Start at first item
-                    com.google.android.gms.cast.MediaStatus.REPEAT_MODE_REPEAT_OFF,
+                    MediaStatus.REPEAT_MODE_REPEAT_OFF,
                     resumePosition, // Start time in milliseconds for first item
                     null
                 )
@@ -74,7 +76,7 @@ class GoogleCastUtils @Inject constructor(
                 val signedUrls = when (val result = mediaRepository.getSignedUrls(media.mediaFileId)) {
                     is Result.Success -> result.data
                     is Result.Error -> {
-                        android.util.Log.e("GoogleCastUtils", "Failed to get signed URLs", result.exception)
+                        Log.e("GoogleCastUtils", "Failed to get signed URLs", result.exception)
                         return false
                     }
                     else -> return false
@@ -105,10 +107,10 @@ class GoogleCastUtils @Inject constructor(
                 castSession.remoteMediaClient?.load(request)
             }
 
-            android.util.Log.d("GoogleCastUtils", "Successfully loaded media on Cast device")
+            Log.d("GoogleCastUtils", "Successfully loaded media on Cast device")
             true
         } catch (e: Exception) {
-            android.util.Log.e("GoogleCastUtils", "Error playing on Cast", e)
+            Log.e("GoogleCastUtils", "Error playing on Cast", e)
             false
         }
     }

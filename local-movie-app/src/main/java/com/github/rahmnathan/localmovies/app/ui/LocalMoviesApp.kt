@@ -1,13 +1,8 @@
 package com.github.rahmnathan.localmovies.app.ui
 
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
@@ -20,8 +15,6 @@ import com.github.rahmnathan.localmovies.app.ui.main.MainScreen
 import com.github.rahmnathan.localmovies.app.ui.player.PlayerScreen
 import com.github.rahmnathan.localmovies.app.ui.setup.SetupScreen
 import com.github.rahmnathan.localmovies.app.ui.setup.SetupViewModel
-import kotlinx.coroutines.flow.first
-import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 

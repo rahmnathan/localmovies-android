@@ -65,24 +65,11 @@ data class MediaResponseDto(
             mediaFileId = mediaFileId,
             streamable = streamable ?: false,
             mediaViews = mediaViews?.map { it.toMediaView() },
-
-            // Map signedUrls and prepend server URL if needed
-            signedUrls = signedUrls?.let {
-                fun makeAbsoluteUrl(url: String?): String? {
-                    if (url == null) return null
-                    return when {
-                        url.startsWith("http") -> url
-                        url.startsWith("/") -> "$serverUrl$url"
-                        else -> "$serverUrl/$url"
-                    }
-                }
-
-                SignedUrls(
-                    poster = makeAbsoluteUrl(it.poster),
-                    stream = makeAbsoluteUrl(it.stream),
-                    updatePosition = makeAbsoluteUrl(it.updatePosition)
-                )
-            }
+            signedUrls = SignedUrls(
+                poster = "$serverUrl/localmovie/v1/signed/media/$mediaFileId/poster",
+                stream = "",
+                updatePosition = ""
+            )
         )
     }
 }
