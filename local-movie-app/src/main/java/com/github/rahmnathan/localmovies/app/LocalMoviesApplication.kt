@@ -8,7 +8,7 @@ import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.util.DebugLogger
-import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
+import com.github.rahmnathan.localmovies.app.di.DynamicOAuth2Service
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class LocalMoviesApplication : Application(), SingletonImageLoader.Factory {
 
     @Inject
-    lateinit var oAuth2Service: OAuth2Service
+    lateinit var dynamicOAuth2Service: DynamicOAuth2Service
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         // Ensure cache directory exists before configuring Coil
@@ -32,7 +32,7 @@ class LocalMoviesApplication : Application(), SingletonImageLoader.Factory {
 
         // Create OkHttp client with authentication interceptor
         val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(oAuth2Service))
+            .addInterceptor(AuthInterceptor(dynamicOAuth2Service))
             .build()
 
         return ImageLoader.Builder(context)
@@ -62,15 +62,15 @@ class LocalMoviesApplication : Application(), SingletonImageLoader.Factory {
      * OkHttp interceptor that adds OAuth2 bearer token to image requests
      */
     private class AuthInterceptor(
-        private val oAuth2Service: OAuth2Service
+        private val dynamicOAuth2Service: DynamicOAuth2Service
     ) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             val request = chain.request()
 
-            // Get the access token
+            // Get the access token using fresh credentials
             val accessToken = runBlocking {
                 try {
-                    oAuth2Service.accessToken.serialize()
+                    dynamicOAuth2Service.getService().accessToken.serialize()
                 } catch (e: Exception) {
                     null
                 }

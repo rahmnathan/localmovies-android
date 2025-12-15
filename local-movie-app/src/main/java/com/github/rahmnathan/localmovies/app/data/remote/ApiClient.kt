@@ -1,6 +1,6 @@
 package com.github.rahmnathan.localmovies.app.data.remote
 
-import com.github.rahmnathan.oauth2.adapter.domain.OAuth2Service
+import com.github.rahmnathan.localmovies.app.di.DynamicOAuth2Service
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.plugins.*
@@ -8,14 +8,13 @@ import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
-import io.ktor.http.*
 import io.ktor.serialization.gson.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ApiClient @Inject constructor(
-    private val oAuth2Service: OAuth2Service
+    private val dynamicOAuth2Service: DynamicOAuth2Service
 ) {
     val httpClient = HttpClient(Android) {
         install(ContentNegotiation) {
@@ -30,8 +29,9 @@ class ApiClient @Inject constructor(
         install(Auth) {
             bearer {
                 loadTokens {
+                    // Get fresh OAuth2Service with current credentials
                     BearerTokens(
-                        accessToken = oAuth2Service.accessToken.serialize(),
+                        accessToken = dynamicOAuth2Service.getService().accessToken.serialize(),
                         refreshToken = ""
                     )
                 }

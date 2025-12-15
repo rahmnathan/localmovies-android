@@ -17,17 +17,57 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOAuth2Service(
+    fun provideDynamicOAuth2Service(
         preferencesDataStore: UserPreferencesDataStore
+    ): DynamicOAuth2Service {
+        return DynamicOAuth2Service(preferencesDataStore)
+    }
+
+    @Provides
+    fun provideOAuth2Service(
+        dynamicService: DynamicOAuth2Service
     ): OAuth2Service {
+        return dynamicService.getService()
+    }
+}
+
+/**
+ * Wrapper that provides OAuth2Service with current credentials from DataStore.
+ * This ensures that after login, fresh credentials are used instead of stale cached ones.
+ */
+@Singleton
+class DynamicOAuth2Service(
+    private val preferencesDataStore: UserPreferencesDataStore
+) {
+    @Volatile
+    private var cachedService: OAuth2Service? = null
+    @Volatile
+    private var cachedCredentialsHash: Int = 0
+
+    fun getService(): OAuth2Service {
         val credentials = runBlocking {
-            preferencesDataStore.userCredentialsFlow.first()
+            try {
+                preferencesDataStore.userCredentialsFlow.first()
+            } catch (e: Exception) {
+                android.util.Log.e("DynamicOAuth2Service", "Error reading credentials", e)
+                com.github.rahmnathan.localmovies.app.data.local.UserCredentials()
+            }
         }
 
-        return OAuth2ServiceProvider.getOAuth2Service(
-            credentials.username,
-            credentials.password,
-            credentials.authServerUrl
-        )
+        // Create hash of credentials to detect changes
+        val credentialsHash = credentials.hashCode()
+
+        // If credentials changed, recreate the service
+        if (cachedService == null || cachedCredentialsHash != credentialsHash) {
+            android.util.Log.d("DynamicOAuth2Service", "Creating new OAuth2Service with credentials: username=${credentials.username}, authUrl=${credentials.authServerUrl}")
+            cachedService = OAuth2ServiceProvider.getOAuth2Service(
+                credentials.username,
+                credentials.password,
+                credentials.authServerUrl
+            )
+            cachedCredentialsHash = credentialsHash
+        }
+
+        return cachedService!!
     }
 }

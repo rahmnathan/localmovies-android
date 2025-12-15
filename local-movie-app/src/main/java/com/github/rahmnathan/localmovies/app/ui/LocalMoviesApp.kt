@@ -46,10 +46,11 @@ fun LocalMoviesApp() {
     val navController = rememberNavController()
 
     // Determine start destination based on whether credentials exist
-    val startDestination = if (uiState.username.isBlank()) {
-        Screen.Setup.route
-    } else {
+    // Default to Setup screen if no credentials
+    val startDestination = if (uiState.username.isNotBlank()) {
         Screen.Main.route
+    } else {
+        Screen.Setup.route
     }
 
     NavHost(
