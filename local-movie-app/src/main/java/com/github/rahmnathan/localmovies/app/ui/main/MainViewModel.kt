@@ -17,6 +17,7 @@ data class MainUiState(
     val error: String? = null,
     val searchQuery: String = "",
     val currentPath: List<String> = listOf("Movies"),
+    val currentParentId: String? = null,  // Parent ID for navigating into Series/Seasons
     val selectedTab: Int = 0, // 0=Movies, 1=Series, 2=Controls, 3=More
     val currentPage: Int = 0,
     val hasMorePages: Boolean = true,
@@ -82,7 +83,12 @@ class MainViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 currentPath = listOf(rootPath),
-                typeFilter = null,
+                currentParentId = null,
+                typeFilter = when(rootPath) {
+                    "Movies" -> "MOVIES"
+                    "Series" -> "SERIES"
+                    else -> null
+                },
                 searchQuery = "",
                 currentPage = 0,
                 hasMorePages = true
@@ -91,10 +97,11 @@ class MainViewModel @Inject constructor(
         loadMedia(resetList = true)
     }
 
-    fun navigateToDirectory(directory: String) {
+    fun navigateToDirectory(mediaFileId: String, directoryName: String) {
         _uiState.update { state ->
             state.copy(
-                currentPath = state.currentPath + directory,
+                currentPath = state.currentPath + directoryName,
+                currentParentId = mediaFileId,
                 typeFilter = null,
                 searchQuery = "",
                 currentPage = 0,
@@ -107,9 +114,16 @@ class MainViewModel @Inject constructor(
     fun navigateBack(): Boolean {
         val currentPath = _uiState.value.currentPath
         return if (currentPath.size > 1 && _uiState.value.typeFilter != "history") {
+            val newPath = currentPath.dropLast(1)
             _uiState.update {
                 it.copy(
-                    currentPath = currentPath.dropLast(1),
+                    currentPath = newPath,
+                    currentParentId = null,  // Clear parentId when navigating back to root
+                    typeFilter = when {
+                        newPath.size == 1 && newPath[0] == "Movies" -> "MOVIES"
+                        newPath.size == 1 && newPath[0] == "Series" -> "SERIES"
+                        else -> null
+                    },
                     searchQuery = "",
                     currentPage = 0,
                     hasMorePages = true
@@ -135,6 +149,7 @@ class MainViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 currentPath = listOf("History"),
+                currentParentId = null,
                 typeFilter = "history",
                 searchQuery = "",
                 currentPage = 0,
@@ -156,14 +171,14 @@ class MainViewModel @Inject constructor(
 
     private fun loadMedia(resetList: Boolean = false) {
         viewModelScope.launch {
-            val path = _uiState.value.currentPath.joinToString("/")
             val page = if (resetList) 0 else _uiState.value.currentPage
             val searchQuery = _uiState.value.searchQuery.takeIf { it.isNotBlank() }
+            val parentId = _uiState.value.currentParentId
 
-            android.util.Log.d("MainViewModel", "loadMedia called: resetList=$resetList, page=$page, path=$path, searchQuery=$searchQuery, sort=${_uiState.value.sortOrder}, genre=${_uiState.value.genreFilter}, type=${_uiState.value.typeFilter}")
+            android.util.Log.d("MainViewModel", "loadMedia called: resetList=$resetList, page=$page, parentId=$parentId, searchQuery=$searchQuery, sort=${_uiState.value.sortOrder}, genre=${_uiState.value.genreFilter}, type=${_uiState.value.typeFilter}")
 
             mediaRepository.getMediaList(
-                path = path,
+                parentId = parentId,
                 page = page,
                 size = 50,
                 order = _uiState.value.sortOrder,

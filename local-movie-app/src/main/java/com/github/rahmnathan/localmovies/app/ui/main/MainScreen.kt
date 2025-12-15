@@ -67,7 +67,7 @@ fun MainScreen(
                 if (media.streamable) {
                     viewModel.playMedia(media, resumePosition, onNavigateToPlayer)
                 } else {
-                    viewModel.navigateToDirectory(media.filename)
+                    viewModel.navigateToDirectory(media.mediaFileId, media.filename)
                 }
             }
         )
@@ -381,7 +381,7 @@ fun MainScreen(
                                         // User can long-press to see resume option
                                         viewModel.playMedia(media, 0, onNavigateToPlayer)
                                     } else {
-                                        viewModel.navigateToDirectory(media.filename)
+                                        viewModel.navigateToDirectory(media.mediaFileId, media.filename)
                                     }
                                 },
                                 onLongClick = {

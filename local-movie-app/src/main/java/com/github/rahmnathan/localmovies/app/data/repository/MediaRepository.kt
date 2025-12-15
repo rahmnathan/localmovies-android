@@ -20,7 +20,7 @@ class MediaRepository @Inject constructor(
     private val mediaApi: MediaApi
 ) {
     fun getMediaList(
-        path: String,
+        parentId: String? = null,
         page: Int = 0,
         size: Int = 50,
         order: String = "added",
@@ -33,7 +33,7 @@ class MediaRepository @Inject constructor(
         try {
             // Fetch from network (no caching)
             val response = mediaApi.getMediaList(
-                path = path,
+                parentId = parentId,
                 page = page,
                 size = size,
                 order = order,

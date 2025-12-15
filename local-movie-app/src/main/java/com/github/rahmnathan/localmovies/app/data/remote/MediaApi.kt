@@ -29,7 +29,7 @@ class MediaApi @Inject constructor(
     )
 
     suspend fun getMediaList(
-        path: String?,
+        parentId: String? = null,
         page: Int,
         size: Int,
         order: String = "added",
@@ -45,7 +45,8 @@ class MediaApi @Inject constructor(
             setBody(MediaRequest(
                 page = page,
                 pageSize = size,
-                path = path,
+                path = null,
+                parentId = parentId,
                 order = order,
                 client = client,
                 q = searchQuery,
