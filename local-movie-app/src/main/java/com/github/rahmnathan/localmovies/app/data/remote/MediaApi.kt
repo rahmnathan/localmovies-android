@@ -82,8 +82,8 @@ class MediaApi @Inject constructor(
         val response = apiClient.httpClient.get("$serverUrl/localmovie/v1/media/$mediaId/url/signed")
         val signedUrls = response.body<SignedUrls>()
 
-        fun makeAbsoluteUrl(url: String?): String {
-            if (url == null) throw IllegalStateException("Expected non-null URL from signed URL endpoint")
+        fun makeAbsoluteUrl(url: String?): String? {
+            if (url == null) return null
             return when {
                 url.startsWith("http") -> url
                 url.startsWith("/") -> "$serverUrl$url"
@@ -92,11 +92,12 @@ class MediaApi @Inject constructor(
         }
 
         // API returns relative paths - prepend server URL to make them absolute
-        // All fields should be non-null when fetched from this endpoint
+        // stream and updatePosition should be non-null, subtitle is optional (only present if media has subtitles)
         SignedUrls(
-            stream = makeAbsoluteUrl(signedUrls.stream),
+            stream = makeAbsoluteUrl(signedUrls.stream) ?: throw IllegalStateException("Expected non-null stream URL"),
             poster = makeAbsoluteUrl("/localmovie/v1/signed/media/${mediaId}/poster"),
-            updatePosition = makeAbsoluteUrl(signedUrls.updatePosition)
+            updatePosition = makeAbsoluteUrl(signedUrls.updatePosition) ?: throw IllegalStateException("Expected non-null updatePosition URL"),
+            subtitle = makeAbsoluteUrl(signedUrls.subtitle)
         )
     }
 

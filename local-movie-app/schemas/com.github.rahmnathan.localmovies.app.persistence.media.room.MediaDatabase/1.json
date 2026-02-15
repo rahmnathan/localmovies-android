@@ -1,0 +1,124 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "c14af3824142104541a294efd5ea9482",
+    "entities": [
+      {
+        "tableName": "MediaEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`directoryPath` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `imdbRating` TEXT NOT NULL, `metaRating` TEXT NOT NULL, `image` TEXT NOT NULL, `releaseYear` TEXT NOT NULL, `created` INTEGER, `genre` TEXT NOT NULL, `filename` TEXT NOT NULL, `actors` TEXT NOT NULL, `plot` TEXT NOT NULL, `path` TEXT NOT NULL, `number` TEXT, `type` TEXT NOT NULL, `mediaFileId` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "directoryPath",
+            "columnName": "directoryPath",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "media.title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "media.imdbRating",
+            "columnName": "imdbRating",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "media.metaRating",
+            "columnName": "metaRating",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "media.image",
+            "columnName": "image",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "media.releaseYear",
+            "columnName": "releaseYear",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "media.created",
+            "columnName": "created",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "media.genre",
+            "columnName": "genre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "media.filename",
+            "columnName": "filename",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "media.actors",
+            "columnName": "actors",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "media.plot",
+            "columnName": "plot",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "media.path",
+            "columnName": "path",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "media.number",
+            "columnName": "number",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "media.type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "media.mediaFileId",
+            "columnName": "mediaFileId",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c14af3824142104541a294efd5ea9482')"
+    ]
+  }
+}

@@ -117,8 +117,8 @@ class CastControllerViewModel @Inject constructor(
                     // Check if there's a next item in the queue
                     val hasNextQueueItem = mediaStatus?.let { status ->
                         val currentItemId = status.currentItemId
-                        val queueItems = status.queueItems
-                        if (queueItems != null && queueItems.isNotEmpty()) {
+                        val queueItems = status.queueItems.orEmpty()
+                        if (queueItems.isNotEmpty()) {
                             // Find current item index
                             val currentIndex = queueItems.indexOfFirst { it.itemId == currentItemId }
                             // Check if there's a next item
@@ -128,7 +128,14 @@ class CastControllerViewModel @Inject constructor(
                         }
                     } ?: false
 
-                    android.util.Log.d("CastControllerViewModel", "Cast session active - title: $title, isPlaying: ${mediaStatus?.playerState == MediaStatus.PLAYER_STATE_PLAYING}, hasNext: $hasNextQueueItem")
+                    // Check if subtitles are available and enabled
+                    val mediaTracks = mediaInfo.mediaTracks
+                    val subtitleTrack = mediaTracks?.find { it.type == com.google.android.gms.cast.MediaTrack.TYPE_TEXT }
+                    val subtitlesAvailable = subtitleTrack != null
+                    val activeTrackIds = mediaStatus?.activeTrackIds ?: longArrayOf()
+                    val subtitlesEnabled = subtitleTrack != null && activeTrackIds.contains(subtitleTrack.id)
+
+                    android.util.Log.d("CastControllerViewModel", "Cast session active - title: $title, isPlaying: ${mediaStatus?.playerState == MediaStatus.PLAYER_STATE_PLAYING}, hasNext: $hasNextQueueItem, subtitlesAvailable: $subtitlesAvailable, subtitlesEnabled: $subtitlesEnabled")
 
                     _uiState.update { state ->
                         state.copy(
@@ -138,7 +145,9 @@ class CastControllerViewModel @Inject constructor(
                             duration = mediaInfo.streamDuration,
                             currentPosition = client.approximateStreamPosition,
                             isPlaying = mediaStatus?.playerState == MediaStatus.PLAYER_STATE_PLAYING,
-                            hasNextQueueItem = hasNextQueueItem
+                            hasNextQueueItem = hasNextQueueItem,
+                            subtitlesAvailable = subtitlesAvailable,
+                            subtitlesEnabled = subtitlesEnabled
                         )
                     }
                 } else {
@@ -209,6 +218,35 @@ class CastControllerViewModel @Inject constructor(
                 client.queueNext(null)
             } catch (e: Exception) {
                 android.util.Log.e("CastControllerViewModel", "Error skipping to next", e)
+            }
+        }
+    }
+
+    fun toggleSubtitles() {
+        viewModelScope.launch {
+            try {
+                val client = remoteMediaClient ?: return@launch
+                val mediaInfo = client.mediaInfo ?: return@launch
+                val mediaTracks = mediaInfo.mediaTracks ?: return@launch
+
+                val subtitleTrack = mediaTracks.find { it.type == com.google.android.gms.cast.MediaTrack.TYPE_TEXT }
+                    ?: return@launch
+
+                val currentState = _uiState.value.subtitlesEnabled
+                val newTrackIds = if (currentState) {
+                    // Disable subtitles - set empty track array
+                    longArrayOf()
+                } else {
+                    // Enable subtitles - set subtitle track ID
+                    longArrayOf(subtitleTrack.id)
+                }
+
+                android.util.Log.d("CastControllerViewModel", "Toggling subtitles: enabled=${!currentState}, trackId=${subtitleTrack.id}")
+
+                client.setActiveMediaTracks(newTrackIds)
+                _uiState.update { it.copy(subtitlesEnabled = !currentState) }
+            } catch (e: Exception) {
+                android.util.Log.e("CastControllerViewModel", "Error toggling subtitles", e)
             }
         }
     }

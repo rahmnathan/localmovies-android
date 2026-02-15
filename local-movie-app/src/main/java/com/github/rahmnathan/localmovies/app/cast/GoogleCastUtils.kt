@@ -10,6 +10,7 @@ import com.google.android.gms.cast.MediaLoadRequestData
 import com.google.android.gms.cast.MediaMetadata
 import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.cast.MediaStatus
+import com.google.android.gms.cast.MediaTrack
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.common.images.WebImage
 import com.google.common.net.MediaType
@@ -92,11 +93,24 @@ class GoogleCastUtils @Inject constructor(
                 }
 
                 val streamUrl = signedUrls?.stream ?: throw IllegalStateException("Stream URL is required for casting")
-                val mediaInfo = MediaInfo.Builder(streamUrl)
+                val mediaInfoBuilder = MediaInfo.Builder(streamUrl)
                     .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                     .setContentType(MediaType.ANY_VIDEO_TYPE.toString())
                     .setMetadata(metaData)
-                    .build()
+
+                // Add subtitle track if available
+                signedUrls?.subtitle?.let { subtitleUrl ->
+                    val subtitleTrack = MediaTrack.Builder(1, MediaTrack.TYPE_TEXT)
+                        .setContentId(subtitleUrl)
+                        .setSubtype(MediaTrack.SUBTYPE_SUBTITLES)
+                        .setName("English")
+                        .setLanguage("en")
+                        .setContentType("text/vtt")
+                        .build()
+                    mediaInfoBuilder.setMediaTracks(listOf(subtitleTrack))
+                }
+
+                val mediaInfo = mediaInfoBuilder.build()
 
                 val request = MediaLoadRequestData.Builder()
                     .setMediaInfo(mediaInfo)
@@ -136,11 +150,24 @@ class GoogleCastUtils @Inject constructor(
         }
 
         val streamUrl = signedUrls.stream ?: throw IllegalStateException("Stream URL is required for casting")
-        val mediaInfo = MediaInfo.Builder(streamUrl)
+        val mediaInfoBuilder = MediaInfo.Builder(streamUrl)
             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
             .setContentType(MediaType.ANY_VIDEO_TYPE.toString())
             .setMetadata(metaData)
-            .build()
+
+        // Add subtitle track if available
+        signedUrls.subtitle?.let { subtitleUrl ->
+            val subtitleTrack = MediaTrack.Builder(1, MediaTrack.TYPE_TEXT)
+                .setContentId(subtitleUrl)
+                .setSubtype(MediaTrack.SUBTYPE_SUBTITLES)
+                .setName("English")
+                .setLanguage("en")
+                .setContentType("text/vtt")
+                .build()
+            mediaInfoBuilder.setMediaTracks(listOf(subtitleTrack))
+        }
+
+        val mediaInfo = mediaInfoBuilder.build()
 
         return MediaQueueItem.Builder(mediaInfo)
             .setAutoplay(true)

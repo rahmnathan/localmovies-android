@@ -82,7 +82,10 @@ data class SignedUrlsDto(
     val poster: String? = null,
 
     @SerializedName("updatePosition")
-    val updatePosition: String? = null
+    val updatePosition: String? = null,
+
+    @SerializedName("subtitle")
+    val subtitle: String? = null
 )
 
 data class MediaDto(

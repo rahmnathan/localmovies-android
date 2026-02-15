@@ -1,6 +1,9 @@
 .gradle/
 .idea/
+.kotlin/
+.claude/
 build/
+local-movie-app/build/
 local-media-app/local-media-app.iml
 local-media-authentication-keycloak/local-media-authentication-keycloak.iml
 local-media-client/local-media-client.iml

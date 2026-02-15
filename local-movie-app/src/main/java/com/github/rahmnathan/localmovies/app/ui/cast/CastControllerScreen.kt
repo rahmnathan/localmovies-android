@@ -3,6 +3,8 @@ package com.github.rahmnathan.localmovies.app.ui.cast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ClosedCaption
+import androidx.compose.material.icons.filled.ClosedCaptionDisabled
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
@@ -27,7 +29,9 @@ data class CastControllerUiState(
     val currentPosition: Long = 0,
     val duration: Long = 0,
     val isConnected: Boolean = false,
-    val hasNextQueueItem: Boolean = false
+    val hasNextQueueItem: Boolean = false,
+    val subtitlesAvailable: Boolean = false,
+    val subtitlesEnabled: Boolean = false
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -138,6 +142,29 @@ fun CastControllerScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Subtitles toggle button (only shown when subtitles are available)
+                if (uiState.subtitlesAvailable) {
+                    FloatingActionButton(
+                        onClick = { viewModel.toggleSubtitles() },
+                        modifier = Modifier.size(56.dp),
+                        containerColor = if (uiState.subtitlesEnabled) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (uiState.subtitlesEnabled) {
+                                Icons.Default.ClosedCaption
+                            } else {
+                                Icons.Default.ClosedCaptionDisabled
+                            },
+                            contentDescription = if (uiState.subtitlesEnabled) "Disable subtitles" else "Enable subtitles",
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+
                 // Play/Pause button
                 FloatingActionButton(
                     onClick = {
