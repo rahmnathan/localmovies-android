@@ -448,7 +448,7 @@ fun MediaCard(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = media.title,
+                        text = if (!media.number.isNullOrBlank()) "E${media.number} - ${media.title}" else media.title,
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
@@ -456,6 +456,7 @@ fun MediaCard(
             }
 
             // Title overlay at the bottom
+            val displayTitle = if (!media.number.isNullOrBlank()) "E${media.number} - ${media.title}" else media.title
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -463,7 +464,7 @@ fun MediaCard(
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
             ) {
                 Text(
-                    text = media.title,
+                    text = displayTitle,
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
