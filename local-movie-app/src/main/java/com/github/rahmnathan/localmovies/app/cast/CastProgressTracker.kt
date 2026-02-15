@@ -168,11 +168,13 @@ class CastProgressTracker @Inject constructor(
                 }
 
                 val mediaId = metadata.getString("media-id")
-                Log.d(TAG, "Saving progress: mediaId=$mediaId, position=$positionMs")
+                val duration = mediaInfo.streamDuration.takeIf { it > 0 }
+                Log.d(TAG, "Saving progress: mediaId=$mediaId, position=$positionMs, duration=$duration")
 
                 mediaRepository.saveProgress(
                     updatePositionUrl = updatePositionUrl,
-                    position = positionMs
+                    position = positionMs,
+                    duration = duration
                 )
             } catch (e: Exception) {
                 Log.e(TAG, "Error saving cast progress", e)

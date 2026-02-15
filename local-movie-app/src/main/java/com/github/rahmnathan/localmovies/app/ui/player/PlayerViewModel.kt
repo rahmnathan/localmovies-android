@@ -18,6 +18,14 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 
+data class NextEpisodeInfo(
+    val streamUrl: String,
+    val updatePositionUrl: String,
+    val mediaId: String,
+    val title: String,
+    val episodeNumber: String?
+)
+
 data class PlayerUiState(
     val videoUrl: String = "",
     val updatePositionUrl: String = "",
@@ -27,20 +35,28 @@ data class PlayerUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val currentMediaId: String = "",
-    val resumePosition: Long = 0
+    val resumePosition: Long = 0,
+    val nextEpisode: NextEpisodeInfo? = null,
+    val showNextEpisodeCountdown: Boolean = false,
+    val countdownSeconds: Int = 10
 )
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
     private val application: Application,
     savedStateHandle: SavedStateHandle,
-    private val mediaRepository: MediaRepository
+    private val mediaRepository: MediaRepository,
+    private val episodeQueueManager: EpisodeQueueManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PlayerUiState())
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
 
     private var progressTrackingJob: Job? = null
+    private var countdownJob: Job? = null
+
+    // Callback for navigating to next episode
+    private var onPlayNextEpisode: ((NextEpisodeInfo) -> Unit)? = null
 
     // ExoPlayer instance
     val player: ExoPlayer = ExoPlayer.Builder(application).build().apply {
@@ -60,7 +76,7 @@ class PlayerViewModel @Inject constructor(
                         }
                     }
                     Player.STATE_ENDED -> {
-                        onPlaybackPaused()
+                        onPlaybackEnded()
                     }
                     Player.STATE_IDLE -> {
                         _uiState.update { it.copy(isLoading = false) }
@@ -127,10 +143,90 @@ class PlayerViewModel @Inject constructor(
                 player.seekTo(resumePosition)
             }
         }
+
+        // Check if there's a next episode in the queue
+        loadNextEpisodeInfo()
+    }
+
+    private fun loadNextEpisodeInfo() {
+        val nextMedia = episodeQueueManager.getNextEpisode()
+        if (nextMedia != null) {
+            _uiState.update {
+                it.copy(
+                    nextEpisode = NextEpisodeInfo(
+                        streamUrl = "", // Will be fetched when needed
+                        updatePositionUrl = "",
+                        mediaId = nextMedia.mediaFileId,
+                        title = nextMedia.title,
+                        episodeNumber = nextMedia.number
+                    )
+                )
+            }
+        }
     }
 
     fun onPlaybackPaused() {
         player.pause()
+    }
+
+    private fun onPlaybackEnded() {
+        player.pause()
+
+        // If there's a next episode, start the countdown
+        val nextEpisode = _uiState.value.nextEpisode
+        if (nextEpisode != null) {
+            startNextEpisodeCountdown()
+        }
+    }
+
+    private fun startNextEpisodeCountdown() {
+        countdownJob?.cancel()
+        _uiState.update { it.copy(showNextEpisodeCountdown = true, countdownSeconds = 10) }
+
+        countdownJob = viewModelScope.launch {
+            for (seconds in 10 downTo 1) {
+                _uiState.update { it.copy(countdownSeconds = seconds) }
+                delay(1000)
+            }
+            // Countdown finished - auto-play next episode
+            playNextEpisode()
+        }
+    }
+
+    fun cancelNextEpisodeCountdown() {
+        countdownJob?.cancel()
+        countdownJob = null
+        _uiState.update { it.copy(showNextEpisodeCountdown = false) }
+    }
+
+    fun playNextEpisode() {
+        countdownJob?.cancel()
+        countdownJob = null
+        _uiState.update { it.copy(showNextEpisodeCountdown = false, isLoading = true) }
+
+        viewModelScope.launch {
+            val nextPlayback = episodeQueueManager.advanceToNextEpisode()
+            if (nextPlayback != null) {
+                val nextEpisodeInfo = NextEpisodeInfo(
+                    streamUrl = nextPlayback.streamUrl,
+                    updatePositionUrl = nextPlayback.updatePositionUrl,
+                    mediaId = nextPlayback.mediaId,
+                    title = nextPlayback.title,
+                    episodeNumber = nextPlayback.episodeNumber
+                )
+                onPlayNextEpisode?.invoke(nextEpisodeInfo)
+            } else {
+                _uiState.update { it.copy(isLoading = false, error = "Failed to load next episode") }
+            }
+        }
+    }
+
+    fun setNextEpisodeCallback(callback: (NextEpisodeInfo) -> Unit) {
+        onPlayNextEpisode = callback
+    }
+
+    fun setNextEpisode(nextEpisode: NextEpisodeInfo?) {
+        _uiState.update { it.copy(nextEpisode = nextEpisode) }
     }
 
     /**
@@ -156,9 +252,11 @@ class PlayerViewModel @Inject constructor(
                     val currentState = _uiState.value
                     if (currentState.updatePositionUrl.isNotBlank()) {
                         try {
+                            val duration = player.duration.takeIf { it > 0 }
                             mediaRepository.saveProgress(
                                 updatePositionUrl = currentState.updatePositionUrl,
-                                position = currentPosition
+                                position = currentPosition,
+                                duration = duration
                             )
                         } catch (e: Exception) {
                             // Log but don't crash - position tracking is best effort
@@ -182,6 +280,7 @@ class PlayerViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         stopProgressTracking()
+        countdownJob?.cancel()
         player.release() // Release ExoPlayer resources
     }
 }

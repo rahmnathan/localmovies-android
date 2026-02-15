@@ -101,19 +101,26 @@ class MediaApi @Inject constructor(
         )
     }
 
-    suspend fun saveProgress(signedUrl: String, position: Long) = withContext(Dispatchers.IO) {
+    suspend fun saveProgress(signedUrl: String, position: Long, duration: Long? = null) = withContext(Dispatchers.IO) {
         // signedUrl is now a full URL (e.g., https://server.com/path?query)
         // Extract the path and query, then append position
         val parts = signedUrl.split("?")
         val baseUrl = parts[0]
         val query = parts.getOrNull(1) ?: ""
 
+        // Build query string with duration if available
+        val queryWithDuration = if (duration != null && duration > 0) {
+            if (query.isNotEmpty()) "$query&duration=$duration" else "duration=$duration"
+        } else {
+            query
+        }
+
         // If baseUrl is already a full URL, use it directly; otherwise prepend server URL
         val fullUrl = if (baseUrl.startsWith("http")) {
-            "$baseUrl/$position?$query"
+            "$baseUrl/$position?$queryWithDuration"
         } else {
             val serverUrl = getServerUrl()
-            "$serverUrl$baseUrl/$position?$query"
+            "$serverUrl$baseUrl/$position?$queryWithDuration"
         }
 
         apiClient.httpClient.patch(fullUrl)

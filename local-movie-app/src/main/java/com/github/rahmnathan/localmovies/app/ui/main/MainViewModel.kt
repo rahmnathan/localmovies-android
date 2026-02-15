@@ -36,7 +36,8 @@ class MainViewModel @Inject constructor(
     private val mediaRepository: MediaRepository,
     private val playbackCoordinator: PlaybackCoordinator,
     private val preferencesDataStore: com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore,
-    private val networkConnectivityObserver: com.github.rahmnathan.localmovies.app.data.local.NetworkConnectivityObserver
+    private val networkConnectivityObserver: com.github.rahmnathan.localmovies.app.data.local.NetworkConnectivityObserver,
+    private val episodeQueueManager: com.github.rahmnathan.localmovies.app.ui.player.EpisodeQueueManager
 ) : ViewModel() {
 
     companion object {
@@ -280,6 +281,9 @@ class MainViewModel @Inject constructor(
 
                 when (val result = playbackCoordinator.play(media, resumePosition, remainingEpisodes)) {
                     is PlaybackResult.PlayLocally -> {
+                        // Set up episode queue for auto-play
+                        episodeQueueManager.setQueue(media, remainingEpisodes)
+
                         onNavigateToPlayer(
                             result.streamUrl,
                             result.updatePositionUrl,

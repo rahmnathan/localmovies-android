@@ -70,4 +70,17 @@ class Media(
     fun getSeriesId(): String? {
         return parent?.getSeries()?.mediaFileId
     }
+
+    /**
+     * Get watch progress as a fraction (0.0 to 1.0) for displaying progress bars.
+     * Returns null if no progress or duration data is available.
+     */
+    fun getWatchProgress(): Float? {
+        val recentView = mediaViews
+            ?.filter { it.isRecent() }
+            ?.maxByOrNull { it.updated }
+            ?: return null
+
+        return recentView.getProgressFraction()
+    }
 }

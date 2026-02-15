@@ -12,6 +12,7 @@ data class MediaUser(
 data class MediaView(
     val id: Long,
     val position: Double,
+    val duration: Double?,
     val mediaUser: MediaUser,
     val created: Long,
     val updated: Long
@@ -31,5 +32,15 @@ data class MediaView(
      */
     fun getPositionMillis(): Long {
         return position.toLong()
+    }
+
+    /**
+     * Get watch progress as a fraction (0.0 to 1.0)
+     * Returns null if duration is not available
+     */
+    fun getProgressFraction(): Float? {
+        val dur = duration ?: return null
+        if (dur <= 0) return null
+        return (position / dur).toFloat().coerceIn(0f, 1f)
     }
 }

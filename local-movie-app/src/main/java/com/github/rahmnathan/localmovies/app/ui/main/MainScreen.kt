@@ -546,22 +546,40 @@ fun MediaCard(
                 }
             }
 
-            // Title overlay at the bottom
+            // Title overlay at the bottom with optional progress bar
             val displayTitle = if (media.type == "EPISODE" && !media.number.isNullOrBlank()) "E${media.number} - ${media.title}" else media.title
-            Surface(
+            val watchProgress = remember(media.mediaFileId, media.mediaViews) { media.getWatchProgress() }
+
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.BottomCenter),
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                    .align(Alignment.BottomCenter)
             ) {
-                Text(
-                    text = displayTitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(4.dp),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
+                // Progress bar (only show if there's progress and media is streamable)
+                if (watchProgress != null && watchProgress > 0.01f && media.streamable) {
+                    LinearProgressIndicator(
+                        progress = { watchProgress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(3.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
+                }
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                ) {
+                    Text(
+                        text = displayTitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(4.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
             }
 
             // Info button in top right

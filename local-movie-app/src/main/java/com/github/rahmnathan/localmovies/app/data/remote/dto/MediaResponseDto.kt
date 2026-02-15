@@ -178,6 +178,9 @@ data class MediaViewDto(
     @SerializedName("position")
     val position: Double,
 
+    @SerializedName("duration")
+    val duration: Double?,
+
     @SerializedName("mediaUser")
     val mediaUser: MediaUserDto,
 
@@ -191,6 +194,7 @@ data class MediaViewDto(
         return MediaView(
             id = id,
             position = position,
+            duration = duration,
             mediaUser = mediaUser.toMediaUser(),
             created = created.toLongOrNull() ?: 0,
             updated = updated.toLongOrNull() ?: 0

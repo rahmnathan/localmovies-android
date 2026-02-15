@@ -58,10 +58,11 @@ class MediaRepository @Inject constructor(
 
     suspend fun saveProgress(
         updatePositionUrl: String,
-        position: Long
+        position: Long,
+        duration: Long? = null
     ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            mediaApi.saveProgress(updatePositionUrl, position)
+            mediaApi.saveProgress(updatePositionUrl, position, duration)
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(e)
