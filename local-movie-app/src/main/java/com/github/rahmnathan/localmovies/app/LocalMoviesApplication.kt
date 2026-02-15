@@ -9,6 +9,7 @@ import coil3.memory.MemoryCache
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.util.DebugLogger
 import com.github.rahmnathan.localmovies.app.auth.TokenCache
+import com.github.rahmnathan.localmovies.app.cast.CastProgressTracker
 import dagger.hilt.android.HiltAndroidApp
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -21,6 +22,15 @@ class LocalMoviesApplication : Application(), SingletonImageLoader.Factory {
 
     @Inject
     lateinit var tokenCache: TokenCache
+
+    @Inject
+    lateinit var castProgressTracker: CastProgressTracker
+
+    override fun onCreate() {
+        super.onCreate()
+        // Initialize cast progress tracking to ensure all queued episodes are tracked
+        castProgressTracker.initialize()
+    }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         // Ensure cache directory exists before configuring Coil
