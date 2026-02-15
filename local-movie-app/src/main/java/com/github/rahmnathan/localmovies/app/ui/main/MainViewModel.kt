@@ -149,8 +149,23 @@ class MainViewModel @Inject constructor(
         when (tabIndex) {
             0 -> navigateToRoot("Movies")
             1 -> navigateToRoot("Series")
-            2 -> loadHistoryTab()
+            2 -> loadFavoritesTab()
+            3 -> loadHistoryTab()
         }
+    }
+
+    private fun loadFavoritesTab() {
+        _uiState.update {
+            it.copy(
+                currentPath = listOf("Favorites"),
+                parentIdStack = listOf(null),
+                typeFilter = "favorites",
+                searchQuery = "",
+                currentPage = 0,
+                hasMorePages = true
+            )
+        }
+        loadMedia(resetList = true)
     }
 
     private fun loadHistoryTab() {
@@ -295,6 +310,48 @@ class MainViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch {
             preferencesDataStore.clearCredentials()
+        }
+    }
+
+    fun toggleFavorite(media: Media) {
+        viewModelScope.launch {
+            val success = mediaRepository.toggleFavorite(media.mediaFileId, media.favorite)
+            if (success) {
+                // Update the media item in the list with the new favorite state
+                _uiState.update { state ->
+                    val updatedList = state.mediaList.map { item ->
+                        if (item.mediaFileId == media.mediaFileId) {
+                            // Create a new Media with toggled favorite state
+                            Media(
+                                title = item.title,
+                                imdbRating = item.imdbRating,
+                                metaRating = item.metaRating,
+                                image = item.image,
+                                releaseYear = item.releaseYear,
+                                created = item.created,
+                                genre = item.genre,
+                                filename = item.filename,
+                                actors = item.actors,
+                                plot = item.plot,
+                                path = item.path,
+                                number = item.number,
+                                type = item.type,
+                                mediaFileId = item.mediaFileId,
+                                streamable = item.streamable,
+                                mediaViews = item.mediaViews,
+                                signedUrls = item.signedUrls,
+                                parent = item.parent,
+                                favorite = !item.favorite
+                            )
+                        } else {
+                            item
+                        }
+                    }
+                    state.copy(mediaList = updatedList)
+                }
+            } else {
+                Log.e(TAG, "Failed to toggle favorite for ${media.mediaFileId}")
+            }
         }
     }
 }

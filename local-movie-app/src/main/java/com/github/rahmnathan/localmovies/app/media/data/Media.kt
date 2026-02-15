@@ -20,7 +20,9 @@ class Media(
     val mediaFileId: String,
     val streamable: Boolean,
     val mediaViews: List<MediaView>? = null,
-    val signedUrls: SignedUrls? = null
+    val signedUrls: SignedUrls? = null,
+    val parent: ParentMedia? = null,
+    val favorite: Boolean = false
 ) : Serializable, Comparator<Media> {
 
     override fun toString(): String {
@@ -45,5 +47,27 @@ class Media(
         } else {
             null
         }
+    }
+
+    /**
+     * Get the series title for this media (if it's an episode).
+     * Traverses: episode -> season -> series
+     */
+    fun getSeriesTitle(): String? {
+        return parent?.getSeries()?.title
+    }
+
+    /**
+     * Get the season number for this media (if it's an episode).
+     */
+    fun getSeasonNumber(): Int? {
+        return parent?.getSeason()?.number
+    }
+
+    /**
+     * Get the series mediaFileId (for grouping episodes by series).
+     */
+    fun getSeriesId(): String? {
+        return parent?.getSeries()?.mediaFileId
     }
 }

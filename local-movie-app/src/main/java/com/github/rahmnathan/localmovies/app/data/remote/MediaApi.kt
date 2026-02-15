@@ -118,4 +118,26 @@ class MediaApi @Inject constructor(
 
         apiClient.httpClient.patch(fullUrl)
     }
+
+    suspend fun addFavorite(mediaFileId: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val serverUrl = getServerUrl()
+            val response = apiClient.httpClient.post("$serverUrl/localmovie/v1/media/$mediaFileId/favorite")
+            response.status.value in 200..299
+        } catch (e: Exception) {
+            android.util.Log.e("MediaApi", "Error adding favorite", e)
+            false
+        }
+    }
+
+    suspend fun removeFavorite(mediaFileId: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val serverUrl = getServerUrl()
+            val response = apiClient.httpClient.delete("$serverUrl/localmovie/v1/media/$mediaFileId/favorite")
+            response.status.value in 200..299
+        } catch (e: Exception) {
+            android.util.Log.e("MediaApi", "Error removing favorite", e)
+            false
+        }
+    }
 }

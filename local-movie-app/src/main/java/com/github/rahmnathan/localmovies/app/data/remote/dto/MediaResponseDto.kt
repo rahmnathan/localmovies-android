@@ -3,6 +3,7 @@ package com.github.rahmnathan.localmovies.app.data.remote.dto
 import com.github.rahmnathan.localmovies.app.media.data.Media
 import com.github.rahmnathan.localmovies.app.media.data.MediaUser
 import com.github.rahmnathan.localmovies.app.media.data.MediaView
+import com.github.rahmnathan.localmovies.app.media.data.ParentMedia
 import com.github.rahmnathan.localmovies.app.media.data.SignedUrls
 import com.google.gson.annotations.SerializedName
 
@@ -21,6 +22,9 @@ data class MediaResponseDto(
     @SerializedName("mediaFileId")
     val mediaFileId: String,
 
+    @SerializedName("mediaFileType")
+    val mediaFileType: String?,
+
     @SerializedName("streamable")
     val streamable: Boolean?,
 
@@ -34,17 +38,15 @@ data class MediaResponseDto(
     val mediaViews: List<MediaViewDto>?,
 
     @SerializedName("signedUrls")
-    val signedUrls: SignedUrlsDto?
+    val signedUrls: SignedUrlsDto?,
+
+    @SerializedName("parent")
+    val parent: ParentMediaDto?,
+
+    @SerializedName("favorite")
+    val favorite: Boolean?
 ) {
     fun toMedia(serverUrl: String): Media {
-        // Determine file type from path extension
-        val fileType = when {
-            path.endsWith(".mp4", ignoreCase = true) -> "VIDEO"
-            path.endsWith(".mkv", ignoreCase = true) -> "VIDEO"
-            path.endsWith(".avi", ignoreCase = true) -> "VIDEO"
-            else -> "DIRECTORY"
-        }
-
         return Media(
             // Fields from nested media object
             title = media?.title ?: fileName,  // Fallback to fileName if no title
@@ -61,7 +63,7 @@ data class MediaResponseDto(
             // Fields from root level
             filename = fileName,
             path = path,
-            type = fileType,
+            type = mediaFileType ?: "DIRECTORY",
             mediaFileId = mediaFileId,
             streamable = streamable ?: false,
             mediaViews = mediaViews?.map { it.toMediaView() },
@@ -69,7 +71,36 @@ data class MediaResponseDto(
                 poster = "$serverUrl/localmovie/v1/signed/media/$mediaFileId/poster",
                 stream = "",
                 updatePosition = ""
-            )
+            ),
+            parent = parent?.toParentMedia(),
+            favorite = favorite ?: false
+        )
+    }
+}
+
+data class ParentMediaDto(
+    @SerializedName("mediaFileId")
+    val mediaFileId: String?,
+
+    @SerializedName("mediaFileType")
+    val mediaFileType: String?,
+
+    @SerializedName("title")
+    val title: String?,
+
+    @SerializedName("number")
+    val number: Int?,
+
+    @SerializedName("parent")
+    val parent: ParentMediaDto?
+) {
+    fun toParentMedia(): ParentMedia {
+        return ParentMedia(
+            mediaFileId = mediaFileId ?: "",
+            mediaFileType = mediaFileType ?: "",
+            title = title,
+            number = number,
+            parent = parent?.toParentMedia()
         )
     }
 }

@@ -67,5 +67,21 @@ class MediaRepository @Inject constructor(
             Result.Error(e)
         }
     }
+
+    suspend fun addFavorite(mediaFileId: String): Boolean {
+        return mediaApi.addFavorite(mediaFileId)
+    }
+
+    suspend fun removeFavorite(mediaFileId: String): Boolean {
+        return mediaApi.removeFavorite(mediaFileId)
+    }
+
+    suspend fun toggleFavorite(mediaFileId: String, currentlyFavorite: Boolean): Boolean {
+        return if (currentlyFavorite) {
+            removeFavorite(mediaFileId)
+        } else {
+            addFavorite(mediaFileId)
+        }
+    }
 }
 
