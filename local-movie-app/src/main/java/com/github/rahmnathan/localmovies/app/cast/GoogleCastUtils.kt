@@ -14,7 +14,6 @@ import com.google.android.gms.cast.MediaTrack
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.common.images.WebImage
 import com.google.common.net.MediaType
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -129,14 +128,11 @@ class GoogleCastUtils @Inject constructor(
         }
     }
 
-    private fun buildMediaQueueItem(media: Media, resumePosition: Long = 0): MediaQueueItem {
-        // Use runBlocking since this is called from non-coroutine context (Google Cast SDK)
-        val signedUrls = runBlocking {
-            when (val result = mediaRepository.getSignedUrls(media.mediaFileId)) {
-                is Result.Success -> result.data
-                is Result.Error -> throw result.exception
-                else -> throw IllegalStateException("Unexpected result")
-            }
+    private suspend fun buildMediaQueueItem(media: Media, resumePosition: Long = 0): MediaQueueItem {
+        val signedUrls = when (val result = mediaRepository.getSignedUrls(media.mediaFileId)) {
+            is Result.Success -> result.data
+            is Result.Error -> throw result.exception
+            else -> throw IllegalStateException("Unexpected result")
         }
 
         val metaData = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE)

@@ -8,9 +8,8 @@ import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.util.DebugLogger
-import com.github.rahmnathan.localmovies.app.di.DynamicOAuth2Service
+import com.github.rahmnathan.localmovies.app.auth.TokenCache
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -21,7 +20,7 @@ import javax.inject.Inject
 class LocalMoviesApplication : Application(), SingletonImageLoader.Factory {
 
     @Inject
-    lateinit var dynamicOAuth2Service: DynamicOAuth2Service
+    lateinit var tokenCache: TokenCache
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         // Ensure cache directory exists before configuring Coil
@@ -31,8 +30,9 @@ class LocalMoviesApplication : Application(), SingletonImageLoader.Factory {
         }
 
         // Create OkHttp client with authentication interceptor
+        // Uses TokenCache which provides cached tokens without blocking
         val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(dynamicOAuth2Service))
+            .addInterceptor(AuthInterceptor(tokenCache))
             .build()
 
         return ImageLoader.Builder(context)
@@ -59,22 +59,18 @@ class LocalMoviesApplication : Application(), SingletonImageLoader.Factory {
     }
 
     /**
-     * OkHttp interceptor that adds OAuth2 bearer token to image requests
+     * OkHttp interceptor that adds OAuth2 bearer token to image requests.
+     * Uses TokenCache to get tokens without blocking - tokens are refreshed
+     * proactively in the background when credentials change.
      */
     private class AuthInterceptor(
-        private val dynamicOAuth2Service: DynamicOAuth2Service
+        private val tokenCache: TokenCache
     ) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             val request = chain.request()
 
-            // Get the access token using fresh credentials
-            val accessToken = runBlocking {
-                try {
-                    dynamicOAuth2Service.getService().accessToken.serialize()
-                } catch (e: Exception) {
-                    null
-                }
-            }
+            // Get the cached access token (non-blocking)
+            val accessToken = tokenCache.getAccessToken()
 
             // Add Authorization header and correlation ID
             val authenticatedRequest = request.newBuilder().apply {

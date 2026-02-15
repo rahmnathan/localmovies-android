@@ -29,9 +29,9 @@ class ApiClient @Inject constructor(
         install(Auth) {
             bearer {
                 loadTokens {
-                    // Get fresh OAuth2Service with current credentials
+                    // Get fresh OAuth2Service with current credentials (suspend-safe)
                     BearerTokens(
-                        accessToken = dynamicOAuth2Service.getService().accessToken.serialize(),
+                        accessToken = dynamicOAuth2Service.getServiceSuspend().accessToken.serialize(),
                         refreshToken = ""
                     )
                 }

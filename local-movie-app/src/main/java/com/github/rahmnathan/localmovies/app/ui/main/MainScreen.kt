@@ -448,7 +448,7 @@ fun MediaCard(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = if (!media.number.isNullOrBlank()) "E${media.number} - ${media.title}" else media.title,
+                        text = if (media.type == "EPISODE" && !media.number.isNullOrBlank()) "E${media.number} - ${media.title}" else media.title,
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
@@ -456,7 +456,7 @@ fun MediaCard(
             }
 
             // Title overlay at the bottom
-            val displayTitle = if (!media.number.isNullOrBlank()) "E${media.number} - ${media.title}" else media.title
+            val displayTitle = if (media.type == "EPISODE" && !media.number.isNullOrBlank()) "E${media.number} - ${media.title}" else media.title
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -49,6 +49,9 @@ android {
         // Media3 unstable API opt-in is handled at file level
         disable 'UnsafeOptInUsageError'
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
     applicationVariants.configureEach { variant ->
         variant.getRuntimeConfiguration().exclude group: 'com.google.guava', module: 'listenablefuture'
     }
@@ -147,6 +150,12 @@ dependencies {
     implementation 'com.google.guava:guava:33.5.0-jre'
     implementation 'com.google.code.gson:gson:2.13.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2'
+    testImplementation 'io.mockk:mockk:1.13.17'
+    testImplementation 'app.cash.turbine:turbine:1.2.0'
 }
 
 googleServices { disableVersionCheck = false }

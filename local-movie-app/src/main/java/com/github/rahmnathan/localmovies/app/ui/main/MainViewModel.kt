@@ -1,8 +1,8 @@
 package com.github.rahmnathan.localmovies.app.ui.main
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.rahmnathan.localmovies.app.cast.GoogleCastUtils
 import com.github.rahmnathan.localmovies.app.data.repository.MediaRepository
 import com.github.rahmnathan.localmovies.app.data.repository.Result
 import com.github.rahmnathan.localmovies.app.media.data.Media
@@ -17,7 +17,7 @@ data class MainUiState(
     val error: String? = null,
     val searchQuery: String = "",
     val currentPath: List<String> = listOf("Movies"),
-    val currentParentId: String? = null,  // Parent ID for navigating into Series/Seasons
+    val parentIdStack: List<String?> = listOf(null),  // Stack of parent IDs matching currentPath
     val selectedTab: Int = 0, // 0=Movies, 1=Series, 2=Controls, 3=More
     val currentPage: Int = 0,
     val hasMorePages: Boolean = true,
@@ -26,15 +26,22 @@ data class MainUiState(
     val genreFilter: String? = null,
     val typeFilter: String? = null,
     val isOffline: Boolean = false
-)
+) {
+    /** Current parent ID is the last item in the stack */
+    val currentParentId: String? get() = parentIdStack.lastOrNull()
+}
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val mediaRepository: MediaRepository,
-    private val googleCastUtils: GoogleCastUtils,
+    private val playbackCoordinator: PlaybackCoordinator,
     private val preferencesDataStore: com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore,
     private val networkConnectivityObserver: com.github.rahmnathan.localmovies.app.data.local.NetworkConnectivityObserver
 ) : ViewModel() {
+
+    companion object {
+        private const val TAG = "MainViewModel"
+    }
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
@@ -83,7 +90,7 @@ class MainViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 currentPath = listOf(rootPath),
-                currentParentId = null,
+                parentIdStack = listOf(null),
                 typeFilter = when(rootPath) {
                     "Movies" -> "MOVIES"
                     "Series" -> "SERIES"
@@ -101,7 +108,7 @@ class MainViewModel @Inject constructor(
         _uiState.update { state ->
             state.copy(
                 currentPath = state.currentPath + directoryName,
-                currentParentId = mediaFileId,
+                parentIdStack = state.parentIdStack + mediaFileId,
                 typeFilter = null,
                 searchQuery = "",
                 currentPage = 0,
@@ -112,13 +119,14 @@ class MainViewModel @Inject constructor(
     }
 
     fun navigateBack(): Boolean {
-        val currentPath = _uiState.value.currentPath
-        return if (currentPath.size > 1 && _uiState.value.typeFilter != "history") {
-            val newPath = currentPath.dropLast(1)
+        val currentState = _uiState.value
+        return if (currentState.currentPath.size > 1 && currentState.typeFilter != "history") {
+            val newPath = currentState.currentPath.dropLast(1)
+            val newParentIdStack = currentState.parentIdStack.dropLast(1)
             _uiState.update {
                 it.copy(
                     currentPath = newPath,
-                    currentParentId = null,  // Clear parentId when navigating back to root
+                    parentIdStack = newParentIdStack,
                     typeFilter = when {
                         newPath.size == 1 && newPath[0] == "Movies" -> "MOVIES"
                         newPath.size == 1 && newPath[0] == "Series" -> "SERIES"
@@ -149,7 +157,7 @@ class MainViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 currentPath = listOf("History"),
-                currentParentId = null,
+                parentIdStack = listOf(null),
                 typeFilter = "history",
                 searchQuery = "",
                 currentPage = 0,
@@ -175,7 +183,7 @@ class MainViewModel @Inject constructor(
             val searchQuery = _uiState.value.searchQuery.takeIf { it.isNotBlank() }
             val parentId = _uiState.value.currentParentId
 
-            android.util.Log.d("MainViewModel", "loadMedia called: resetList=$resetList, page=$page, parentId=$parentId, searchQuery=$searchQuery, sort=${_uiState.value.sortOrder}, genre=${_uiState.value.genreFilter}, type=${_uiState.value.typeFilter}")
+            Log.d(TAG, "loadMedia called: resetList=$resetList, page=$page, parentId=$parentId, searchQuery=$searchQuery, sort=${_uiState.value.sortOrder}, genre=${_uiState.value.genreFilter}, type=${_uiState.value.typeFilter}")
 
             mediaRepository.getMediaList(
                 parentId = parentId,
@@ -202,7 +210,7 @@ class MainViewModel @Inject constructor(
                             val totalCount = if (result.totalCount > 0) result.totalCount else state.totalCount
                             val hasMorePages = newList.size < totalCount
 
-                            android.util.Log.d("MainViewModel", "Loaded ${newList.size} of $totalCount total items, hasMorePages=$hasMorePages")
+                            Log.d(TAG, "Loaded ${newList.size} of $totalCount total items, hasMorePages=$hasMorePages")
 
                             state.copy(
                                 mediaList = newList,
@@ -232,12 +240,12 @@ class MainViewModel @Inject constructor(
 
         // Guard against loading if already loading or no more pages
         if (!currentState.hasMorePages || currentState.isLoading) {
-            android.util.Log.d("MainViewModel", "Skipping loadMoreMedia: hasMorePages=${currentState.hasMorePages}, isLoading=${currentState.isLoading}")
+            Log.d(TAG, "Skipping loadMoreMedia: hasMorePages=${currentState.hasMorePages}, isLoading=${currentState.isLoading}")
             return
         }
 
         val nextPage = currentState.currentPage + 1
-        android.util.Log.d("MainViewModel", "Loading page $nextPage (current list size: ${currentState.mediaList.size})")
+        Log.d(TAG, "Loading page $nextPage (current list size: ${currentState.mediaList.size})")
 
         _uiState.update { it.copy(currentPage = nextPage) }
         loadMedia(resetList = false)
@@ -252,74 +260,28 @@ class MainViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
 
             try {
-                android.util.Log.d("MainViewModel", "Playing ${media.title} with resume position: $resumePosition ms")
+                val remainingEpisodes = playbackCoordinator.getRemainingEpisodes(media, _uiState.value.mediaList)
+                Log.d(TAG, "Media is ${if (media.number.isNullOrBlank()) "movie" else "series episode"}, queueing ${remainingEpisodes.size} remaining episodes")
 
-                // Check if Cast is active
-                if (googleCastUtils.isCastSessionActive()) {
-                    android.util.Log.d("MainViewModel", "Cast session active, playing on Cast device")
-
-                    // Only queue remaining episodes if this is a series episode (has episode number)
-                    val remainingEpisodes = if (!media.number.isNullOrBlank()) {
-                        val currentMediaList = _uiState.value.mediaList
-                        val currentIndex = currentMediaList.indexOfFirst { it.mediaFileId == media.mediaFileId }
-                        if (currentIndex >= 0 && currentIndex < currentMediaList.size - 1) {
-                            currentMediaList.subList(currentIndex + 1, currentMediaList.size)
-                        } else {
-                            emptyList()
-                        }
-                    } else {
-                        // Not a series episode, don't queue anything
-                        emptyList()
-                    }
-
-                    android.util.Log.d("MainViewModel", "Media is ${if (media.number.isNullOrBlank()) "movie" else "series episode"}, queueing ${remainingEpisodes.size} remaining episodes for cast")
-
-                    val success = googleCastUtils.playOnCast(media, remainingEpisodes, resumePosition)
-                    if (success) {
-                        android.util.Log.d("MainViewModel", "Successfully sent media to Cast device")
-                        _uiState.update { it.copy(isLoading = false) }
-                        return@launch
-                    } else {
-                        android.util.Log.w("MainViewModel", "Failed to play on Cast, falling back to local playback")
-                    }
-                }
-
-                // Play locally if Cast is not active or failed
-                android.util.Log.d("MainViewModel", "Playing locally - Getting signed URLs for mediaFileId: ${media.mediaFileId}")
-                when (val result = mediaRepository.getSignedUrls(media.mediaFileId)) {
-                    is Result.Success -> {
-                        val signedUrls = result.data
-                        val streamUrl = signedUrls.stream ?: run {
-                            android.util.Log.e("MainViewModel", "Stream URL is null in signed URLs response")
-                            _uiState.update { it.copy(isLoading = false, error = "Invalid stream URL") }
-                            return@launch
-                        }
-                        val updatePositionUrl = signedUrls.updatePosition ?: run {
-                            android.util.Log.e("MainViewModel", "UpdatePosition URL is null in signed URLs response")
-                            _uiState.update { it.copy(isLoading = false, error = "Invalid update position URL") }
-                            return@launch
-                        }
-
-                        android.util.Log.d("MainViewModel", "Got signed URLs - stream: $streamUrl")
-                        android.util.Log.d("MainViewModel", "Got signed URLs - updatePosition: $updatePositionUrl")
-                        onNavigateToPlayer(streamUrl, updatePositionUrl, media.mediaFileId, resumePosition)
+                when (val result = playbackCoordinator.play(media, resumePosition, remainingEpisodes)) {
+                    is PlaybackResult.PlayLocally -> {
+                        onNavigateToPlayer(
+                            result.streamUrl,
+                            result.updatePositionUrl,
+                            result.mediaId,
+                            result.resumePosition
+                        )
                         _uiState.update { it.copy(isLoading = false) }
                     }
-                    is Result.Error -> {
-                        android.util.Log.e("MainViewModel", "Failed to get signed URLs: ${result.message}")
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                error = "Failed to get video URL: ${result.message}"
-                            )
-                        }
-                    }
-                    else -> {
+                    is PlaybackResult.PlayingOnCast -> {
                         _uiState.update { it.copy(isLoading = false) }
+                    }
+                    is PlaybackResult.Error -> {
+                        _uiState.update { it.copy(isLoading = false, error = result.message) }
                     }
                 }
             } catch (e: Exception) {
-                android.util.Log.e("MainViewModel", "Exception playing media", e)
+                Log.e(TAG, "Exception playing media", e)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
