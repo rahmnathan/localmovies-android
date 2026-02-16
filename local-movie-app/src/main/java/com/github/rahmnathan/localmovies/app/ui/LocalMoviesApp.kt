@@ -1,5 +1,10 @@
 package com.github.rahmnathan.localmovies.app.ui
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,6 +22,8 @@ import com.github.rahmnathan.localmovies.app.ui.setup.SetupScreen
 import com.github.rahmnathan.localmovies.app.ui.setup.SetupViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+
+private const val TRANSITION_DURATION = 300
 
 sealed class Screen(val route: String) {
     object Setup : Screen("setup")
@@ -57,7 +64,11 @@ fun LocalMoviesApp() {
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(Screen.Setup.route) {
+        composable(
+            route = Screen.Setup.route,
+            enterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION)) },
+            exitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION)) }
+        ) {
             SetupScreen(
                 onNavigateToMain = {
                     navController.navigate(Screen.Main.route) {
@@ -67,7 +78,13 @@ fun LocalMoviesApp() {
             )
         }
 
-        composable(Screen.Main.route) {
+        composable(
+            route = Screen.Main.route,
+            enterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION)) },
+            exitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION)) },
+            popExitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION)) }
+        ) {
             MainScreen(
                 onNavigateToPlayer = { url, updatePositionUrl, mediaId, resumePosition ->
                     navController.navigate(Screen.Player.createRoute(url, updatePositionUrl, mediaId, resumePosition))
@@ -83,7 +100,23 @@ fun LocalMoviesApp() {
             )
         }
 
-        composable(Screen.CastController.route) {
+        composable(
+            route = Screen.CastController.route,
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(TRANSITION_DURATION)
+                ) + fadeIn(animationSpec = tween(TRANSITION_DURATION))
+            },
+            exitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION)) },
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(TRANSITION_DURATION)
+                ) + fadeOut(animationSpec = tween(TRANSITION_DURATION))
+            }
+        ) {
             CastControllerScreen(
                 onDismiss = {
                     navController.popBackStack()
@@ -98,7 +131,11 @@ fun LocalMoviesApp() {
                 navArgument("updatePositionUrl") { type = NavType.StringType },
                 navArgument("mediaId") { type = NavType.StringType },
                 navArgument("resumePosition") { type = NavType.LongType }
-            )
+            ),
+            enterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION)) },
+            exitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION)) },
+            popExitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION)) }
         ) {
             PlayerScreen(
                 onNavigateToNextEpisode = { url, updatePositionUrl, mediaId, resumePosition ->
@@ -116,7 +153,9 @@ fun LocalMoviesApp() {
             route = Screen.Detail.route,
             arguments = listOf(
                 navArgument("mediaId") { type = NavType.StringType }
-            )
+            ),
+            enterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION)) },
+            exitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION)) }
         ) {
             // Detail screen is shown as a dialog from MainScreen
             Text("Detail Screen")

@@ -6,10 +6,13 @@ import com.google.android.gms.cast.MediaStatus
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +26,8 @@ class CastControllerViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CastControllerUiState())
     val uiState: StateFlow<CastControllerUiState> = _uiState.asStateFlow()
 
+    private var monitoringJob: Job? = null
+
     private val remoteMediaClient: RemoteMediaClient?
         get() = castContext?.sessionManager?.currentCastSession?.remoteMediaClient
 
@@ -32,12 +37,19 @@ class CastControllerViewModel @Inject constructor(
     }
 
     private fun startMonitoring() {
-        viewModelScope.launch {
-            while (true) {
+        monitoringJob?.cancel()
+        monitoringJob = viewModelScope.launch {
+            while (isActive) {
                 updateState()
-                kotlinx.coroutines.delay(2000) // Update UI every 2 seconds
+                delay(2000) // Update UI every 2 seconds
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        monitoringJob?.cancel()
+        monitoringJob = null
     }
 
     fun updatePosition() {
@@ -53,66 +65,64 @@ class CastControllerViewModel @Inject constructor(
     }
 
     private fun updateState() {
-        viewModelScope.launch {
-            try {
-                val client = remoteMediaClient
-                if (client == null) {
-                    _uiState.update { it.copy(isConnected = false) }
-                    return@launch
-                }
-
-                val mediaInfo = client.mediaInfo
-                val mediaStatus = client.mediaStatus
-
-                if (mediaInfo != null) {
-                    val metadata = mediaInfo.metadata
-                    val title = metadata?.getString(com.google.android.gms.cast.MediaMetadata.KEY_TITLE) ?: ""
-                    val imageUrl = metadata?.images?.firstOrNull()?.url?.toString() ?: ""
-
-                    // Check if there's a next item in the queue
-                    val hasNextQueueItem = mediaStatus?.let { status ->
-                        val currentItemId = status.currentItemId
-                        val queueItems = status.queueItems.orEmpty()
-                        if (queueItems.isNotEmpty()) {
-                            // Find current item index
-                            val currentIndex = queueItems.indexOfFirst { it.itemId == currentItemId }
-                            // Check if there's a next item
-                            currentIndex >= 0 && currentIndex < queueItems.size - 1
-                        } else {
-                            false
-                        }
-                    } ?: false
-
-                    // Check if subtitles are available and enabled
-                    val mediaTracks = mediaInfo.mediaTracks
-                    val subtitleTrack = mediaTracks?.find { it.type == com.google.android.gms.cast.MediaTrack.TYPE_TEXT }
-                    val subtitlesAvailable = subtitleTrack != null
-                    val activeTrackIds = mediaStatus?.activeTrackIds ?: longArrayOf()
-                    val subtitlesEnabled = subtitleTrack != null && activeTrackIds.contains(subtitleTrack.id)
-
-                    android.util.Log.d("CastControllerViewModel", "Cast session active - title: $title, isPlaying: ${mediaStatus?.playerState == MediaStatus.PLAYER_STATE_PLAYING}, hasNext: $hasNextQueueItem, subtitlesAvailable: $subtitlesAvailable, subtitlesEnabled: $subtitlesEnabled")
-
-                    _uiState.update { state ->
-                        state.copy(
-                            isConnected = true,
-                            title = title,
-                            imageUrl = imageUrl,
-                            duration = mediaInfo.streamDuration,
-                            currentPosition = client.approximateStreamPosition,
-                            isPlaying = mediaStatus?.playerState == MediaStatus.PLAYER_STATE_PLAYING,
-                            hasNextQueueItem = hasNextQueueItem,
-                            subtitlesAvailable = subtitlesAvailable,
-                            subtitlesEnabled = subtitlesEnabled
-                        )
-                    }
-                } else {
-                    android.util.Log.d("CastControllerViewModel", "Cast session active but no media info")
-                    _uiState.update { it.copy(isConnected = true, title = "", imageUrl = "", hasNextQueueItem = false) }
-                }
-            } catch (e: Exception) {
-                android.util.Log.e("CastControllerViewModel", "Error updating state", e)
+        try {
+            val client = remoteMediaClient
+            if (client == null) {
                 _uiState.update { it.copy(isConnected = false) }
+                return
             }
+
+            val mediaInfo = client.mediaInfo
+            val mediaStatus = client.mediaStatus
+
+            if (mediaInfo != null) {
+                val metadata = mediaInfo.metadata
+                val title = metadata?.getString(com.google.android.gms.cast.MediaMetadata.KEY_TITLE) ?: ""
+                val imageUrl = metadata?.images?.firstOrNull()?.url?.toString() ?: ""
+
+                // Check if there's a next item in the queue
+                val hasNextQueueItem = mediaStatus?.let { status ->
+                    val currentItemId = status.currentItemId
+                    val queueItems = status.queueItems.orEmpty()
+                    if (queueItems.isNotEmpty()) {
+                        // Find current item index
+                        val currentIndex = queueItems.indexOfFirst { it.itemId == currentItemId }
+                        // Check if there's a next item
+                        currentIndex >= 0 && currentIndex < queueItems.size - 1
+                    } else {
+                        false
+                    }
+                } ?: false
+
+                // Check if subtitles are available and enabled
+                val mediaTracks = mediaInfo.mediaTracks
+                val subtitleTrack = mediaTracks?.find { it.type == com.google.android.gms.cast.MediaTrack.TYPE_TEXT }
+                val subtitlesAvailable = subtitleTrack != null
+                val activeTrackIds = mediaStatus?.activeTrackIds ?: longArrayOf()
+                val subtitlesEnabled = subtitleTrack != null && activeTrackIds.contains(subtitleTrack.id)
+
+                android.util.Log.d("CastControllerViewModel", "Cast session active - title: $title, isPlaying: ${mediaStatus?.playerState == MediaStatus.PLAYER_STATE_PLAYING}, hasNext: $hasNextQueueItem, subtitlesAvailable: $subtitlesAvailable, subtitlesEnabled: $subtitlesEnabled")
+
+                _uiState.update { state ->
+                    state.copy(
+                        isConnected = true,
+                        title = title,
+                        imageUrl = imageUrl,
+                        duration = mediaInfo.streamDuration,
+                        currentPosition = client.approximateStreamPosition,
+                        isPlaying = mediaStatus?.playerState == MediaStatus.PLAYER_STATE_PLAYING,
+                        hasNextQueueItem = hasNextQueueItem,
+                        subtitlesAvailable = subtitlesAvailable,
+                        subtitlesEnabled = subtitlesEnabled
+                    )
+                }
+            } else {
+                android.util.Log.d("CastControllerViewModel", "Cast session active but no media info")
+                _uiState.update { it.copy(isConnected = true, title = "", imageUrl = "", hasNextQueueItem = false) }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("CastControllerViewModel", "Error updating state", e)
+            _uiState.update { it.copy(isConnected = false) }
         }
     }
 
