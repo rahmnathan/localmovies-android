@@ -77,11 +77,13 @@ data class Media(
 
     /**
      * Get the media duration in seconds (from mediaViews).
+     * Duration is stored in milliseconds, so we convert to seconds.
      * Returns null if no duration data is available.
      */
     fun getDuration(): Long? {
         val recentView = mediaViews?.maxByOrNull { it.updated }
-        return recentView?.duration?.toLong()
+        val durationMs = recentView?.duration?.toLong() ?: return null
+        return durationMs / 1000
     }
 }
 

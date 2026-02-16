@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
@@ -95,7 +95,8 @@ internal fun HistoryList(
     mediaList: List<Media>,
     isLoading: Boolean,
     onPlayMedia: (Media, Long) -> Unit,
-    onShowDetails: (Media) -> Unit
+    onShowDetails: (Media) -> Unit,
+    onRemoveFromHistory: (Media) -> Unit = {}
 ) {
     val groupedHistory = rememberGroupedHistory(mediaList)
 
@@ -117,6 +118,9 @@ internal fun HistoryList(
                 },
                 onShowDetails = {
                     onShowDetails(group.displayMedia)
+                },
+                onRemove = {
+                    onRemoveFromHistory(group.displayMedia)
                 }
             )
         }
@@ -140,7 +144,8 @@ internal fun HistoryList(
 private fun HistoryCard(
     group: HistoryGroup,
     onContinue: () -> Unit,
-    onShowDetails: () -> Unit
+    onShowDetails: () -> Unit,
+    onRemove: () -> Unit
 ) {
     val media = group.displayMedia
     val resumePosition = remember(media.mediaFileId) { media.getResumePosition() }
@@ -280,13 +285,13 @@ private fun HistoryCard(
                 )
             }
 
-            // Info button
+            // Remove button
             IconButton(
-                onClick = onShowDetails
+                onClick = onRemove
             ) {
                 Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Details",
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Remove from history",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

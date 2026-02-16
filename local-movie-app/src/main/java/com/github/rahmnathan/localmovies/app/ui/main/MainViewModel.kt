@@ -109,12 +109,22 @@ class MainViewModel @Inject constructor(
         loadMedia(resetList = true)
     }
 
-    fun navigateToDirectory(mediaFileId: String, directoryName: String) {
+    fun navigateToDirectory(mediaFileId: String, directoryName: String, mediaType: String) {
+        // Determine the type filter based on what we're navigating into
+        // Similar to webapp logic: SERIES -> SEASONS, SEASON -> EPISODES
+        val childTypeFilter = when (mediaType.uppercase()) {
+            "SERIES" -> "SEASONS"
+            "SEASON" -> "EPISODES"
+            "MOVIE_FOLDER" -> "MOVIES"
+            "EPISODE_FOLDER" -> "EPISODES"
+            else -> null
+        }
+
         _uiState.update { state ->
             state.copy(
                 currentPath = state.currentPath + directoryName,
                 parentIdStack = state.parentIdStack + mediaFileId,
-                typeFilter = null,
+                typeFilter = childTypeFilter,
                 searchQuery = "",
                 currentPage = 0,
                 hasMorePages = true
@@ -450,6 +460,21 @@ class MainViewModel @Inject constructor(
                 }
             } else {
                 Log.e(TAG, "Failed to toggle favorite for ${media.mediaFileId}")
+            }
+        }
+    }
+
+    fun removeFromHistory(media: Media) {
+        viewModelScope.launch {
+            val success = mediaRepository.removeFromHistory(media.mediaFileId)
+            if (success) {
+                // Remove the media item from the list
+                _uiState.update { state ->
+                    val updatedList = state.mediaList.filter { it.mediaFileId != media.mediaFileId }
+                    state.copy(mediaList = updatedList)
+                }
+            } else {
+                Log.e(TAG, "Failed to remove from history: ${media.mediaFileId}")
             }
         }
     }

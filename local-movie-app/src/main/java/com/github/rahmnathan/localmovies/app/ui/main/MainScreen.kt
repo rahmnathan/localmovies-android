@@ -65,7 +65,7 @@ fun MainScreen(
                 if (media.streamable) {
                     viewModel.playMedia(media, resumePosition, onNavigateToPlayer)
                 } else {
-                    viewModel.navigateToDirectory(media.mediaFileId, media.filename)
+                    viewModel.navigateToDirectory(media.mediaFileId, media.filename, media.type)
                 }
             },
             onFavoriteClick = {
@@ -273,6 +273,9 @@ fun MainScreen(
                             },
                             onShowDetails = { media ->
                                 selectedMediaForDetails = media
+                            },
+                            onRemoveFromHistory = { media ->
+                                viewModel.removeFromHistory(media)
                             }
                         )
                     }
@@ -292,7 +295,7 @@ fun MainScreen(
                                     selectedMediaForDetails = media
                                 } else {
                                     // Navigate directly into series/seasons
-                                    viewModel.navigateToDirectory(media.mediaFileId, media.filename)
+                                    viewModel.navigateToDirectory(media.mediaFileId, media.filename, media.type)
                                 }
                             },
                             onMediaLongClick = { media ->

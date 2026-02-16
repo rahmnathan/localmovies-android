@@ -84,5 +84,9 @@ class MediaRepository @Inject constructor(
             addFavorite(mediaFileId)
         }
     }
+
+    suspend fun removeFromHistory(mediaFileId: String): Boolean {
+        return mediaApi.removeFromHistory(mediaFileId)
+    }
 }
 

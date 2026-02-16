@@ -150,4 +150,15 @@ class MediaApi @Inject constructor(
             false
         }
     }
+
+    suspend fun removeFromHistory(mediaFileId: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val serverUrl = getServerUrl()
+            val response = apiClient.httpClient.delete("$serverUrl/localmovie/v1/media/$mediaFileId/history")
+            response.status.value in 200..299
+        } catch (e: Exception) {
+            android.util.Log.e("MediaApi", "Error removing from history", e)
+            false
+        }
+    }
 }
