@@ -108,7 +108,10 @@ class MediaApi @Inject constructor(
         val baseUrl = parts[0]
         val query = parts.getOrNull(1) ?: ""
 
-        // Build query string with duration if available
+        // Convert position from milliseconds to seconds (API expects seconds)
+        val positionSeconds = position / 1000
+
+        // Build query string with duration if available (duration also in milliseconds, API expects milliseconds)
         val queryWithDuration = if (duration != null && duration > 0) {
             if (query.isNotEmpty()) "$query&duration=$duration" else "duration=$duration"
         } else {
@@ -117,10 +120,10 @@ class MediaApi @Inject constructor(
 
         // If baseUrl is already a full URL, use it directly; otherwise prepend server URL
         val fullUrl = if (baseUrl.startsWith("http")) {
-            "$baseUrl/$position?$queryWithDuration"
+            "$baseUrl/$positionSeconds?$queryWithDuration"
         } else {
             val serverUrl = getServerUrl()
-            "$serverUrl$baseUrl/$position?$queryWithDuration"
+            "$serverUrl$baseUrl/$positionSeconds?$queryWithDuration"
         }
 
         apiClient.httpClient.patch(fullUrl)

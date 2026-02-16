@@ -165,8 +165,8 @@ data class MediaUserDto(
         return MediaUser(
             id = id,
             userId = userId,
-            created = created.toLongOrNull() ?: 0,
-            updated = updated.toLongOrNull() ?: 0
+            created = parseDateTime(created),
+            updated = parseDateTime(updated)
         )
     }
 }
@@ -196,8 +196,23 @@ data class MediaViewDto(
             position = position,
             duration = duration,
             mediaUser = mediaUser.toMediaUser(),
-            created = created.toLongOrNull() ?: 0,
-            updated = updated.toLongOrNull() ?: 0
+            created = parseDateTime(created),
+            updated = parseDateTime(updated)
         )
+    }
+}
+
+/**
+ * Parse ISO 8601 datetime string to epoch seconds.
+ * Handles formats like "2026-02-15T19:00:00" or "2026-02-15T19:00:00.123"
+ */
+private fun parseDateTime(dateTimeStr: String): Long {
+    return try {
+        java.time.LocalDateTime.parse(dateTimeStr)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toEpochSecond()
+    } catch (e: Exception) {
+        // Fallback: try parsing as epoch millis or return 0
+        dateTimeStr.toLongOrNull() ?: 0
     }
 }

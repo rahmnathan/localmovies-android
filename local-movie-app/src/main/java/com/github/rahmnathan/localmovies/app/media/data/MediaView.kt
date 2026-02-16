@@ -27,11 +27,11 @@ data class MediaView(
     }
 
     /**
-     * Get position in milliseconds for video player
-     * Position from API is already in milliseconds (as Double)
+     * Get position in milliseconds for video player.
+     * Position from API is in seconds (as Double), so convert to milliseconds.
      */
     fun getPositionMillis(): Long {
-        return position.toLong()
+        return (position * 1000).toLong()
     }
 
     /**
