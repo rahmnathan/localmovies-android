@@ -5,22 +5,33 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
 import com.github.rahmnathan.localmovies.app.media.data.Media
 
@@ -38,6 +49,7 @@ fun MediaDetailsDialog(
 ) {
     val resumePosition = remember(media.mediaFileId) { media.getResumePosition() }
     val showResume = resumePosition != null && resumePosition >= 60000
+    val duration = remember(media.mediaFileId) { media.getDuration() }
 
     // Animate favorite button
     var animateFavorite by remember { mutableStateOf(false) }
@@ -52,180 +64,337 @@ fun MediaDetailsDialog(
     )
 
     val favoriteColor by animateColorAsState(
-        targetValue = if (isFavorite) Color(0xFFE91E63) else MaterialTheme.colorScheme.onSurface,
+        targetValue = if (isFavorite) Color(0xFFE91E63) else Color.White,
         animationSpec = tween(300),
         label = "favoriteColor"
     )
 
-    AlertDialog(
+    Dialog(
         onDismissRequest = onDismiss,
-        title = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = media.title,
-                    modifier = Modifier.weight(1f),
-                    fontWeight = FontWeight.Bold
-                )
-                IconButton(
-                    onClick = {
-                        animateFavorite = true
-                        onFavoriteClick()
-                    },
-                    modifier = Modifier.scale(favoriteScale)
-                ) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                        tint = favoriteColor
-                    )
-                }
-            }
-        },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Poster with rounded corners
-                val posterUrl = remember(media.mediaFileId) { media.signedUrls?.poster }
-                if (posterUrl != null) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(2f / 3f),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        AsyncImage(
-                            model = posterUrl,
-                            contentDescription = media.title,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-                }
-
-                // Ratings and Year chips
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
+        )
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .fillMaxHeight(0.9f),
+            shape = RoundedCornerShape(24.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 8.dp
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Top bar with favorite and close buttons
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (!media.releaseYear.isNullOrBlank()) {
-                        AssistChip(
-                            onClick = {},
-                            label = { Text(media.releaseYear!!, fontWeight = FontWeight.Medium) }
-                        )
-                    }
-                    if (!media.imdbRating.isNullOrBlank()) {
-                        AssistChip(
-                            onClick = {},
-                            label = { Text("IMDb: ${media.imdbRating}", fontWeight = FontWeight.Medium) }
-                        )
-                    }
-                    if (!media.metaRating.isNullOrBlank()) {
-                        AssistChip(
-                            onClick = {},
-                            label = { Text("Meta: ${media.metaRating}", fontWeight = FontWeight.Medium) }
-                        )
-                    }
-                }
-
-                // Genre
-                if (!media.genre.isNullOrBlank()) {
-                    Text(
-                        text = "Genre: ${media.genre}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                // Plot
-                if (!media.plot.isNullOrBlank()) {
-                    Text(
-                        text = media.plot!!,
-                        style = MaterialTheme.typography.bodyMedium,
-                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.4
-                    )
-                }
-
-                // Actors
-                if (!media.actors.isNullOrBlank()) {
-                    Text(
-                        text = "Cast: ${media.actors}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Primary action with gradient
-                if (media.streamable && showResume) {
-                    GradientButton(
-                        text = "Resume (${formatResumeTime(resumePosition!!)})",
-                        onClick = { onPlay(resumePosition) }
-                    )
-
-                    FilledTonalButton(
-                        onClick = { onPlay(0) },
+                    // Favorite button
+                    IconButton(
+                        onClick = {
+                            animateFavorite = true
+                            onFavoriteClick()
+                        },
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        shape = RoundedCornerShape(12.dp)
+                            .size(40.dp)
+                            .scale(favoriteScale)
                     ) {
                         Icon(
-                            Icons.Default.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
+                            imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                            tint = if (isFavorite) Color(0xFFE91E63) else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp)
                         )
-                        Spacer(Modifier.width(8.dp))
-                        Text("Play from Start", fontWeight = FontWeight.SemiBold)
                     }
-                } else if (media.streamable) {
-                    GradientButton(
-                        text = "Play",
-                        onClick = { onPlay(0) }
-                    )
-                } else {
-                    GradientButton(
-                        text = "Open",
-                        onClick = { onPlay(0) }
-                    )
+
+                    // Close button
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Close",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
 
-                TextButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth()
+                // Scrollable content
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    Text("Close")
+                    val posterUrl = remember(media.mediaFileId) { media.signedUrls?.poster }
+
+                    // Poster section - shows full poster
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp)
+                            .padding(bottom = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (posterUrl != null) {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.6f)
+                                    .aspectRatio(2f / 3f),
+                                shape = RoundedCornerShape(16.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                            ) {
+                                AsyncImage(
+                                    model = posterUrl,
+                                    contentDescription = media.title,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
+                        } else {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.6f)
+                                    .aspectRatio(2f / 3f),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        Icons.Default.Folder,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(48.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Title
+                    Text(
+                        text = media.title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Content section
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                    ) {
+                        // Metadata row: year/rating/runtime on left, genres on right
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Left side: year, rating, runtime
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (!media.releaseYear.isNullOrBlank()) {
+                                    Text(
+                                        text = media.releaseYear,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                                if (!media.imdbRating.isNullOrBlank() && media.imdbRating != "N/A") {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Star,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(14.dp),
+                                            tint = Color(0xFFFFD700)
+                                        )
+                                        Text(
+                                            text = media.imdbRating,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Medium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+
+                                if (duration != null && duration > 0) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Schedule,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(14.dp),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = formatRuntime(duration),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Right side: genre chips (compact, max 2 to save space)
+                            if (!media.genre.isNullOrBlank()) {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    media.genre.split(",").take(2).forEach { genre ->
+                                        SuggestionChip(
+                                            onClick = {},
+                                            label = {
+                                                Text(
+                                                    genre.trim(),
+                                                    style = MaterialTheme.typography.labelSmall
+                                                )
+                                            },
+                                            shape = RoundedCornerShape(16.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // Plot
+                    if (!media.plot.isNullOrBlank()) {
+                        Text(
+                            text = media.plot!!,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.5,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
+
+                    // Cast
+                    if (!media.actors.isNullOrBlank()) {
+                        Column(modifier = Modifier.padding(bottom = 16.dp)) {
+                            Text(
+                                text = "Cast",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                            Text(
+                                text = media.actors!!,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                // Action buttons at bottom (outside scroll)
+                Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surface,
+                        tonalElevation = 2.dp
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp, vertical = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            if (media.streamable) {
+                                if (showResume) {
+                                    // Resume button (primary)
+                                    GradientButton(
+                                        text = "Resume",
+                                        subtext = formatResumeTime(resumePosition!!),
+                                        icon = Icons.Default.Refresh,
+                                        onClick = { onPlay(resumePosition) }
+                                    )
+
+                                    // Play from start (secondary)
+                                    OutlinedButton(
+                                        onClick = { onPlay(0) },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(48.dp),
+                                        shape = RoundedCornerShape(12.dp),
+                                        border = ButtonDefaults.outlinedButtonBorder(enabled = true)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.PlayArrow,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("Play from Start", fontWeight = FontWeight.Medium)
+                                    }
+                                } else {
+                                    // Just play button
+                                    GradientButton(
+                                        text = "Play",
+                                        icon = Icons.Default.PlayArrow,
+                                        onClick = { onPlay(0) }
+                                    )
+                                }
+                            } else {
+                                // Open folder/directory
+                                GradientButton(
+                                    text = "Open",
+                                    icon = Icons.Default.Folder,
+                                    onClick = { onPlay(0) }
+                                )
+                            }
+                        }
+                    }
                 }
             }
-        },
-        dismissButton = null
-    )
+        }
+    }
 }
 
 @Composable
 private fun GradientButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.PlayArrow,
+    subtext: String? = null
 ) {
     Button(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp),
-        shape = RoundedCornerShape(12.dp),
+            .height(56.dp),
+        shape = RoundedCornerShape(14.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent
         ),
@@ -234,13 +403,11 @@ private fun GradientButton(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .then(
-                    Modifier.background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(GradientStart, GradientEnd)
-                        ),
-                        shape = RoundedCornerShape(12.dp)
-                    )
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(GradientStart, GradientEnd)
+                    ),
+                    shape = RoundedCornerShape(14.dp)
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -249,17 +416,34 @@ private fun GradientButton(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    Icons.Default.PlayArrow,
+                    icon,
                     contentDescription = null,
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(24.dp),
                     tint = Color.White
                 )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = text,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.White
-                )
+                Spacer(Modifier.width(10.dp))
+                if (subtext != null) {
+                    Column {
+                        Text(
+                            text = text,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = subtext,
+                            color = Color.White.copy(alpha = 0.8f),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                } else {
+                    Text(
+                        text = text,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
             }
         }
     }
@@ -273,6 +457,21 @@ internal fun formatResumeTime(milliseconds: Long): String {
     val totalSeconds = milliseconds / 1000
     val hours = totalSeconds / 3600
     val minutes = (totalSeconds % 3600) / 60
+
+    return if (hours > 0) {
+        String.format("%dh %dm", hours, minutes)
+    } else {
+        String.format("%dm", minutes)
+    }
+}
+
+/**
+ * Formats seconds to a human-readable runtime string.
+ * E.g., 6120 -> "1h 42m"
+ */
+private fun formatRuntime(seconds: Long): String {
+    val hours = seconds / 3600
+    val minutes = (seconds % 3600) / 60
 
     return if (hours > 0) {
         String.format("%dh %dm", hours, minutes)

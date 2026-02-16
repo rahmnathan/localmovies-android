@@ -74,6 +74,15 @@ data class Media(
 
         return recentView.getProgressFraction()
     }
+
+    /**
+     * Get the media duration in seconds (from mediaViews).
+     * Returns null if no duration data is available.
+     */
+    fun getDuration(): Long? {
+        val recentView = mediaViews?.maxByOrNull { it.updated }
+        return recentView?.duration?.toLong()
+    }
 }
 
 /**

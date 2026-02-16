@@ -59,28 +59,6 @@ fun SetupScreen(
             enabled = !uiState.isLoading
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = uiState.serverUrl,
-            onValueChange = viewModel::onServerUrlChange,
-            label = { Text("Server URL") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            enabled = !uiState.isLoading
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = uiState.authServerUrl,
-            onValueChange = viewModel::onAuthServerUrlChange,
-            label = { Text("Auth Server URL") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            enabled = !uiState.isLoading
-        )
-
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(

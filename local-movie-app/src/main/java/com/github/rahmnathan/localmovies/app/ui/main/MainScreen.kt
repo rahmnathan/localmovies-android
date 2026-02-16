@@ -288,13 +288,15 @@ fun MainScreen(
                             onLoadMore = { viewModel.loadMoreMedia() },
                             onMediaClick = { media ->
                                 if (media.streamable) {
-                                    val resumePosition = media.getResumePosition()?.takeIf { it >= 60000 } ?: 0L
-                                    viewModel.playMedia(media, resumePosition, onNavigateToPlayer)
+                                    // Show details dialog for playable content (movies, episodes)
+                                    selectedMediaForDetails = media
                                 } else {
+                                    // Navigate directly into series/seasons
                                     viewModel.navigateToDirectory(media.mediaFileId, media.filename)
                                 }
                             },
                             onMediaLongClick = { media ->
+                                // Long press always shows details (for series info, etc.)
                                 selectedMediaForDetails = media
                             }
                         )

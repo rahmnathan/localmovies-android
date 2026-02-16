@@ -9,7 +9,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -203,48 +202,6 @@ fun MediaCard(
                         textAlign = TextAlign.Center,
                         color = Color.White
                     )
-                }
-            }
-
-            // Info button in top right with improved styling
-            var infoPressed by remember { mutableStateOf(false) }
-            val infoScale by animateFloatAsState(
-                targetValue = if (infoPressed) 0.85f else 1f,
-                animationSpec = spring(stiffness = Spring.StiffnessHigh),
-                label = "infoScale"
-            )
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(6.dp)
-                    .size(34.dp)
-                    .scale(infoScale)
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onPress = {
-                                infoPressed = true
-                                tryAwaitRelease()
-                                infoPressed = false
-                            },
-                            onTap = { onLongClick() }
-                        )
-                    }
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = Color.Black.copy(alpha = 0.6f),
-                    shadowElevation = 4.dp,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = "Details",
-                            modifier = Modifier.size(18.dp),
-                            tint = Color.White.copy(alpha = 0.9f)
-                        )
-                    }
                 }
             }
         }

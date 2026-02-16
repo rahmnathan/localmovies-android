@@ -51,14 +51,6 @@ class SetupViewModel @Inject constructor(
         _uiState.update { it.copy(password = password) }
     }
 
-    fun onServerUrlChange(url: String) {
-        _uiState.update { it.copy(serverUrl = url) }
-    }
-
-    fun onAuthServerUrlChange(url: String) {
-        _uiState.update { it.copy(authServerUrl = url) }
-    }
-
     fun login() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
