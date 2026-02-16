@@ -7,6 +7,7 @@ import com.github.rahmnathan.localmovies.app.data.repository.MediaRepository
 import com.github.rahmnathan.localmovies.app.data.repository.Result
 import com.github.rahmnathan.localmovies.app.media.data.Media
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,7 +25,7 @@ data class MainUiState(
     val totalCount: Long = 0,
     val sortOrder: String = "title", // title, year, rating, added
     val genreFilter: String? = null,
-    val typeFilter: String? = null,
+    val typeFilter: String? = "MOVIES",  // Default to Movies tab filter
     val isOffline: Boolean = false
 ) {
     /** Current parent ID is the last item in the stack */
@@ -49,6 +50,9 @@ class MainViewModel @Inject constructor(
 
     // Search query flow with debouncing
     private val searchQueryFlow = MutableStateFlow("")
+
+    // Track current loading job to cancel on filter/tab changes
+    private var currentLoadJob: Job? = null
 
     init {
         // Observe network connectivity
@@ -194,21 +198,33 @@ class MainViewModel @Inject constructor(
     }
 
     private fun loadMedia(resetList: Boolean = false) {
-        viewModelScope.launch {
-            val page = if (resetList) 0 else _uiState.value.currentPage
-            val searchQuery = _uiState.value.searchQuery.takeIf { it.isNotBlank() }
-            val parentId = _uiState.value.currentParentId
+        // Cancel any in-flight request when starting a new one (especially on tab/filter change)
+        if (resetList) {
+            currentLoadJob?.cancel()
+        }
 
-            Log.d(TAG, "loadMedia called: resetList=$resetList, page=$page, parentId=$parentId, searchQuery=$searchQuery, sort=${_uiState.value.sortOrder}, genre=${_uiState.value.genreFilter}, type=${_uiState.value.typeFilter}")
+        // Capture state snapshot BEFORE launching coroutine to avoid race conditions
+        val stateSnapshot = _uiState.value
+        val page = if (resetList) 0 else stateSnapshot.currentPage
+        val searchQuery = stateSnapshot.searchQuery.takeIf { it.isNotBlank() }
+        val parentId = stateSnapshot.currentParentId
+        val typeFilter = stateSnapshot.typeFilter
+        val selectedTab = stateSnapshot.selectedTab
+        val sortOrder = stateSnapshot.sortOrder
+        val genreFilter = stateSnapshot.genreFilter
+
+        Log.d(TAG, "loadMedia called: resetList=$resetList, page=$page, parentId=$parentId, searchQuery=$searchQuery, sort=$sortOrder, genre=$genreFilter, type=$typeFilter")
+
+        currentLoadJob = viewModelScope.launch {
 
             mediaRepository.getMediaList(
                 parentId = parentId,
                 page = page,
                 size = 50,
-                order = _uiState.value.sortOrder,
+                order = sortOrder,
                 searchQuery = searchQuery,
-                genre = _uiState.value.genreFilter,
-                type = _uiState.value.typeFilter
+                genre = genreFilter,
+                type = typeFilter
             ).collect { result ->
                 when (result) {
                     is Result.Loading -> {
@@ -216,10 +232,22 @@ class MainViewModel @Inject constructor(
                     }
                     is Result.Success -> {
                         _uiState.update { state ->
+                            // Validate that the response is still relevant (user hasn't switched tabs)
+                            if (state.selectedTab != selectedTab || state.typeFilter != typeFilter) {
+                                Log.d(TAG, "Discarding stale response: expected tab=$selectedTab/type=$typeFilter, current tab=${state.selectedTab}/type=${state.typeFilter}")
+                                return@update state.copy(isLoading = false)
+                            }
+
                             val newList = if (resetList) {
                                 result.data
                             } else {
-                                state.mediaList + result.data
+                                // Deduplicate by mediaFileId to prevent LazyColumn key conflicts
+                                val existingIds = state.mediaList.map { it.mediaFileId }.toSet()
+                                val newItems = result.data.filter { it.mediaFileId !in existingIds }
+                                if (newItems.size != result.data.size) {
+                                    Log.w(TAG, "loadMedia: Filtered ${result.data.size - newItems.size} duplicate items")
+                                }
+                                state.mediaList + newItems
                             }
 
                             // Determine if more pages exist based on total count
@@ -252,23 +280,111 @@ class MainViewModel @Inject constructor(
     }
 
     fun loadMoreMedia() {
-        val currentState = _uiState.value
+        // Atomically check and set isLoading to prevent concurrent page loads
+        var shouldProceed = false
+        var nextPage = 0
 
-        // Guard against loading if already loading or no more pages
-        if (!currentState.hasMorePages || currentState.isLoading) {
-            Log.d(TAG, "Skipping loadMoreMedia: hasMorePages=${currentState.hasMorePages}, isLoading=${currentState.isLoading}")
-            return
+        _uiState.update { state ->
+            if (!state.hasMorePages || state.isLoading) {
+                Log.d(TAG, "Skipping loadMoreMedia: hasMorePages=${state.hasMorePages}, isLoading=${state.isLoading}")
+                state // No change - already loading or no more pages
+            } else {
+                nextPage = state.currentPage + 1
+                shouldProceed = true
+                Log.d(TAG, "Loading page $nextPage (current list size: ${state.mediaList.size})")
+                state.copy(currentPage = nextPage, isLoading = true)
+            }
         }
 
-        val nextPage = currentState.currentPage + 1
-        Log.d(TAG, "Loading page $nextPage (current list size: ${currentState.mediaList.size})")
+        if (shouldProceed) {
+            loadMediaPage(page = nextPage)
+        }
+    }
 
-        _uiState.update { it.copy(currentPage = nextPage) }
-        loadMedia(resetList = false)
+    private fun loadMediaPage(page: Int) {
+        // Capture state snapshot BEFORE launching coroutine to avoid race conditions
+        val stateSnapshot = _uiState.value
+        val searchQuery = stateSnapshot.searchQuery.takeIf { it.isNotBlank() }
+        val parentId = stateSnapshot.currentParentId
+        val typeFilter = stateSnapshot.typeFilter
+        val selectedTab = stateSnapshot.selectedTab
+        val sortOrder = stateSnapshot.sortOrder
+        val genreFilter = stateSnapshot.genreFilter
+
+        Log.d(TAG, "loadMediaPage: page=$page, parentId=$parentId, searchQuery=$searchQuery, type=$typeFilter")
+
+        currentLoadJob = viewModelScope.launch {
+            mediaRepository.getMediaList(
+                parentId = parentId,
+                page = page,
+                size = 50,
+                order = sortOrder,
+                searchQuery = searchQuery,
+                genre = genreFilter,
+                type = typeFilter
+            ).collect { result ->
+                when (result) {
+                    is Result.Loading -> {
+                        // isLoading already set in loadMoreMedia
+                    }
+                    is Result.Success -> {
+                        _uiState.update { state ->
+                            // Validate that the response is still relevant (user hasn't switched tabs)
+                            if (state.selectedTab != selectedTab || state.typeFilter != typeFilter) {
+                                Log.d(TAG, "Discarding stale page response: expected tab=$selectedTab/type=$typeFilter, current tab=${state.selectedTab}/type=${state.typeFilter}")
+                                return@update state.copy(isLoading = false)
+                            }
+
+                            // Also validate we're appending to the right page - prevent duplicate appends
+                            if (state.currentPage != page) {
+                                Log.d(TAG, "Discarding duplicate page response: expected page=$page, current page=${state.currentPage}")
+                                return@update state
+                            }
+
+                            // Deduplicate by mediaFileId to prevent LazyColumn key conflicts
+                            val existingIds = state.mediaList.map { it.mediaFileId }.toSet()
+                            val newItems = result.data.filter { it.mediaFileId !in existingIds }
+                            val newList = state.mediaList + newItems
+
+                            if (newItems.size != result.data.size) {
+                                Log.w(TAG, "Filtered ${result.data.size - newItems.size} duplicate items from page $page")
+                            }
+
+                            // Determine if more pages exist based on total count
+                            val totalCount = if (result.totalCount > 0) result.totalCount else state.totalCount
+                            val hasMorePages = newList.size < totalCount
+
+                            Log.d(TAG, "Loaded ${newList.size} of $totalCount total items, hasMorePages=$hasMorePages")
+
+                            state.copy(
+                                mediaList = newList,
+                                isLoading = false,
+                                error = null,
+                                totalCount = totalCount,
+                                hasMorePages = hasMorePages
+                            )
+                        }
+                    }
+                    is Result.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                error = result.message
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun retryLoading() {
+        _uiState.update { it.copy(error = null, currentPage = 0, hasMorePages = true) }
+        loadMedia(resetList = true)
     }
 
     fun playMedia(media: Media, resumePosition: Long = 0, onNavigateToPlayer: (url: String, updatePositionUrl: String, mediaId: String, resumePosition: Long) -> Unit) {
@@ -325,28 +441,7 @@ class MainViewModel @Inject constructor(
                 _uiState.update { state ->
                     val updatedList = state.mediaList.map { item ->
                         if (item.mediaFileId == media.mediaFileId) {
-                            // Create a new Media with toggled favorite state
-                            Media(
-                                title = item.title,
-                                imdbRating = item.imdbRating,
-                                metaRating = item.metaRating,
-                                image = item.image,
-                                releaseYear = item.releaseYear,
-                                created = item.created,
-                                genre = item.genre,
-                                filename = item.filename,
-                                actors = item.actors,
-                                plot = item.plot,
-                                path = item.path,
-                                number = item.number,
-                                type = item.type,
-                                mediaFileId = item.mediaFileId,
-                                streamable = item.streamable,
-                                mediaViews = item.mediaViews,
-                                signedUrls = item.signedUrls,
-                                parent = item.parent,
-                                favorite = !item.favorite
-                            )
+                            item.copy(favorite = !item.favorite)
                         } else {
                             item
                         }

@@ -18,12 +18,14 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -280,25 +282,25 @@ fun MainScreen(
                     NavigationBarItem(
                         selected = uiState.selectedTab == 0,
                         onClick = { viewModel.onTabSelected(0) },
-                        icon = {},
+                        icon = { Icon(Icons.Filled.Movie, contentDescription = "Movies") },
                         label = { Text("Movies") }
                     )
                     NavigationBarItem(
                         selected = uiState.selectedTab == 1,
                         onClick = { viewModel.onTabSelected(1) },
-                        icon = {},
+                        icon = { Icon(Icons.Filled.Tv, contentDescription = "Series") },
                         label = { Text("Series") }
                     )
                     NavigationBarItem(
                         selected = uiState.selectedTab == 2,
                         onClick = { viewModel.onTabSelected(2) },
-                        icon = {},
+                        icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorites") },
                         label = { Text("Favorites") }
                     )
                     NavigationBarItem(
                         selected = uiState.selectedTab == 3,
                         onClick = { viewModel.onTabSelected(3) },
-                        icon = {},
+                        icon = { Icon(Icons.Filled.History, contentDescription = "History") },
                         label = { Text("History") }
                     )
                 }
@@ -353,7 +355,7 @@ fun MainScreen(
                             color = MaterialTheme.colorScheme.error
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.clearError() }) {
+                        Button(onClick = { viewModel.retryLoading() }) {
                             Text("Retry")
                         }
                     }
@@ -388,19 +390,20 @@ fun MainScreen(
                     }
 
                     // Detect when we're near the bottom and load more
-                    LaunchedEffect(listState) {
-                        snapshotFlow {
+                    // Use derivedStateOf to create a stable signal that only changes when scroll position changes meaningfully
+                    val shouldLoadMore by remember {
+                        derivedStateOf {
                             val layoutInfo = listState.layoutInfo
                             val totalItems = layoutInfo.totalItemsCount
                             val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-
-                            // Load more when we're within 10 items of the end
-                            lastVisibleItemIndex >= (totalItems - 10)
+                            // Only trigger when within 10 items of the end
+                            totalItems > 0 && lastVisibleItemIndex >= (totalItems - 10)
                         }
-                        .collect { shouldLoadMore ->
-                            if (shouldLoadMore && uiState.hasMorePages && !uiState.isLoading) {
-                                viewModel.loadMoreMedia()
-                            }
+                    }
+
+                    LaunchedEffect(shouldLoadMore, uiState.hasMorePages, uiState.isLoading) {
+                        if (shouldLoadMore && uiState.hasMorePages && !uiState.isLoading) {
+                            viewModel.loadMoreMedia()
                         }
                     }
 
@@ -421,9 +424,10 @@ fun MainScreen(
                                 media = media,
                                 onClick = {
                                     if (media.streamable) {
-                                        // On direct click, always play from start (0)
-                                        // User can long-press to see resume option
-                                        viewModel.playMedia(media, 0, onNavigateToPlayer)
+                                        // Resume from saved position if exists (>= 1 min), otherwise start from beginning
+                                        // User can long-press for more options (play from start, details)
+                                        val resumePosition = media.getResumePosition()?.takeIf { it >= 60000 } ?: 0L
+                                        viewModel.playMedia(media, resumePosition, onNavigateToPlayer)
                                     } else {
                                         viewModel.navigateToDirectory(media.mediaFileId, media.filename)
                                     }

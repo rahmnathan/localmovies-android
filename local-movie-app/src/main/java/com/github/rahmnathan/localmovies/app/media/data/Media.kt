@@ -1,9 +1,8 @@
 package com.github.rahmnathan.localmovies.app.media.data
 
 import java.io.Serializable
-import java.util.Comparator
 
-class Media(
+data class Media(
     val title: String,
     val imdbRating: String?,
     val metaRating: String?,
@@ -23,15 +22,7 @@ class Media(
     val signedUrls: SignedUrls? = null,
     val parent: ParentMedia? = null,
     val favorite: Boolean = false
-) : Serializable, Comparator<Media> {
-
-    override fun toString(): String {
-        return title
-    }
-
-    override fun compare(info1: Media, info2: Media): Int {
-        return info1.title.compareTo(info2.title)
-    }
+) : Serializable {
 
     /**
      * Get the most recent valid resume position (in milliseconds)
@@ -83,4 +74,11 @@ class Media(
 
         return recentView.getProgressFraction()
     }
+}
+
+/**
+ * Comparator for sorting Media by title
+ */
+val MediaTitleComparator: Comparator<Media> = Comparator { m1, m2 ->
+    m1.title.compareTo(m2.title)
 }
