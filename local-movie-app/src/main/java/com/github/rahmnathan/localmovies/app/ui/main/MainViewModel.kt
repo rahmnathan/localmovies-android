@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.github.rahmnathan.localmovies.app.data.repository.MediaRepository
 import com.github.rahmnathan.localmovies.app.data.repository.Result
 import com.github.rahmnathan.localmovies.app.media.data.Media
+import com.github.rahmnathan.localmovies.app.media.data.Recommendation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
@@ -19,14 +20,16 @@ data class MainUiState(
     val searchQuery: String = "",
     val currentPath: List<String> = listOf("Movies"),
     val parentIdStack: List<String?> = listOf(null),  // Stack of parent IDs matching currentPath
-    val selectedTab: Int = 0, // 0=Movies, 1=Series, 2=Controls, 3=More
+    val selectedTab: Int = 0, // 0=Movies, 1=Series, 2=Favorites, 3=History, 4=For You
     val currentPage: Int = 0,
     val hasMorePages: Boolean = true,
     val totalCount: Long = 0,
     val sortOrder: String = "title", // title, year, rating, added
     val genreFilter: String? = null,
     val typeFilter: String? = "MOVIES",  // Default to Movies tab filter
-    val isOffline: Boolean = false
+    val isOffline: Boolean = false,
+    val recommendations: List<Recommendation> = emptyList(),
+    val isLoadingRecommendations: Boolean = false
 ) {
     /** Current parent ID is the last item in the stack */
     val currentParentId: String? get() = parentIdStack.lastOrNull()
@@ -166,6 +169,7 @@ class MainViewModel @Inject constructor(
             1 -> navigateToRoot("Series")
             2 -> loadFavoritesTab()
             3 -> loadHistoryTab()
+            4 -> loadRecommendationsTab()
         }
     }
 
@@ -195,6 +199,44 @@ class MainViewModel @Inject constructor(
             )
         }
         loadMedia(resetList = true)
+    }
+
+    private fun loadRecommendationsTab() {
+        _uiState.update {
+            it.copy(
+                currentPath = listOf("For You"),
+                parentIdStack = listOf(null),
+                typeFilter = "recommendations",
+                searchQuery = "",
+                currentPage = 0,
+                hasMorePages = false,
+                isLoadingRecommendations = true
+            )
+        }
+        loadRecommendations()
+    }
+
+    private fun loadRecommendations() {
+        viewModelScope.launch {
+            try {
+                val recommendations = mediaRepository.getRecommendations()
+                _uiState.update {
+                    it.copy(
+                        recommendations = recommendations,
+                        isLoadingRecommendations = false
+                    )
+                }
+                Log.d(TAG, "Loaded ${recommendations.size} recommendations")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to load recommendations", e)
+                _uiState.update {
+                    it.copy(
+                        isLoadingRecommendations = false,
+                        error = "Failed to load recommendations"
+                    )
+                }
+            }
+        }
     }
 
     fun onSortOrderChange(order: String) {

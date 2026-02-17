@@ -2,6 +2,7 @@ package com.github.rahmnathan.localmovies.app.data.repository
 
 import com.github.rahmnathan.localmovies.app.data.remote.MediaApi
 import com.github.rahmnathan.localmovies.app.media.data.Media
+import com.github.rahmnathan.localmovies.app.media.data.Recommendation
 import com.github.rahmnathan.localmovies.app.media.data.SignedUrls
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -87,6 +88,10 @@ class MediaRepository @Inject constructor(
 
     suspend fun removeFromHistory(mediaFileId: String): Boolean {
         return mediaApi.removeFromHistory(mediaFileId)
+    }
+
+    suspend fun getRecommendations(): List<Recommendation> {
+        return mediaApi.getRecommendations()
     }
 }
 

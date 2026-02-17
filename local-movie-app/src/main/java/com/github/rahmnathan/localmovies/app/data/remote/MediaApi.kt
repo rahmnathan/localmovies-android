@@ -2,8 +2,10 @@ package com.github.rahmnathan.localmovies.app.data.remote
 
 import com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore
 import com.github.rahmnathan.localmovies.app.data.remote.dto.MediaResponseDto
+import com.github.rahmnathan.localmovies.app.data.remote.dto.RecommendationDto
 import com.github.rahmnathan.localmovies.app.media.data.Media
 import com.github.rahmnathan.localmovies.app.media.data.MediaRequest
+import com.github.rahmnathan.localmovies.app.media.data.Recommendation
 import com.github.rahmnathan.localmovies.app.media.data.SignedUrls
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -159,6 +161,23 @@ class MediaApi @Inject constructor(
         } catch (e: Exception) {
             android.util.Log.e("MediaApi", "Error removing from history", e)
             false
+        }
+    }
+
+    suspend fun getRecommendations(): List<Recommendation> = withContext(Dispatchers.IO) {
+        try {
+            val serverUrl = getServerUrl()
+            val response = apiClient.httpClient.get("$serverUrl/localmovie/v1/media/recommendations") {
+                accept(ContentType.Application.Json)
+            }
+
+            val dtoList = response.body<List<RecommendationDto>>()
+            android.util.Log.d("MediaApi", "Received ${dtoList.size} recommendations")
+
+            dtoList.map { it.toRecommendation(serverUrl) }
+        } catch (e: Exception) {
+            android.util.Log.e("MediaApi", "Error fetching recommendations", e)
+            emptyList()
         }
     }
 }

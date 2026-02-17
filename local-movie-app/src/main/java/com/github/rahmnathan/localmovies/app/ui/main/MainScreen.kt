@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -198,6 +199,12 @@ fun MainScreen(
                         icon = { Icon(Icons.Filled.History, contentDescription = "History") },
                         label = { Text("History") }
                     )
+                    NavigationBarItem(
+                        selected = uiState.selectedTab == 4,
+                        onClick = { viewModel.onTabSelected(4) },
+                        icon = { Icon(Icons.Filled.Stars, contentDescription = "For You") },
+                        label = { Text("For You") }
+                    )
                 }
             }
         }
@@ -255,7 +262,34 @@ fun MainScreen(
                             }
                         }
                     }
-                    uiState.mediaList.isEmpty() -> {
+                    uiState.typeFilter == "recommendations" && uiState.recommendations.isEmpty() && !uiState.isLoadingRecommendations -> {
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Stars,
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "No recommendations yet",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "Watch some movies or shows to get personalized suggestions",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                    uiState.mediaList.isEmpty() && uiState.typeFilter != "recommendations" -> {
                         EmptyState(
                             searchQuery = uiState.searchQuery,
                             currentPath = uiState.currentPath,
@@ -276,6 +310,19 @@ fun MainScreen(
                             },
                             onRemoveFromHistory = { media ->
                                 viewModel.removeFromHistory(media)
+                            }
+                        )
+                    }
+                    uiState.typeFilter == "recommendations" -> {
+                        RecommendationsList(
+                            recommendations = uiState.recommendations,
+                            isLoading = uiState.isLoadingRecommendations,
+                            onMediaClick = { media ->
+                                selectedMediaForDetails = media
+                            },
+                            onPlayMedia = { media ->
+                                val resumePosition = media.getResumePosition() ?: 0L
+                                viewModel.playMedia(media, resumePosition, onNavigateToPlayer)
                             }
                         )
                     }
