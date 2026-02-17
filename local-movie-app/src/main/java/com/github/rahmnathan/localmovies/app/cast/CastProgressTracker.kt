@@ -41,10 +41,13 @@ class CastProgressTracker @Inject constructor(
         }
     }
 
+    private var lastPlayerState: Int? = null
+
     private val mediaClientCallback = object : RemoteMediaClient.Callback() {
         override fun onStatusUpdated() {
             Log.d(TAG, "onStatusUpdated called")
             checkForMediaChange()
+            checkForPlaybackEnded()
         }
 
         override fun onQueueStatusUpdated() {
@@ -74,6 +77,7 @@ class CastProgressTracker @Inject constructor(
             Log.d(TAG, "Cast session ended, error: $error")
             unregisterMediaClientListeners(session)
             lastMediaId = null
+            lastPlayerState = null
         }
 
         override fun onSessionStarting(session: CastSession) {}
@@ -147,6 +151,26 @@ class CastProgressTracker @Inject constructor(
         }
     }
 
+    /**
+     * Detect when playback transitions from PLAYING to IDLE/PAUSED and save final progress.
+     * This ensures history is recorded even when the user stops casting or the media ends.
+     */
+    private fun checkForPlaybackEnded() {
+        val client = getRemoteMediaClient() ?: return
+        val mediaStatus = client.mediaStatus ?: return
+        val currentState = mediaStatus.playerState
+
+        val previousState = lastPlayerState
+        lastPlayerState = currentState
+
+        // If we transitioned from PLAYING to IDLE or PAUSED, save the final progress
+        if (previousState == MediaStatus.PLAYER_STATE_PLAYING &&
+            (currentState == MediaStatus.PLAYER_STATE_IDLE || currentState == MediaStatus.PLAYER_STATE_PAUSED)) {
+            Log.i(TAG, "Playback ended (state: $previousState -> $currentState), saving final progress")
+            saveFinalProgress(client.approximateStreamPosition)
+        }
+    }
+
     private fun saveCurrentProgress(positionMs: Long) {
         scope.launch {
             try {
@@ -158,28 +182,46 @@ class CastProgressTracker @Inject constructor(
                     return@launch
                 }
 
-                val mediaInfo = client.mediaInfo ?: return@launch
-                val metadata = mediaInfo.metadata ?: return@launch
-
-                val updatePositionUrl = metadata.getString("update-position-url")
-                if (updatePositionUrl.isNullOrBlank()) {
-                    Log.w(TAG, "No update-position-url in metadata")
-                    return@launch
-                }
-
-                val mediaId = metadata.getString("media-id")
-                val duration = mediaInfo.streamDuration.takeIf { it > 0 }
-                Log.d(TAG, "Saving progress: mediaId=$mediaId, position=$positionMs, duration=$duration")
-
-                mediaRepository.saveProgress(
-                    updatePositionUrl = updatePositionUrl,
-                    position = positionMs,
-                    duration = duration
-                )
+                saveProgressInternal(client, positionMs)
             } catch (e: Exception) {
                 Log.e(TAG, "Error saving cast progress", e)
             }
         }
+    }
+
+    /**
+     * Save final progress when playback ends, regardless of player state.
+     */
+    private fun saveFinalProgress(positionMs: Long) {
+        scope.launch {
+            try {
+                val client = getRemoteMediaClient() ?: return@launch
+                saveProgressInternal(client, positionMs)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error saving final cast progress", e)
+            }
+        }
+    }
+
+    private suspend fun saveProgressInternal(client: RemoteMediaClient, positionMs: Long) {
+        val mediaInfo = client.mediaInfo ?: return
+        val metadata = mediaInfo.metadata ?: return
+
+        val updatePositionUrl = metadata.getString("update-position-url")
+        if (updatePositionUrl.isNullOrBlank()) {
+            Log.w(TAG, "No update-position-url in metadata")
+            return
+        }
+
+        val mediaId = metadata.getString("media-id")
+        val duration = mediaInfo.streamDuration.takeIf { it > 0 }
+        Log.d(TAG, "Saving progress: mediaId=$mediaId, position=$positionMs, duration=$duration")
+
+        mediaRepository.saveProgress(
+            updatePositionUrl = updatePositionUrl,
+            position = positionMs,
+            duration = duration
+        )
     }
 
     private fun getRemoteMediaClient(): RemoteMediaClient? {
