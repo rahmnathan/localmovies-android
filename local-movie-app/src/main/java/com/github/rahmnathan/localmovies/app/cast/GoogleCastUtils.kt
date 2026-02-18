@@ -13,7 +13,6 @@ import com.google.android.gms.cast.MediaStatus
 import com.google.android.gms.cast.MediaTrack
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.common.images.WebImage
-import com.google.common.net.MediaType
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -92,9 +91,13 @@ class GoogleCastUtils @Inject constructor(
                 }
 
                 val streamUrl = signedUrls?.stream ?: throw IllegalStateException("Stream URL is required for casting")
+                Log.d("GoogleCastUtils", "Casting stream URL: $streamUrl")
+                Log.d("GoogleCastUtils", "Poster URL: ${signedUrls?.poster}")
+                Log.d("GoogleCastUtils", "Subtitle URL: ${signedUrls?.subtitle}")
+
                 val mediaInfoBuilder = MediaInfo.Builder(streamUrl)
                     .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                    .setContentType(MediaType.ANY_VIDEO_TYPE.toString())
+                    .setContentType("video/mp4")
                     .setMetadata(metaData)
 
                 // Add subtitle track if available
@@ -148,7 +151,7 @@ class GoogleCastUtils @Inject constructor(
         val streamUrl = signedUrls.stream ?: throw IllegalStateException("Stream URL is required for casting")
         val mediaInfoBuilder = MediaInfo.Builder(streamUrl)
             .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-            .setContentType(MediaType.ANY_VIDEO_TYPE.toString())
+            .setContentType("video/mp4")
             .setMetadata(metaData)
 
         // Add subtitle track if available

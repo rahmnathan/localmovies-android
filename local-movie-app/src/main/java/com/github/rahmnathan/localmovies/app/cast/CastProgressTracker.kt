@@ -15,11 +15,17 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Singleton service that tracks cast playback progress and reports it to the server.
- * Uses RemoteMediaClient.Callback for status updates (pushed from Cast device) and
- * ProgressListener for periodic position updates.
+ * Singleton service that acts as a fallback for cast progress tracking.
  *
- * This runs independently of UI lifecycle to ensure all queued episodes are tracked.
+ * Primary progress tracking is handled by the custom Cast receiver (receiver.js),
+ * which reports directly to the server every 10 seconds during playback.
+ *
+ * This tracker serves as a backup, saving progress only when:
+ * - Playback transitions from PLAYING to IDLE/PAUSED (session end)
+ * - The Cast session ends unexpectedly
+ *
+ * This runs independently of UI lifecycle to ensure progress is captured even if
+ * the app is backgrounded or the receiver fails to report.
  */
 @Singleton
 class CastProgressTracker @Inject constructor(
@@ -28,20 +34,9 @@ class CastProgressTracker @Inject constructor(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private var lastProgressSaveTime = 0L
     private var lastMediaId: String? = null
-    private var isInitialized = false
-
-    private val progressListener = RemoteMediaClient.ProgressListener { progressMs, _ ->
-        val currentTime = System.currentTimeMillis()
-        // Save progress every 5 seconds
-        if (currentTime - lastProgressSaveTime >= SAVE_INTERVAL_MS) {
-            saveCurrentProgress(progressMs)
-            lastProgressSaveTime = currentTime
-        }
-    }
-
     private var lastPlayerState: Int? = null
+    private var isInitialized = false
 
     private val mediaClientCallback = object : RemoteMediaClient.Callback() {
         override fun onStatusUpdated() {
@@ -52,8 +47,6 @@ class CastProgressTracker @Inject constructor(
 
         override fun onQueueStatusUpdated() {
             Log.d(TAG, "onQueueStatusUpdated called - queue item may have changed")
-            // Reset save time to ensure we capture progress quickly for new item
-            lastProgressSaveTime = 0L
             checkForMediaChange()
         }
 
@@ -123,15 +116,13 @@ class CastProgressTracker @Inject constructor(
         }
 
         client.registerCallback(mediaClientCallback)
-        client.addProgressListener(progressListener, PROGRESS_LISTENER_INTERVAL_MS)
-        Log.d(TAG, "Registered media client listeners")
+        Log.d(TAG, "Registered media client callback (fallback progress tracking)")
     }
 
     private fun unregisterMediaClientListeners(session: CastSession) {
         session.remoteMediaClient?.let { client ->
             client.unregisterCallback(mediaClientCallback)
-            client.removeProgressListener(progressListener)
-            Log.d(TAG, "Unregistered media client listeners")
+            Log.d(TAG, "Unregistered media client callback")
         }
     }
 
@@ -146,8 +137,7 @@ class CastProgressTracker @Inject constructor(
         if (currentMediaId != lastMediaId) {
             Log.i(TAG, "New media detected: $currentMediaId (title: $title)")
             lastMediaId = currentMediaId
-            // Save progress immediately for the new item
-            saveCurrentProgress(client.approximateStreamPosition)
+            // Note: Progress tracking for new items is handled by the Cast receiver
         }
     }
 
@@ -171,26 +161,9 @@ class CastProgressTracker @Inject constructor(
         }
     }
 
-    private fun saveCurrentProgress(positionMs: Long) {
-        scope.launch {
-            try {
-                val client = getRemoteMediaClient() ?: return@launch
-                val mediaStatus = client.mediaStatus ?: return@launch
-
-                // Only save when playing
-                if (mediaStatus.playerState != MediaStatus.PLAYER_STATE_PLAYING) {
-                    return@launch
-                }
-
-                saveProgressInternal(client, positionMs)
-            } catch (e: Exception) {
-                Log.e(TAG, "Error saving cast progress", e)
-            }
-        }
-    }
-
     /**
      * Save final progress when playback ends, regardless of player state.
+     * This is the fallback mechanism - primary tracking is done by the Cast receiver.
      */
     private fun saveFinalProgress(positionMs: Long) {
         scope.launch {
@@ -230,7 +203,5 @@ class CastProgressTracker @Inject constructor(
 
     companion object {
         private const val TAG = "CastProgressTracker"
-        private const val PROGRESS_LISTENER_INTERVAL_MS = 1000L
-        private const val SAVE_INTERVAL_MS = 5000L
     }
 }

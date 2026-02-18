@@ -28,6 +28,7 @@ class UserPreferencesDataStore @Inject constructor(
         val PASSWORD = stringPreferencesKey("password")
         val SERVER_URL = stringPreferencesKey("server_url")
         val AUTH_SERVER_URL = stringPreferencesKey("auth_server_url")
+        val SUBTITLE_OFFSET = floatPreferencesKey("subtitle_offset")
     }
 
     val userCredentialsFlow: Flow<UserCredentials> = context.dataStore.data.map { prefs ->
@@ -51,6 +52,16 @@ class UserPreferencesDataStore @Inject constructor(
     suspend fun clearCredentials() {
         context.dataStore.edit { prefs ->
             prefs.clear()
+        }
+    }
+
+    val subtitleOffsetFlow: Flow<Float> = context.dataStore.data.map { prefs ->
+        prefs[PreferencesKeys.SUBTITLE_OFFSET] ?: 0f
+    }
+
+    suspend fun saveSubtitleOffset(offset: Float) {
+        context.dataStore.edit { prefs ->
+            prefs[PreferencesKeys.SUBTITLE_OFFSET] = offset
         }
     }
 }

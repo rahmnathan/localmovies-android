@@ -19,6 +19,14 @@ spec:
         jdk 'Java 21'
     }
 
+    parameters {
+        string(
+                name: 'LOCALMOVIE_API_CLIENT_VERSION',
+                defaultValue: '',
+                description: 'Optional localmovie-api-client version. Leave blank to use gradle.properties'
+        )
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -42,7 +50,13 @@ spec:
         }
         stage('Build') {
             steps {
-                sh './gradlew bundleRelease'
+                script {
+                    if (params.LOCALMOVIE_API_CLIENT_VERSION?.trim()) {
+                        sh "./gradlew bundleRelease -PlocalmovieApiClientVersion=${params.LOCALMOVIE_API_CLIENT_VERSION.trim()}"
+                    } else {
+                        sh './gradlew bundleRelease'
+                    }
+                }
             }
         }
         stage('Sign') {

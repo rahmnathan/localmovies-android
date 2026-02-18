@@ -44,6 +44,11 @@ android {
     buildFeatures {
         compose true
     }
+    packaging {
+        resources {
+            excludes += ['META-INF/NOTICE.md']
+        }
+    }
     namespace 'rahmnathan.localmovies'
     lint {
         // Media3 unstable API opt-in is handled at file level
@@ -68,6 +73,8 @@ repositories {
 apply plugin: 'com.google.gms.google-services'
 
 dependencies {
+    def localmovieApiClientVersion = (project.findProperty("localmovieApiClientVersion") ?: "").toString().trim()
+
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     // Firebase
@@ -75,6 +82,11 @@ dependencies {
 
     // OAuth2
     implementation 'com.github.rahmnathan.oauth2:keycloak-resilience4j:2.12:jdk8'
+    if (localmovieApiClientVersion) {
+        implementation "com.github.rahmnathan.localmovie:localmovie-api-client:${localmovieApiClientVersion}"
+    } else {
+        project.logger.lifecycle("localmovieApiClientVersion is blank; skipping generated API client dependency")
+    }
 
     // AndroidX Core
     implementation 'androidx.appcompat:appcompat:1.7.1'
@@ -123,12 +135,6 @@ dependencies {
     // DataStore
     implementation 'androidx.datastore:datastore-preferences:1.2.0'
 
-    // Ktor client
-    implementation 'io.ktor:ktor-client-android:3.4.0'
-    implementation 'io.ktor:ktor-client-content-negotiation:3.4.0'
-    implementation 'io.ktor:ktor-serialization-gson:3.4.0'
-    implementation 'io.ktor:ktor-client-auth:3.4.0'
-    implementation 'io.ktor:ktor-client-logging:3.4.0'
 
     // Room with ktx for coroutines
     def room_version = "2.8.4"

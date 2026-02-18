@@ -31,7 +31,8 @@ data class CastControllerUiState(
     val isConnected: Boolean = false,
     val hasNextQueueItem: Boolean = false,
     val subtitlesAvailable: Boolean = false,
-    val subtitlesEnabled: Boolean = false
+    val subtitlesEnabled: Boolean = false,
+    val subtitleOffsetSeconds: Float = 0f
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -194,6 +195,56 @@ fun CastControllerScreen(
                             contentDescription = "Next Episode",
                             modifier = Modifier.size(32.dp)
                         )
+                    }
+                }
+            }
+
+            // Subtitle offset controls (only shown when subtitles are enabled)
+            if (uiState.subtitlesEnabled) {
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Subtitle Offset",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // -0.5s button
+                    FilledTonalButton(
+                        onClick = { viewModel.adjustSubtitleOffset(-0.5f) },
+                        modifier = Modifier.width(72.dp)
+                    ) {
+                        Text("-0.5s")
+                    }
+
+                    // Current offset display
+                    Text(
+                        text = String.format("%+.1fs", uiState.subtitleOffsetSeconds),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.width(64.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+
+                    // +0.5s button
+                    FilledTonalButton(
+                        onClick = { viewModel.adjustSubtitleOffset(0.5f) },
+                        modifier = Modifier.width(72.dp)
+                    ) {
+                        Text("+0.5s")
+                    }
+                }
+
+                // Reset button (only shown when offset is non-zero)
+                if (uiState.subtitleOffsetSeconds != 0f) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(onClick = { viewModel.resetSubtitleOffset() }) {
+                        Text("Reset")
                     }
                 }
             }

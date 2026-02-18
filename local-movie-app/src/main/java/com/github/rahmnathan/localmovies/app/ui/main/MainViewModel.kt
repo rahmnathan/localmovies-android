@@ -46,6 +46,7 @@ class MainViewModel @Inject constructor(
 
     companion object {
         private const val TAG = "MainViewModel"
+        private const val PAGE_SIZE = 50
     }
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -272,7 +273,7 @@ class MainViewModel @Inject constructor(
             mediaRepository.getMediaList(
                 parentId = parentId,
                 page = page,
-                size = 50,
+                size = PAGE_SIZE,
                 order = sortOrder,
                 searchQuery = searchQuery,
                 genre = genreFilter,
@@ -302,9 +303,13 @@ class MainViewModel @Inject constructor(
                                 state.mediaList + newItems
                             }
 
-                            // Determine if more pages exist based on total count
                             val totalCount = if (result.totalCount > 0) result.totalCount else state.totalCount
-                            val hasMorePages = newList.size < totalCount
+                            val hasMorePages = if (totalCount > 0) {
+                                newList.size < totalCount
+                            } else {
+                                // Fallback when server does not provide Count header
+                                result.data.size >= PAGE_SIZE
+                            }
 
                             Log.d(TAG, "Loaded ${newList.size} of $totalCount total items, hasMorePages=$hasMorePages")
 
@@ -369,7 +374,7 @@ class MainViewModel @Inject constructor(
             mediaRepository.getMediaList(
                 parentId = parentId,
                 page = page,
-                size = 50,
+                size = PAGE_SIZE,
                 order = sortOrder,
                 searchQuery = searchQuery,
                 genre = genreFilter,
@@ -402,9 +407,13 @@ class MainViewModel @Inject constructor(
                                 Log.w(TAG, "Filtered ${result.data.size - newItems.size} duplicate items from page $page")
                             }
 
-                            // Determine if more pages exist based on total count
                             val totalCount = if (result.totalCount > 0) result.totalCount else state.totalCount
-                            val hasMorePages = newList.size < totalCount
+                            val hasMorePages = if (totalCount > 0) {
+                                newList.size < totalCount
+                            } else {
+                                // Fallback when server does not provide Count header
+                                result.data.size >= PAGE_SIZE
+                            }
 
                             Log.d(TAG, "Loaded ${newList.size} of $totalCount total items, hasMorePages=$hasMorePages")
 
