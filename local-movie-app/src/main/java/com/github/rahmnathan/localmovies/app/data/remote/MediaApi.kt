@@ -1,7 +1,7 @@
 package com.github.rahmnathan.localmovies.app.data.remote
 
 import com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore
-import com.github.rahmnathan.localmovies.app.di.DynamicOAuth2Service
+import com.github.rahmnathan.localmovies.app.auth.TokenCache
 import com.github.rahmnathan.localmovies.app.media.data.Media
 import com.github.rahmnathan.localmovies.app.media.data.MediaUser
 import com.github.rahmnathan.localmovies.app.media.data.MediaView
@@ -33,13 +33,14 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class MediaApi @Inject constructor(
     private val preferencesDataStore: UserPreferencesDataStore,
-    private val dynamicOAuth2Service: DynamicOAuth2Service
+    private val tokenCache: TokenCache
 ) {
     companion object {
         private const val TAG = "MediaApi"
@@ -47,19 +48,27 @@ class MediaApi @Inject constructor(
 
     init {
         configureGeneratedJsonDateParsing()
+        tokenCache.refreshTokenAsync()
     }
 
     private suspend fun getServerUrl(): String {
         return preferencesDataStore.userCredentialsFlow.first().serverUrl
     }
 
-    private suspend fun createAuthorizedOkHttpClient(): OkHttpClient {
-        val accessToken = dynamicOAuth2Service.getServiceSuspend().accessToken.serialize()
-        return OkHttpClient.Builder()
+    private val sharedOkHttpClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
             .addInterceptor(Interceptor { chain ->
+                val accessToken = tokenCache.getAccessToken()
+                if (accessToken == null) {
+                    tokenCache.refreshTokenAsync()
+                }
                 val request = chain.request().newBuilder()
                     .header("x-correlation-id", java.util.UUID.randomUUID().toString())
-                    .header("Authorization", "Bearer $accessToken")
+                    .apply {
+                        if (!accessToken.isNullOrBlank()) {
+                            header("Authorization", "Bearer $accessToken")
+                        }
+                    }
                     .build()
                 chain.proceed(request)
             })
@@ -101,10 +110,14 @@ class MediaApi @Inject constructor(
         JSON.setGson(gson)
     }
 
-    private suspend fun createGeneratedMediaApi(serverUrl: String): MediaResourceApi {
-        val generatedApiClient = GeneratedApiClient(createAuthorizedOkHttpClient())
-            .setBasePath(serverUrl)
-        return MediaResourceApi(generatedApiClient)
+    private val mediaApiByServer = ConcurrentHashMap<String, MediaResourceApi>()
+
+    private fun getGeneratedMediaApi(serverUrl: String): MediaResourceApi {
+        return mediaApiByServer.computeIfAbsent(serverUrl) { baseUrl ->
+            val generatedApiClient = GeneratedApiClient(sharedOkHttpClient)
+                .setBasePath(baseUrl)
+            MediaResourceApi(generatedApiClient)
+        }
     }
 
     data class MediaListResponse(
@@ -123,7 +136,7 @@ class MediaApi @Inject constructor(
         type: String? = null
     ): MediaListResponse = withContext(Dispatchers.IO) {
         val serverUrl = getServerUrl()
-        val mediaApi = createGeneratedMediaApi(serverUrl)
+        val mediaApi = getGeneratedMediaApi(serverUrl)
         val generatedRequest = MediaRequest()
             .page(page)
             .pageSize(size)
@@ -155,7 +168,7 @@ class MediaApi @Inject constructor(
 
     suspend fun getSignedUrls(mediaId: String): SignedUrls = withContext(Dispatchers.IO) {
         val serverUrl = getServerUrl()
-        val signedUrls = createGeneratedMediaApi(serverUrl).getSignedUrls(mediaId)
+        val signedUrls = getGeneratedMediaApi(serverUrl).getSignedUrls(mediaId)
 
         fun makeAbsoluteUrl(url: String?): String? {
             if (url == null) return null
@@ -198,7 +211,7 @@ class MediaApi @Inject constructor(
             .patch("".toRequestBody(null))
             .build()
 
-        createAuthorizedOkHttpClient().newCall(request).execute().use { response ->
+        sharedOkHttpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
                 throw IllegalStateException("Failed to save progress: HTTP ${response.code}")
             }
@@ -208,7 +221,7 @@ class MediaApi @Inject constructor(
     suspend fun addFavorite(mediaFileId: String): Boolean = withContext(Dispatchers.IO) {
         try {
             val serverUrl = getServerUrl()
-            createGeneratedMediaApi(serverUrl).addFavorite(mediaFileId)
+            getGeneratedMediaApi(serverUrl).addFavorite(mediaFileId)
             true
         } catch (e: Exception) {
             android.util.Log.e(TAG, "Error adding favorite", e)
@@ -219,7 +232,7 @@ class MediaApi @Inject constructor(
     suspend fun removeFavorite(mediaFileId: String): Boolean = withContext(Dispatchers.IO) {
         try {
             val serverUrl = getServerUrl()
-            createGeneratedMediaApi(serverUrl).removeFavorite(mediaFileId)
+            getGeneratedMediaApi(serverUrl).removeFavorite(mediaFileId)
             true
         } catch (e: Exception) {
             android.util.Log.e(TAG, "Error removing favorite", e)
@@ -230,7 +243,7 @@ class MediaApi @Inject constructor(
     suspend fun removeFromHistory(mediaFileId: String): Boolean = withContext(Dispatchers.IO) {
         try {
             val serverUrl = getServerUrl()
-            createGeneratedMediaApi(serverUrl).removeFromHistory(mediaFileId)
+            getGeneratedMediaApi(serverUrl).removeFromHistory(mediaFileId)
             true
         } catch (e: Exception) {
             android.util.Log.e(TAG, "Error removing from history", e)
@@ -241,7 +254,7 @@ class MediaApi @Inject constructor(
     suspend fun getRecommendations(): List<AppRecommendation> = withContext(Dispatchers.IO) {
         try {
             val serverUrl = getServerUrl()
-            val response = createGeneratedMediaApi(serverUrl).getRecommendations()
+            val response = getGeneratedMediaApi(serverUrl).getRecommendations()
             android.util.Log.d(TAG, "Received ${response.size} recommendations")
 
             response.mapNotNull { rec ->
