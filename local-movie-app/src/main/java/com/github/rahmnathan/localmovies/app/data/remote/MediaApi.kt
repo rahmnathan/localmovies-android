@@ -194,7 +194,7 @@ class MediaApi @Inject constructor(
         val positionSeconds = position / 1000
 
         val queryWithDuration = if (duration != null && duration > 0) {
-            if (query.isNotEmpty()) "$query&duration=$duration" else "duration=$duration"
+            if (query.isNotEmpty()) "$query&duration=${duration / 1000}" else "duration=${duration / 1000}"
         } else {
             query
         }

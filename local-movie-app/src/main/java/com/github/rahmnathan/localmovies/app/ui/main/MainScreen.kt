@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -47,6 +48,11 @@ fun MainScreen(
     var showFilterMenu by remember { mutableStateOf(false) }
     var selectedMediaForDetails by remember { mutableStateOf<Media?>(null) }
     var showSettingsDialog by remember { mutableStateOf(false) }
+
+    val showContinueWatching = uiState.selectedTab in setOf(0, 1, 2) &&
+        uiState.currentPath.size == 1 &&
+        uiState.searchQuery.isBlank() &&
+        uiState.continueWatching.isNotEmpty()
 
     BackHandler(enabled = uiState.currentPath.size > 1) {
         viewModel.navigateBack()
@@ -323,6 +329,12 @@ fun MainScreen(
                             onPlayMedia = { media ->
                                 val resumePosition = media.getResumePosition() ?: 0L
                                 viewModel.playMedia(media, resumePosition, onNavigateToPlayer)
+                            },
+                            onMoreLikeThis = { media ->
+                                viewModel.onRecommendationMoreLikeThis(media)
+                            },
+                            onNotInterested = { media ->
+                                viewModel.onRecommendationNotInterested(media)
                             }
                         )
                     }
@@ -335,6 +347,17 @@ fun MainScreen(
                             searchQuery = uiState.searchQuery,
                             sortOrder = uiState.sortOrder,
                             genreFilter = uiState.genreFilter,
+                            continueWatchingHeader = if (showContinueWatching) {
+                                {
+                                    ContinueWatchingRail(
+                                        mediaList = uiState.continueWatching,
+                                        onMediaClick = { media -> selectedMediaForDetails = media },
+                                        onMediaLongClick = { media -> selectedMediaForDetails = media }
+                                    )
+                                }
+                            } else {
+                                null
+                            },
                             onLoadMore = { viewModel.loadMoreMedia() },
                             onMediaClick = { media ->
                                 if (media.streamable) {
@@ -435,6 +458,7 @@ private fun MediaGrid(
     searchQuery: String,
     sortOrder: String,
     genreFilter: String?,
+    continueWatchingHeader: (@Composable () -> Unit)? = null,
     onLoadMore: () -> Unit,
     onMediaClick: (Media) -> Unit,
     onMediaLongClick: (Media) -> Unit
@@ -470,6 +494,16 @@ private fun MediaGrid(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier.fillMaxSize()
     ) {
+        if (continueWatchingHeader != null) {
+            item(
+                key = "continue_watching_header",
+                span = { GridItemSpan(maxLineSpan) },
+                contentType = "continue_watching_header"
+            ) {
+                continueWatchingHeader()
+            }
+        }
+
         items(
             items = mediaList,
             key = { it.mediaFileId },
@@ -486,6 +520,7 @@ private fun MediaGrid(
         if (isLoading && mediaList.isNotEmpty()) {
             item(
                 key = "loading_indicator",
+                span = { GridItemSpan(maxLineSpan) },
                 contentType = "loading"
             ) {
                 Box(

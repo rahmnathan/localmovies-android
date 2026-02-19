@@ -29,7 +29,9 @@ data class MainUiState(
     val typeFilter: String? = "MOVIES",  // Default to Movies tab filter
     val isOffline: Boolean = false,
     val recommendations: List<Recommendation> = emptyList(),
-    val isLoadingRecommendations: Boolean = false
+    val isLoadingRecommendations: Boolean = false,
+    val continueWatching: List<Media> = emptyList(),
+    val isLoadingContinueWatching: Boolean = false
 ) {
     /** Current parent ID is the last item in the stack */
     val currentParentId: String? get() = parentIdStack.lastOrNull()
@@ -57,6 +59,7 @@ class MainViewModel @Inject constructor(
 
     // Track current loading job to cancel on filter/tab changes
     private var currentLoadJob: Job? = null
+    private var dismissedRecommendationIds: Set<String> = emptySet()
 
     init {
         // Observe network connectivity
@@ -83,6 +86,19 @@ class MainViewModel @Inject constructor(
                     loadMedia(resetList = true)
                 }
         }
+
+        viewModelScope.launch {
+            preferencesDataStore.dismissedRecommendationIdsFlow.collect { ids ->
+                dismissedRecommendationIds = ids
+                _uiState.update { state ->
+                    state.copy(
+                        recommendations = state.recommendations.filterNot { it.media.mediaFileId in ids }
+                    )
+                }
+            }
+        }
+
+        loadContinueWatching()
 
         // Load initial data (Movies root)
         loadMedia()
@@ -165,6 +181,11 @@ class MainViewModel @Inject constructor(
 
     fun onTabSelected(tabIndex: Int) {
         _uiState.update { it.copy(selectedTab = tabIndex) }
+
+        if (tabIndex != 3 && tabIndex != 4) {
+            loadContinueWatching()
+        }
+
         when (tabIndex) {
             0 -> navigateToRoot("Movies")
             1 -> navigateToRoot("Series")
@@ -221,6 +242,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val recommendations = mediaRepository.getRecommendations()
+                    .filterNot { it.media.mediaFileId in dismissedRecommendationIds }
                 _uiState.update {
                     it.copy(
                         recommendations = recommendations,
@@ -240,6 +262,39 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    private fun loadContinueWatching() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoadingContinueWatching = true) }
+
+            mediaRepository.getMediaList(
+                page = 0,
+                size = 20,
+                order = "added",
+                type = "history"
+            ).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        val continueWatchingItems = result.data.filter { media ->
+                            val progress = media.getWatchProgress()
+                            media.streamable && progress != null && progress > 0.01f && progress < 0.98f
+                        }
+                        _uiState.update {
+                            it.copy(
+                                continueWatching = continueWatchingItems,
+                                isLoadingContinueWatching = false
+                            )
+                        }
+                    }
+                    is Result.Error -> {
+                        Log.w(TAG, "Failed to load continue watching", result.exception)
+                        _uiState.update { it.copy(isLoadingContinueWatching = false) }
+                    }
+                    is Result.Loading -> Unit
+                }
+            }
+        }
+    }
+
     fun onSortOrderChange(order: String) {
         _uiState.update { it.copy(sortOrder = order, currentPage = 0, hasMorePages = true) }
         loadMedia(resetList = true)
@@ -248,6 +303,51 @@ class MainViewModel @Inject constructor(
     fun onGenreFilterChange(genre: String?) {
         _uiState.update { it.copy(genreFilter = genre, currentPage = 0, hasMorePages = true) }
         loadMedia(resetList = true)
+    }
+
+    fun onRecommendationNotInterested(media: Media) {
+        _uiState.update { state ->
+            state.copy(
+                recommendations = state.recommendations.filterNot { it.media.mediaFileId == media.mediaFileId }
+            )
+        }
+
+        viewModelScope.launch {
+            preferencesDataStore.dismissRecommendation(media.mediaFileId)
+        }
+    }
+
+    fun onRecommendationMoreLikeThis(media: Media) {
+        val targetTab = if (isSeriesType(media.type)) 1 else 0
+        onTabSelected(targetTab)
+
+        val mappedGenre = mapGenreForFilter(media.genre)
+        onGenreFilterChange(mappedGenre)
+    }
+
+    private fun isSeriesType(type: String): Boolean {
+        val normalized = type.uppercase()
+        return normalized == "SERIES" || normalized == "SEASON" || normalized == "EPISODE" || normalized == "EPISODES"
+    }
+
+    private fun mapGenreForFilter(rawGenre: String?): String? {
+        val firstGenre = rawGenre
+            ?.split(",")
+            ?.firstOrNull()
+            ?.trim()
+            ?.lowercase()
+            ?: return null
+
+        return when {
+            "action" in firstGenre -> "action"
+            "comedy" in firstGenre -> "comedy"
+            "fantasy" in firstGenre -> "fantasy"
+            "horror" in firstGenre -> "horror"
+            "sci" in firstGenre -> "sci-fi"
+            "thriller" in firstGenre -> "thriller"
+            "war" in firstGenre -> "war"
+            else -> null
+        }
     }
 
     private fun loadMedia(resetList: Boolean = false) {
@@ -519,10 +619,14 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val success = mediaRepository.removeFromHistory(media.mediaFileId)
             if (success) {
-                // Remove the media item from the list
+                // Remove the media item from the list and continue-watching rail
                 _uiState.update { state ->
                     val updatedList = state.mediaList.filter { it.mediaFileId != media.mediaFileId }
-                    state.copy(mediaList = updatedList)
+                    val updatedContinueWatching = state.continueWatching.filter { it.mediaFileId != media.mediaFileId }
+                    state.copy(
+                        mediaList = updatedList,
+                        continueWatching = updatedContinueWatching
+                    )
                 }
             } else {
                 Log.e(TAG, "Failed to remove from history: ${media.mediaFileId}")
