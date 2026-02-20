@@ -50,11 +50,6 @@ fun MainScreen(
     var isLoadingSelectedMediaDetails by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
 
-    val showContinueWatching = uiState.selectedTab in setOf(0, 1, 2) &&
-        uiState.currentPath.size == 1 &&
-        uiState.searchQuery.isBlank() &&
-        uiState.continueWatching.isNotEmpty()
-
     BackHandler(enabled = uiState.currentPath.size > 1) {
         viewModel.navigateBack()
     }
@@ -375,17 +370,6 @@ fun MainScreen(
                             searchQuery = uiState.searchQuery,
                             sortOrder = uiState.sortOrder,
                             genreFilter = uiState.genreFilter,
-                            continueWatchingHeader = if (showContinueWatching) {
-                                {
-                                    ContinueWatchingRail(
-                                        mediaList = uiState.continueWatching,
-                                        onMediaClick = { media -> selectedMediaForDetails = media },
-                                        onMediaLongClick = { media -> selectedMediaForDetails = media }
-                                    )
-                                }
-                            } else {
-                                null
-                            },
                             onLoadMore = { viewModel.loadMoreMedia() },
                             onMediaClick = { media ->
                                 if (media.streamable) {
@@ -486,7 +470,6 @@ private fun MediaGrid(
     searchQuery: String,
     sortOrder: String,
     genreFilter: String?,
-    continueWatchingHeader: (@Composable () -> Unit)? = null,
     onLoadMore: () -> Unit,
     onMediaClick: (Media) -> Unit,
     onMediaLongClick: (Media) -> Unit
@@ -522,16 +505,6 @@ private fun MediaGrid(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        if (continueWatchingHeader != null) {
-            item(
-                key = "continue_watching_header",
-                span = { GridItemSpan(maxLineSpan) },
-                contentType = "continue_watching_header"
-            ) {
-                continueWatchingHeader()
-            }
-        }
-
         items(
             items = mediaList,
             key = { it.mediaFileId },
