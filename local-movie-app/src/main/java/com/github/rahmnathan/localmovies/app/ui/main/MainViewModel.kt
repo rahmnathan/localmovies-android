@@ -60,6 +60,7 @@ class MainViewModel @Inject constructor(
     // Track current loading job to cancel on filter/tab changes
     private var currentLoadJob: Job? = null
     private var dismissedRecommendationIds: Set<String> = emptySet()
+    private val mediaDetailsCache: MutableMap<String, Media> = mutableMapOf()
 
     init {
         // Observe network connectivity
@@ -270,6 +271,7 @@ class MainViewModel @Inject constructor(
                 page = 0,
                 size = 20,
                 order = "added",
+                includeDetails = false,
                 type = "history"
             ).collect { result ->
                 when (result) {
@@ -375,6 +377,7 @@ class MainViewModel @Inject constructor(
                 page = page,
                 size = PAGE_SIZE,
                 order = sortOrder,
+                includeDetails = false,
                 searchQuery = searchQuery,
                 genre = genreFilter,
                 type = typeFilter
@@ -476,6 +479,7 @@ class MainViewModel @Inject constructor(
                 page = page,
                 size = PAGE_SIZE,
                 order = sortOrder,
+                includeDetails = false,
                 searchQuery = searchQuery,
                 genre = genreFilter,
                 type = typeFilter
@@ -630,6 +634,32 @@ class MainViewModel @Inject constructor(
                 }
             } else {
                 Log.e(TAG, "Failed to remove from history: ${media.mediaFileId}")
+            }
+        }
+    }
+
+    fun loadMediaDetails(media: Media, onLoaded: (Media?) -> Unit) {
+        if (!media.plot.isNullOrBlank() || !media.actors.isNullOrBlank()) {
+            onLoaded(media)
+            return
+        }
+
+        mediaDetailsCache[media.mediaFileId]?.let {
+            onLoaded(it)
+            return
+        }
+
+        viewModelScope.launch {
+            when (val result = mediaRepository.getMediaDetails(media.mediaFileId)) {
+                is Result.Success -> {
+                    mediaDetailsCache[media.mediaFileId] = result.data
+                    onLoaded(result.data)
+                }
+                is Result.Error -> {
+                    Log.w(TAG, "Failed to load details for ${media.mediaFileId}", result.exception)
+                    onLoaded(null)
+                }
+                is Result.Loading -> onLoaded(null)
             }
         }
     }

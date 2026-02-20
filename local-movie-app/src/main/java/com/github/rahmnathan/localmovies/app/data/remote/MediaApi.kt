@@ -131,6 +131,7 @@ class MediaApi @Inject constructor(
         size: Int,
         order: String = "added",
         client: String = "ANDROID",
+        includeDetails: Boolean = false,
         searchQuery: String? = null,
         genre: String? = null,
         type: String? = null
@@ -142,7 +143,8 @@ class MediaApi @Inject constructor(
             .pageSize(size)
             .order(order)
             .path(null)
-
+            .client(client)
+            .includeDetails(includeDetails)
         if (parentId != null) generatedRequest.parentId(parentId)
         if (searchQuery != null) generatedRequest.q(searchQuery)
         if (genre != null) generatedRequest.genre(genre)
@@ -157,6 +159,7 @@ class MediaApi @Inject constructor(
             ?.firstOrNull()
             ?.toLongOrNull()
             ?: 0L
+
         android.util.Log.d(TAG, "Total count from header: $totalCount")
         android.util.Log.d(TAG, "Received ${responseData.size} media DTOs from server (page $page)")
 
@@ -164,6 +167,13 @@ class MediaApi @Inject constructor(
         android.util.Log.d(TAG, "Mapped to ${mediaList.size} Media objects")
 
         MediaListResponse(mediaList, totalCount)
+    }
+
+    suspend fun getMediaById(mediaId: String): Media? = withContext(Dispatchers.IO) {
+        val serverUrl = getServerUrl()
+        getGeneratedMediaApi(serverUrl)
+            .getMedia1(mediaId)
+            ?.toAppMedia(serverUrl)
     }
 
     suspend fun getSignedUrls(mediaId: String): SignedUrls = withContext(Dispatchers.IO) {

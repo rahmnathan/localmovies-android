@@ -43,6 +43,7 @@ private val GradientEnd = Color(0xFF764ba2)
 fun MediaDetailsDialog(
     media: Media,
     isFavorite: Boolean = media.favorite,
+    isLoadingDetails: Boolean = false,
     onDismiss: () -> Unit,
     onPlay: (resumePosition: Long) -> Unit,
     onFavoriteClick: () -> Unit = {}
@@ -287,9 +288,16 @@ fun MediaDetailsDialog(
                         }
 
                         // Plot
-                    if (!media.plot.isNullOrBlank()) {
+                    if (isLoadingDetails) {
                         Text(
-                            text = media.plot!!,
+                            text = "Loading details...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    } else if (!media.plot.isNullOrBlank()) {
+                        Text(
+                            text = media.plot,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.5,
@@ -308,7 +316,7 @@ fun MediaDetailsDialog(
                                 modifier = Modifier.padding(bottom = 4.dp)
                             )
                             Text(
-                                text = media.actors!!,
+                                text = media.actors,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -335,7 +343,7 @@ fun MediaDetailsDialog(
                                     // Resume button (primary)
                                     GradientButton(
                                         text = "Resume",
-                                        subtext = formatResumeTime(resumePosition!!),
+                                        subtext = formatResumeTime(resumePosition),
                                         icon = Icons.Default.Refresh,
                                         onClick = { onPlay(resumePosition) }
                                     )

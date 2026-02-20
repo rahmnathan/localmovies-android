@@ -25,6 +25,7 @@ class MediaRepository @Inject constructor(
         page: Int = 0,
         size: Int = 50,
         order: String = "added",
+        includeDetails: Boolean = false,
         searchQuery: String? = null,
         genre: String? = null,
         type: String? = null
@@ -38,6 +39,7 @@ class MediaRepository @Inject constructor(
                 page = page,
                 size = size,
                 order = order,
+                includeDetails = includeDetails,
                 searchQuery = searchQuery,
                 genre = genre,
                 type = type
@@ -52,6 +54,16 @@ class MediaRepository @Inject constructor(
     suspend fun getSignedUrls(mediaId: String): Result<SignedUrls> = withContext(Dispatchers.IO) {
         try {
             Result.Success(mediaApi.getSignedUrls(mediaId))
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+
+    suspend fun getMediaDetails(mediaId: String): Result<Media> = withContext(Dispatchers.IO) {
+        try {
+            val media = mediaApi.getMediaById(mediaId)
+                ?: return@withContext Result.Error(IllegalStateException("Media not found"))
+            Result.Success(media)
         } catch (e: Exception) {
             Result.Error(e)
         }
@@ -94,4 +106,3 @@ class MediaRepository @Inject constructor(
         return mediaApi.getRecommendations()
     }
 }
-

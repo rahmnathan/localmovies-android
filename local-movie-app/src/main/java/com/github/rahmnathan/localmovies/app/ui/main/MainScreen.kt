@@ -47,6 +47,7 @@ fun MainScreen(
     var showSortMenu by remember { mutableStateOf(false) }
     var showFilterMenu by remember { mutableStateOf(false) }
     var selectedMediaForDetails by remember { mutableStateOf<Media?>(null) }
+    var isLoadingSelectedMediaDetails by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
 
     val showContinueWatching = uiState.selectedTab in setOf(0, 1, 2) &&
@@ -58,6 +59,29 @@ fun MainScreen(
         viewModel.navigateBack()
     }
 
+    LaunchedEffect(selectedMediaForDetails?.mediaFileId) {
+        val media = selectedMediaForDetails ?: return@LaunchedEffect
+        if (!media.plot.isNullOrBlank() || !media.actors.isNullOrBlank()) {
+            isLoadingSelectedMediaDetails = false
+            return@LaunchedEffect
+        }
+
+        val requestedMediaId = media.mediaFileId
+        isLoadingSelectedMediaDetails = true
+        viewModel.loadMediaDetails(media) { loaded ->
+            if (selectedMediaForDetails?.mediaFileId != requestedMediaId) {
+                return@loadMediaDetails
+            }
+
+            if (loaded != null) {
+                selectedMediaForDetails = loaded.copy(
+                    favorite = selectedMediaForDetails?.favorite ?: loaded.favorite
+                )
+            }
+            isLoadingSelectedMediaDetails = false
+        }
+    }
+
     // Media details dialog
     selectedMediaForDetails?.let { media ->
         // Track favorite state locally for immediate UI feedback
@@ -66,7 +90,11 @@ fun MainScreen(
         MediaDetailsDialog(
             media = media,
             isFavorite = isFavorite,
-            onDismiss = { selectedMediaForDetails = null },
+            isLoadingDetails = isLoadingSelectedMediaDetails,
+            onDismiss = {
+                selectedMediaForDetails = null
+                isLoadingSelectedMediaDetails = false
+            },
             onPlay = { resumePosition ->
                 selectedMediaForDetails = null
                 if (media.streamable) {
