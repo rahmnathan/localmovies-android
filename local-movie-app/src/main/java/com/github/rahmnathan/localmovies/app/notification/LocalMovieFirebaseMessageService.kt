@@ -51,12 +51,11 @@ class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
         buildChannel()
 
         val data = remoteMessage.data
-        val mBuilder = NotificationCompat.Builder(this)
+        val mBuilder = NotificationCompat.Builder(this, "LocalMovies")
                 .setSmallIcon(R.drawable.movie_icon)
                 .setContentTitle(data["title"])
                 .setContentText(data["body"])
                 .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setChannelId("LocalMovies")
                 .setAutoCancel(true)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 

@@ -84,16 +84,16 @@ class GoogleCastUtils @Inject constructor(
                 val metaData = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE)
                 metaData.putString(MediaMetadata.KEY_TITLE, media.title)
                 metaData.putString("media-id", media.mediaFileId)
-                signedUrls?.updatePosition?.let { metaData.putString("update-position-url", it) }
+                signedUrls.updatePosition?.let { metaData.putString("update-position-url", it) }
 
-                signedUrls?.poster?.takeIf { it.isNotBlank() }?.let { poster ->
+                signedUrls.poster?.takeIf { it.isNotBlank() }?.let { poster ->
                     metaData.addImage(WebImage(poster.toUri()))
                 }
 
-                val streamUrl = signedUrls?.stream ?: throw IllegalStateException("Stream URL is required for casting")
+                val streamUrl = signedUrls.stream ?: throw IllegalStateException("Stream URL is required for casting")
                 Log.d("GoogleCastUtils", "Casting stream URL: $streamUrl")
-                Log.d("GoogleCastUtils", "Poster URL: ${signedUrls?.poster}")
-                Log.d("GoogleCastUtils", "Subtitle URL: ${signedUrls?.subtitle}")
+                Log.d("GoogleCastUtils", "Poster URL: ${signedUrls.poster}")
+                Log.d("GoogleCastUtils", "Subtitle URL: ${signedUrls.subtitle}")
 
                 val mediaInfoBuilder = MediaInfo.Builder(streamUrl)
                     .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
@@ -101,7 +101,7 @@ class GoogleCastUtils @Inject constructor(
                     .setMetadata(metaData)
 
                 // Add subtitle track if available
-                signedUrls?.subtitle?.let { subtitleUrl ->
+                signedUrls.subtitle?.let { subtitleUrl ->
                     val subtitleTrack = MediaTrack.Builder(1, MediaTrack.TYPE_TEXT)
                         .setContentId(subtitleUrl)
                         .setSubtype(MediaTrack.SUBTYPE_SUBTITLES)

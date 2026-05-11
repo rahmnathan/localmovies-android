@@ -11,12 +11,13 @@ import com.github.rahmnathan.localmovies.app.media.data.Recommendation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class MainUiState(
     val mediaList: List<Media> = emptyList(),
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val error: String? = null,
     val searchQuery: String = "",
     val currentPath: List<String> = listOf("Movies"),
@@ -38,6 +39,7 @@ data class MainUiState(
     val currentParentId: String? get() = parentIdStack.lastOrNull()
 }
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val mediaRepository: MediaRepository,

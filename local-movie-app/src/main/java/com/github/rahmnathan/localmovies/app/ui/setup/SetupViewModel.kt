@@ -10,7 +10,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class SetupUiState(
-    val isInitialized: Boolean = false,
     val username: String = "",
     val password: String = "",
     val serverUrl: String = "https://movies.nathanrahm.com",
@@ -30,12 +29,10 @@ class SetupViewModel @Inject constructor(
     val uiState: StateFlow<SetupUiState> = _uiState.asStateFlow()
 
     init {
-        // Load existing credentials if any
         viewModelScope.launch {
             preferencesDataStore.userCredentialsFlow.collect { credentials ->
                 _uiState.update {
                     it.copy(
-                        isInitialized = true,
                         username = credentials.username,
                         serverUrl = credentials.serverUrl,
                         authServerUrl = credentials.authServerUrl

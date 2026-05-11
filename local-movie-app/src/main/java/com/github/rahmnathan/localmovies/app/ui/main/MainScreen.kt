@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FilterList
@@ -16,7 +17,6 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.*
@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.mediarouter.app.MediaRouteButton
 import com.github.rahmnathan.localmovies.app.media.data.Media
@@ -238,7 +238,11 @@ fun MainScreen(
             }
         }
     ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
             // Breadcrumb navigation hint (e.g., "Breaking Bad → Season 1")
             if (uiState.currentPath.size > 1 && uiState.typeFilter == null) {
                 BreadcrumbBar(
@@ -247,7 +251,11 @@ fun MainScreen(
                 )
             }
 
-            Box(modifier = Modifier.weight(1f)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
                 // Offline indicator banner
                 if (uiState.isOffline) {
                     Surface(
@@ -396,11 +404,11 @@ fun MainScreen(
 private fun SortDropdownMenu(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    onSortOrderChange: (String) -> Unit
+        onSortOrderChange: (String) -> Unit
 ) {
     Box {
         IconButton(onClick = { onExpandedChange(true) }) {
-            Icon(Icons.Default.Sort, contentDescription = "Sort")
+            Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
         }
         DropdownMenu(
             expanded = expanded,

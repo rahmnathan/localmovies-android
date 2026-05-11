@@ -9,12 +9,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -23,11 +23,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.github.rahmnathan.localmovies.app.data.local.AuthState
 import com.github.rahmnathan.localmovies.app.ui.cast.CastControllerScreen
 import com.github.rahmnathan.localmovies.app.ui.main.MainScreen
 import com.github.rahmnathan.localmovies.app.ui.player.PlayerScreen
 import com.github.rahmnathan.localmovies.app.ui.setup.SetupScreen
-import com.github.rahmnathan.localmovies.app.ui.setup.SetupViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -54,8 +54,8 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun LocalMoviesApp() {
-    val setupViewModel: SetupViewModel = hiltViewModel()
-    val uiState by setupViewModel.uiState.collectAsStateWithLifecycle()
+    val sessionViewModel: AppSessionViewModel = hiltViewModel()
+    val uiState by sessionViewModel.uiState.collectAsStateWithLifecycle()
     val navController = rememberNavController()
 
     if (!uiState.isInitialized) {
@@ -68,16 +68,16 @@ fun LocalMoviesApp() {
         return
     }
 
-    val startDestination = remember(uiState.username) {
-        if (uiState.username.isNotBlank()) {
+    val startDestination = remember(uiState.authState) {
+        if (uiState.authState == AuthState.SignedIn) {
             Screen.Main.route
         } else {
             Screen.Setup.route
         }
     }
 
-    LaunchedEffect(uiState.username, navController) {
-        val targetRoute = if (uiState.username.isNotBlank()) {
+    LaunchedEffect(uiState.authState, navController) {
+        val targetRoute = if (uiState.authState == AuthState.SignedIn) {
             Screen.Main.route
         } else {
             Screen.Setup.route

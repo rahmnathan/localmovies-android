@@ -29,12 +29,12 @@ data class UserCredentials(
     val serverUrl: String = "https://movies.nathanrahm.com",
     val authServerUrl: String = "https://login.nathanrahm.com",
     val accessToken: String = "",
-    val refreshToken: String = "",
+    val offlineToken: String = "",
     val accessTokenExpiresAtEpochMillis: Long = 0,
-    val refreshTokenExpiresAtEpochMillis: Long = 0,
+    val offlineTokenExpiresAtEpochMillis: Long = 0,
     val legacyPassword: String = ""
 ) {
-    fun hasSession(): Boolean = username.isNotBlank() && refreshToken.isNotBlank()
+    fun hasSession(): Boolean = username.isNotBlank() && offlineToken.isNotBlank()
 
     fun hasLegacyPassword(): Boolean = username.isNotBlank() && legacyPassword.isNotBlank()
 
@@ -46,9 +46,14 @@ data class UserCredentials(
     }
 }
 
+enum class AuthState {
+    SignedOut,
+    SignedIn
+}
+
 @Singleton
 class UserPreferencesDataStore @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     private object PreferencesKeys {
         val USERNAME = stringPreferencesKey("username")
@@ -62,13 +67,16 @@ class UserPreferencesDataStore @Inject constructor(
     }
 
     private companion object {
-        private const val SECURE_PREFS_NAME = "secure_user_credentials"
+        private const val DIRECT_SECURE_PREFS_NAME = "secure_user_credentials_v3"
+        private const val V1_SECURE_PREFS_NAME = "secure_user_credentials"
+
         private const val SECURE_PASSWORD_KEY = "password"
         private const val SECURE_PASSWORD_IV_KEY = "password_iv"
         private const val SECURE_ACCESS_TOKEN_KEY = "access_token"
         private const val SECURE_ACCESS_TOKEN_IV_KEY = "access_token_iv"
         private const val SECURE_REFRESH_TOKEN_KEY = "refresh_token"
         private const val SECURE_REFRESH_TOKEN_IV_KEY = "refresh_token_iv"
+
         private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
         private const val KEY_ALIAS = "localmovies_password_key"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
@@ -76,28 +84,37 @@ class UserPreferencesDataStore @Inject constructor(
     }
 
     private val securePreferences: SharedPreferences by lazy {
-        context.getSharedPreferences(SECURE_PREFS_NAME, Context.MODE_PRIVATE)
+        context.getSharedPreferences(DIRECT_SECURE_PREFS_NAME, Context.MODE_PRIVATE)
+    }
+
+    private val v1SecurePreferences: SharedPreferences by lazy {
+        context.getSharedPreferences(V1_SECURE_PREFS_NAME, Context.MODE_PRIVATE)
     }
 
     val userCredentialsFlow: Flow<UserCredentials> = context.dataStore.data.map { prefs ->
-        val secureLegacyPassword = getSecureString(SECURE_PASSWORD_KEY, SECURE_PASSWORD_IV_KEY)
-        val plaintextLegacyPassword = prefs[PreferencesKeys.LEGACY_PASSWORD] ?: ""
-        val legacyPassword = secureLegacyPassword.ifBlank { plaintextLegacyPassword }
+        migrateSecureValuesIfNeeded()
 
-        if (secureLegacyPassword.isBlank() && plaintextLegacyPassword.isNotBlank()) {
-            saveSecureString(SECURE_PASSWORD_KEY, SECURE_PASSWORD_IV_KEY, plaintextLegacyPassword)
-        }
+        val legacyPassword = readSecureString(SECURE_PASSWORD_KEY, SECURE_PASSWORD_IV_KEY)
+            .ifBlank { prefs[PreferencesKeys.LEGACY_PASSWORD] ?: "" }
 
         UserCredentials(
             username = prefs[PreferencesKeys.USERNAME] ?: "",
             serverUrl = prefs[PreferencesKeys.SERVER_URL] ?: "https://movies.nathanrahm.com",
             authServerUrl = prefs[PreferencesKeys.AUTH_SERVER_URL] ?: "https://login.nathanrahm.com",
-            accessToken = getSecureString(SECURE_ACCESS_TOKEN_KEY, SECURE_ACCESS_TOKEN_IV_KEY),
-            refreshToken = getSecureString(SECURE_REFRESH_TOKEN_KEY, SECURE_REFRESH_TOKEN_IV_KEY),
+            accessToken = readSecureString(SECURE_ACCESS_TOKEN_KEY, SECURE_ACCESS_TOKEN_IV_KEY),
+            offlineToken = readSecureString(SECURE_REFRESH_TOKEN_KEY, SECURE_REFRESH_TOKEN_IV_KEY),
             accessTokenExpiresAtEpochMillis = prefs[PreferencesKeys.ACCESS_TOKEN_EXPIRES_AT] ?: 0L,
-            refreshTokenExpiresAtEpochMillis = prefs[PreferencesKeys.REFRESH_TOKEN_EXPIRES_AT] ?: 0L,
+            offlineTokenExpiresAtEpochMillis = prefs[PreferencesKeys.REFRESH_TOKEN_EXPIRES_AT] ?: 0L,
             legacyPassword = legacyPassword
         )
+    }
+
+    val authStateFlow: Flow<AuthState> = userCredentialsFlow.map { credentials ->
+        if (credentials.hasSession() || credentials.hasLegacyPassword()) {
+            AuthState.SignedIn
+        } else {
+            AuthState.SignedOut
+        }
     }
 
     suspend fun saveCredentials(credentials: UserCredentials) {
@@ -106,11 +123,11 @@ class UserPreferencesDataStore @Inject constructor(
             prefs[PreferencesKeys.SERVER_URL] = credentials.serverUrl
             prefs[PreferencesKeys.AUTH_SERVER_URL] = credentials.authServerUrl
             prefs[PreferencesKeys.ACCESS_TOKEN_EXPIRES_AT] = credentials.accessTokenExpiresAtEpochMillis
-            prefs[PreferencesKeys.REFRESH_TOKEN_EXPIRES_AT] = credentials.refreshTokenExpiresAtEpochMillis
+            prefs[PreferencesKeys.REFRESH_TOKEN_EXPIRES_AT] = credentials.offlineTokenExpiresAtEpochMillis
             prefs.remove(PreferencesKeys.LEGACY_PASSWORD)
         }
-        saveSecureString(SECURE_ACCESS_TOKEN_KEY, SECURE_ACCESS_TOKEN_IV_KEY, credentials.accessToken)
-        saveSecureString(SECURE_REFRESH_TOKEN_KEY, SECURE_REFRESH_TOKEN_IV_KEY, credentials.refreshToken)
+        writeSecureString(SECURE_ACCESS_TOKEN_KEY, SECURE_ACCESS_TOKEN_IV_KEY, credentials.accessToken)
+        writeSecureString(SECURE_REFRESH_TOKEN_KEY, SECURE_REFRESH_TOKEN_IV_KEY, credentials.offlineToken)
         clearSecureString(SECURE_PASSWORD_KEY, SECURE_PASSWORD_IV_KEY)
     }
 
@@ -125,16 +142,14 @@ class UserPreferencesDataStore @Inject constructor(
         }
         clearSecureString(SECURE_ACCESS_TOKEN_KEY, SECURE_ACCESS_TOKEN_IV_KEY)
         clearSecureString(SECURE_REFRESH_TOKEN_KEY, SECURE_REFRESH_TOKEN_IV_KEY)
-        saveSecureString(SECURE_PASSWORD_KEY, SECURE_PASSWORD_IV_KEY, credentials.legacyPassword)
+        writeSecureString(SECURE_PASSWORD_KEY, SECURE_PASSWORD_IV_KEY, credentials.legacyPassword)
     }
 
     suspend fun clearCredentials() {
         context.dataStore.edit { prefs ->
             prefs.clear()
         }
-        clearSecureString(SECURE_PASSWORD_KEY, SECURE_PASSWORD_IV_KEY)
-        clearSecureString(SECURE_ACCESS_TOKEN_KEY, SECURE_ACCESS_TOKEN_IV_KEY)
-        clearSecureString(SECURE_REFRESH_TOKEN_KEY, SECURE_REFRESH_TOKEN_IV_KEY)
+        securePreferences.edit().clear().apply()
     }
 
     val subtitleOffsetFlow: Flow<Float> = context.dataStore.data.map { prefs ->
@@ -158,7 +173,26 @@ class UserPreferencesDataStore @Inject constructor(
         }
     }
 
-    private fun getSecureString(valueKey: String, ivKey: String): String {
+    private fun migrateSecureValuesIfNeeded() {
+        migrateValueFromAnyLegacyStore(SECURE_PASSWORD_KEY, SECURE_PASSWORD_IV_KEY)
+        migrateValueFromAnyLegacyStore(SECURE_ACCESS_TOKEN_KEY, SECURE_ACCESS_TOKEN_IV_KEY)
+        migrateValueFromAnyLegacyStore(SECURE_REFRESH_TOKEN_KEY, SECURE_REFRESH_TOKEN_IV_KEY)
+    }
+
+    private fun migrateValueFromAnyLegacyStore(valueKey: String, ivKey: String) {
+        if (securePreferences.contains(valueKey) && securePreferences.contains(ivKey)) {
+            clearV1SecureValue(valueKey, ivKey)
+            return
+        }
+
+        val v1SecureValue = readV1EncryptedString(valueKey, ivKey)
+        if (v1SecureValue.isNotBlank()) {
+            writeSecureString(valueKey, ivKey, v1SecureValue)
+        }
+        clearV1SecureValue(valueKey, ivKey)
+    }
+
+    private fun readSecureString(valueKey: String, ivKey: String): String {
         val encrypted = securePreferences.getString(valueKey, null) ?: return ""
         val iv = securePreferences.getString(ivKey, null) ?: return ""
 
@@ -175,8 +209,8 @@ class UserPreferencesDataStore @Inject constructor(
         }
     }
 
-    private fun saveSecureString(valueKey: String, ivKey: String, value: String) {
-        if (value.isEmpty()) {
+    private fun writeSecureString(valueKey: String, ivKey: String, value: String) {
+        if (value.isBlank()) {
             clearSecureString(valueKey, ivKey)
             return
         }
@@ -185,13 +219,9 @@ class UserPreferencesDataStore @Inject constructor(
             val cipher = Cipher.getInstance(TRANSFORMATION)
             cipher.init(Cipher.ENCRYPT_MODE, getOrCreateSecretKey())
 
-            val encrypted = Base64.getEncoder()
-                .encodeToString(cipher.doFinal(value.toByteArray(Charsets.UTF_8)))
-            val iv = Base64.getEncoder().encodeToString(cipher.iv)
-
             securePreferences.edit()
-                .putString(valueKey, encrypted)
-                .putString(ivKey, iv)
+                .putString(valueKey, Base64.getEncoder().encodeToString(cipher.doFinal(value.toByteArray(Charsets.UTF_8))))
+                .putString(ivKey, Base64.getEncoder().encodeToString(cipher.iv))
                 .apply()
         } catch (_: Exception) {
             clearSecureString(valueKey, ivKey)
@@ -203,6 +233,30 @@ class UserPreferencesDataStore @Inject constructor(
             .remove(valueKey)
             .remove(ivKey)
             .apply()
+    }
+
+    private fun clearV1SecureValue(valueKey: String, ivKey: String) {
+        v1SecurePreferences.edit()
+            .remove(valueKey)
+            .remove(ivKey)
+            .apply()
+    }
+
+    private fun readV1EncryptedString(valueKey: String, ivKey: String): String {
+        val encrypted = v1SecurePreferences.getString(valueKey, null) ?: return ""
+        val iv = v1SecurePreferences.getString(ivKey, null) ?: return ""
+
+        return try {
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(
+                Cipher.DECRYPT_MODE,
+                getOrCreateSecretKey(),
+                GCMParameterSpec(GCM_TAG_LENGTH_BITS, Base64.getDecoder().decode(iv))
+            )
+            String(cipher.doFinal(Base64.getDecoder().decode(encrypted)), Charsets.UTF_8)
+        } catch (_: Exception) {
+            ""
+        }
     }
 
     private fun getOrCreateSecretKey(): SecretKey {
