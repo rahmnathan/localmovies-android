@@ -5,9 +5,15 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
@@ -15,6 +21,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import com.github.rahmnathan.localmovies.app.ui.cast.CastControllerScreen
 import com.github.rahmnathan.localmovies.app.ui.main.MainScreen
 import com.github.rahmnathan.localmovies.app.ui.player.PlayerScreen
@@ -46,18 +54,41 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun LocalMoviesApp() {
-    // Use SetupViewModel to access credentials for initial route determination
     val setupViewModel: SetupViewModel = hiltViewModel()
     val uiState by setupViewModel.uiState.collectAsStateWithLifecycle()
-
     val navController = rememberNavController()
 
-    // Determine start destination based on whether credentials exist
-    // Default to Setup screen if no credentials
-    val startDestination = if (uiState.username.isNotBlank()) {
-        Screen.Main.route
-    } else {
-        Screen.Setup.route
+    if (!uiState.isInitialized) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        }
+        return
+    }
+
+    val startDestination = remember(uiState.username) {
+        if (uiState.username.isNotBlank()) {
+            Screen.Main.route
+        } else {
+            Screen.Setup.route
+        }
+    }
+
+    LaunchedEffect(uiState.username, navController) {
+        val targetRoute = if (uiState.username.isNotBlank()) {
+            Screen.Main.route
+        } else {
+            Screen.Setup.route
+        }
+
+        if (navController.currentDestination?.route != targetRoute) {
+            navController.navigate(targetRoute) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
     }
 
     NavHost(
@@ -157,7 +188,6 @@ fun LocalMoviesApp() {
             enterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION)) },
             exitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION)) }
         ) {
-            // Detail screen is shown as a dialog from MainScreen
             Text("Detail Screen")
         }
     }

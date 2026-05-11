@@ -80,8 +80,6 @@ dependencies {
     // Firebase
     implementation 'com.google.firebase:firebase-messaging:25.0.1'
 
-    // OAuth2
-    implementation 'com.github.rahmnathan.oauth2:keycloak-resilience4j:2.12:jdk8'
     if (localmovieApiClientVersion) {
         implementation "com.github.rahmnathan.localmovie:localmovie-api-client:${localmovieApiClientVersion}"
     } else {

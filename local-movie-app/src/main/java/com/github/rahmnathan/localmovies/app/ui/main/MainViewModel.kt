@@ -3,6 +3,7 @@ package com.github.rahmnathan.localmovies.app.ui.main
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.rahmnathan.localmovies.app.auth.TokenCache
 import com.github.rahmnathan.localmovies.app.data.repository.MediaRepository
 import com.github.rahmnathan.localmovies.app.data.repository.Result
 import com.github.rahmnathan.localmovies.app.media.data.Media
@@ -41,6 +42,7 @@ data class MainUiState(
 class MainViewModel @Inject constructor(
     private val mediaRepository: MediaRepository,
     private val playbackCoordinator: PlaybackCoordinator,
+    private val tokenCache: TokenCache,
     private val preferencesDataStore: com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore,
     private val networkConnectivityObserver: com.github.rahmnathan.localmovies.app.data.local.NetworkConnectivityObserver,
     private val episodeQueueManager: com.github.rahmnathan.localmovies.app.ui.player.EpisodeQueueManager
@@ -594,6 +596,7 @@ class MainViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
+            tokenCache.clearToken()
             preferencesDataStore.clearCredentials()
         }
     }

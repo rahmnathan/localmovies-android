@@ -1,26 +1,28 @@
 package com.github.rahmnathan.localmovies.app.auth
 
 import android.util.Log
+import com.github.rahmnathan.localmovies.app.data.local.UserCredentials
 import com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore
-import com.github.rahmnathan.localmovies.app.di.DynamicOAuth2Service
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Proactively caches OAuth2 access tokens to avoid blocking calls in synchronous contexts
- * (like OkHttp interceptors). The token is refreshed in the background when credentials
- * change or when explicitly requested.
+ * Keeps the current access token available for synchronous callers while refreshing
+ * or migrating the persisted session in the background.
  */
 @Singleton
 class TokenCache @Inject constructor(
-    private val dynamicOAuth2Service: DynamicOAuth2Service,
+    private val authSessionManager: AuthSessionManager,
     private val preferencesDataStore: UserPreferencesDataStore
 ) {
     companion object {
@@ -28,67 +30,78 @@ class TokenCache @Inject constructor(
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val refreshMutex = Mutex()
 
     private val _cachedToken = MutableStateFlow<String?>(null)
     val cachedToken: StateFlow<String?> = _cachedToken.asStateFlow()
 
     @Volatile
-    private var lastCredentialsHash: Int = 0
+    private var currentCredentials: UserCredentials = UserCredentials()
 
     init {
-        // Observe credential changes and refresh token proactively
         scope.launch {
             preferencesDataStore.userCredentialsFlow.collect { credentials ->
-                val credentialsHash = credentials.hashCode()
-                if (credentialsHash != lastCredentialsHash && credentials.username.isNotBlank()) {
-                    Log.d(TAG, "Credentials changed, refreshing token proactively")
-                    lastCredentialsHash = credentialsHash
-                    refreshToken()
+                currentCredentials = credentials
+                _cachedToken.value = credentials.accessToken.ifBlank { null }
+
+                when {
+                    credentials.hasSession() && !credentials.isAccessTokenValid() -> refreshTokenAsync()
+                    credentials.hasLegacyPassword() && credentials.accessToken.isBlank() -> refreshTokenAsync()
+                    credentials.username.isBlank() -> clearToken()
                 }
             }
         }
     }
 
-    /**
-     * Returns the cached access token synchronously.
-     * This is safe to call from OkHttp interceptors.
-     * Returns null if no token is cached yet.
-     */
     fun getAccessToken(): String? {
+        if (currentCredentials.hasSession() && !currentCredentials.isAccessTokenValid()) {
+            refreshTokenAsync()
+        }
         return _cachedToken.value
     }
 
-    /**
-     * Refreshes the token in the background.
-     * Call this when you suspect the token may be stale.
-     */
     fun refreshTokenAsync() {
         scope.launch {
             refreshToken()
         }
     }
 
-    /**
-     * Refreshes the token and updates the cache.
-     * This is a suspend function that can be called from coroutines.
-     */
     suspend fun refreshToken() {
-        try {
-            val token = dynamicOAuth2Service.getServiceSuspend().accessToken.serialize()
-            _cachedToken.value = token
-            Log.d(TAG, "Token refreshed successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to refresh token", e)
-            // Keep the old token if refresh fails - it might still be valid
+        refreshMutex.withLock {
+            val credentials = preferencesDataStore.userCredentialsFlow.first()
+
+            try {
+                val updatedCredentials = when {
+                    credentials.hasSession() -> authSessionManager.refreshSession(credentials)
+                    credentials.hasLegacyPassword() -> authSessionManager.migrateLegacyCredentials(credentials)
+                    else -> {
+                        _cachedToken.value = null
+                        return
+                    }
+                }
+
+                currentCredentials = updatedCredentials
+                _cachedToken.value = updatedCredentials.accessToken
+                Log.d(TAG, "Token refreshed successfully")
+            } catch (e: Exception) {
+                if (e is AuthSessionException && e.errorCode == "invalid_grant") {
+                    Log.w(TAG, "Stored session is no longer valid, clearing credentials", e)
+                    preferencesDataStore.clearCredentials()
+                    clearToken()
+                    return
+                }
+
+                if (!credentials.isAccessTokenValid(refreshThresholdMillis = 0)) {
+                    _cachedToken.value = null
+                }
+                Log.e(TAG, "Failed to refresh token", e)
+            }
         }
     }
 
-    /**
-     * Clears the cached token. Call this on logout.
-     */
     fun clearToken() {
+        currentCredentials = UserCredentials()
         _cachedToken.value = null
-        lastCredentialsHash = 0
         Log.d(TAG, "Token cache cleared")
     }
 }

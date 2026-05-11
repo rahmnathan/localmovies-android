@@ -2,7 +2,7 @@ package com.github.rahmnathan.localmovies.app.ui.setup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.rahmnathan.localmovies.app.data.local.UserCredentials
+import com.github.rahmnathan.localmovies.app.auth.AuthSessionManager
 import com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class SetupUiState(
+    val isInitialized: Boolean = false,
     val username: String = "",
     val password: String = "",
     val serverUrl: String = "https://movies.nathanrahm.com",
@@ -21,7 +22,8 @@ data class SetupUiState(
 
 @HiltViewModel
 class SetupViewModel @Inject constructor(
-    private val preferencesDataStore: UserPreferencesDataStore
+    private val preferencesDataStore: UserPreferencesDataStore,
+    private val authSessionManager: AuthSessionManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SetupUiState())
@@ -33,8 +35,8 @@ class SetupViewModel @Inject constructor(
             preferencesDataStore.userCredentialsFlow.collect { credentials ->
                 _uiState.update {
                     it.copy(
+                        isInitialized = true,
                         username = credentials.username,
-                        password = credentials.password,
                         serverUrl = credentials.serverUrl,
                         authServerUrl = credentials.authServerUrl
                     )
@@ -56,19 +58,18 @@ class SetupViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             try {
-                val credentials = UserCredentials(
+                authSessionManager.login(
                     username = _uiState.value.username,
                     password = _uiState.value.password,
                     serverUrl = _uiState.value.serverUrl,
                     authServerUrl = _uiState.value.authServerUrl
                 )
-
-                preferencesDataStore.saveCredentials(credentials)
-
-                // Note: OAuth2 validation happens when MediaApi is first used
-                // For now, we assume credentials are valid
                 _uiState.update {
-                    it.copy(isLoading = false, loginSuccess = true)
+                    it.copy(
+                        isLoading = false,
+                        password = "",
+                        loginSuccess = true
+                    )
                 }
             } catch (e: Exception) {
                 _uiState.update {
