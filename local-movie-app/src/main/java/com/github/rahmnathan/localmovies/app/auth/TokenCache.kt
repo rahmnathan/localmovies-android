@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -34,6 +35,8 @@ class TokenCache @Inject constructor(
 
     private val _cachedToken = MutableStateFlow<String?>(null)
     val cachedToken: StateFlow<String?> = _cachedToken.asStateFlow()
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
     @Volatile
     private var currentCredentials: UserCredentials = UserCredentials()
@@ -56,6 +59,20 @@ class TokenCache @Inject constructor(
     fun getAccessToken(): String? {
         if (currentCredentials.hasSession() && !currentCredentials.isAccessTokenValid()) {
             refreshTokenAsync()
+            return null
+        }
+        return _cachedToken.value
+    }
+
+    suspend fun awaitValidAccessToken(): String? {
+        val credentials = preferencesDataStore.userCredentialsFlow.first()
+        currentCredentials = credentials
+        if (credentials.accessToken.isNotBlank()) {
+            _cachedToken.value = credentials.accessToken
+        }
+
+        if (credentials.hasSession() && !credentials.isAccessTokenValid()) {
+            refreshToken()
         }
         return _cachedToken.value
     }
@@ -69,6 +86,7 @@ class TokenCache @Inject constructor(
     suspend fun refreshToken() {
         refreshMutex.withLock {
             val credentials = preferencesDataStore.userCredentialsFlow.first()
+            _isRefreshing.value = true
 
             try {
                 val updatedCredentials = when {
@@ -86,7 +104,9 @@ class TokenCache @Inject constructor(
             } catch (e: Exception) {
                 if (e is AuthSessionException && e.errorCode == "invalid_grant") {
                     Log.w(TAG, "Stored session is no longer valid, clearing credentials", e)
-                    preferencesDataStore.clearCredentials()
+                    preferencesDataStore.clearSession(
+                        message = "Your session expired. Sign in again."
+                    )
                     clearToken()
                     return
                 }
@@ -95,6 +115,8 @@ class TokenCache @Inject constructor(
                     _cachedToken.value = null
                 }
                 Log.e(TAG, "Failed to refresh token", e)
+            } finally {
+                _isRefreshing.update { false }
             }
         }
     }

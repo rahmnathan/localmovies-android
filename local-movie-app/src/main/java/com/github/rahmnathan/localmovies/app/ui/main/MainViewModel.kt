@@ -256,6 +256,9 @@ class MainViewModel @Inject constructor(
                 }
                 Log.d(TAG, "Loaded ${recommendations.size} recommendations")
             } catch (e: Exception) {
+                if (handleUnauthorized(e)) {
+                    return@launch
+                }
                 Log.e(TAG, "Failed to load recommendations", e)
                 _uiState.update {
                     it.copy(
@@ -292,6 +295,9 @@ class MainViewModel @Inject constructor(
                         }
                     }
                     is Result.Error -> {
+                        if (handleUnauthorized(result.exception)) {
+                            return@collect
+                        }
                         Log.w(TAG, "Failed to load continue watching", result.exception)
                         _uiState.update { it.copy(isLoadingContinueWatching = false) }
                     }
@@ -431,6 +437,9 @@ class MainViewModel @Inject constructor(
                         }
                     }
                     is Result.Error -> {
+                        if (handleUnauthorized(result.exception)) {
+                            return@collect
+                        }
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
@@ -535,6 +544,9 @@ class MainViewModel @Inject constructor(
                         }
                     }
                     is Result.Error -> {
+                        if (handleUnauthorized(result.exception)) {
+                            return@collect
+                        }
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
@@ -585,6 +597,9 @@ class MainViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
+                if (handleUnauthorized(e)) {
+                    return@launch
+                }
                 Log.e(TAG, "Exception playing media", e)
                 _uiState.update {
                     it.copy(
@@ -661,11 +676,29 @@ class MainViewModel @Inject constructor(
                     onLoaded(result.data)
                 }
                 is Result.Error -> {
+                    if (handleUnauthorized(result.exception)) {
+                        onLoaded(null)
+                        return@launch
+                    }
                     Log.w(TAG, "Failed to load details for ${media.mediaFileId}", result.exception)
                     onLoaded(null)
                 }
                 is Result.Loading -> onLoaded(null)
             }
         }
+    }
+
+    private fun handleUnauthorized(exception: Throwable): Boolean {
+        val message = exception.message.orEmpty()
+        val isUnauthorized = "401" in message || "Unauthorized" in message
+        if (!isUnauthorized) {
+            return false
+        }
+
+        viewModelScope.launch {
+            tokenCache.clearToken()
+            preferencesDataStore.clearSession("Your session expired. Sign in again.")
+        }
+        return true
     }
 }

@@ -60,6 +60,7 @@ class UserPreferencesDataStore @Inject constructor(
         val LEGACY_PASSWORD = stringPreferencesKey("password")
         val SERVER_URL = stringPreferencesKey("server_url")
         val AUTH_SERVER_URL = stringPreferencesKey("auth_server_url")
+        val AUTH_MESSAGE = stringPreferencesKey("auth_message")
         val ACCESS_TOKEN_EXPIRES_AT = longPreferencesKey("access_token_expires_at")
         val REFRESH_TOKEN_EXPIRES_AT = longPreferencesKey("refresh_token_expires_at")
         val SUBTITLE_OFFSET = floatPreferencesKey("subtitle_offset")
@@ -117,6 +118,10 @@ class UserPreferencesDataStore @Inject constructor(
         }
     }
 
+    val authMessageFlow: Flow<String?> = context.dataStore.data.map { prefs ->
+        prefs[PreferencesKeys.AUTH_MESSAGE]
+    }
+
     suspend fun saveCredentials(credentials: UserCredentials) {
         context.dataStore.edit { prefs ->
             prefs[PreferencesKeys.USERNAME] = credentials.username
@@ -124,6 +129,7 @@ class UserPreferencesDataStore @Inject constructor(
             prefs[PreferencesKeys.AUTH_SERVER_URL] = credentials.authServerUrl
             prefs[PreferencesKeys.ACCESS_TOKEN_EXPIRES_AT] = credentials.accessTokenExpiresAtEpochMillis
             prefs[PreferencesKeys.REFRESH_TOKEN_EXPIRES_AT] = credentials.offlineTokenExpiresAtEpochMillis
+            prefs.remove(PreferencesKeys.AUTH_MESSAGE)
             prefs.remove(PreferencesKeys.LEGACY_PASSWORD)
         }
         writeSecureString(SECURE_ACCESS_TOKEN_KEY, SECURE_ACCESS_TOKEN_IV_KEY, credentials.accessToken)
@@ -138,11 +144,28 @@ class UserPreferencesDataStore @Inject constructor(
             prefs[PreferencesKeys.AUTH_SERVER_URL] = credentials.authServerUrl
             prefs[PreferencesKeys.ACCESS_TOKEN_EXPIRES_AT] = 0L
             prefs[PreferencesKeys.REFRESH_TOKEN_EXPIRES_AT] = 0L
+            prefs.remove(PreferencesKeys.AUTH_MESSAGE)
             prefs.remove(PreferencesKeys.LEGACY_PASSWORD)
         }
         clearSecureString(SECURE_ACCESS_TOKEN_KEY, SECURE_ACCESS_TOKEN_IV_KEY)
         clearSecureString(SECURE_REFRESH_TOKEN_KEY, SECURE_REFRESH_TOKEN_IV_KEY)
         writeSecureString(SECURE_PASSWORD_KEY, SECURE_PASSWORD_IV_KEY, credentials.legacyPassword)
+    }
+
+    suspend fun clearSession(message: String? = null) {
+        context.dataStore.edit { prefs ->
+            prefs[PreferencesKeys.ACCESS_TOKEN_EXPIRES_AT] = 0L
+            prefs[PreferencesKeys.REFRESH_TOKEN_EXPIRES_AT] = 0L
+            prefs.remove(PreferencesKeys.LEGACY_PASSWORD)
+            if (message.isNullOrBlank()) {
+                prefs.remove(PreferencesKeys.AUTH_MESSAGE)
+            } else {
+                prefs[PreferencesKeys.AUTH_MESSAGE] = message
+            }
+        }
+        clearSecureString(SECURE_ACCESS_TOKEN_KEY, SECURE_ACCESS_TOKEN_IV_KEY)
+        clearSecureString(SECURE_REFRESH_TOKEN_KEY, SECURE_REFRESH_TOKEN_IV_KEY)
+        clearSecureString(SECURE_PASSWORD_KEY, SECURE_PASSWORD_IV_KEY)
     }
 
     suspend fun clearCredentials() {

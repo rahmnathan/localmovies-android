@@ -11,6 +11,7 @@ import coil3.util.DebugLogger
 import com.github.rahmnathan.localmovies.app.auth.TokenCache
 import com.github.rahmnathan.localmovies.app.cast.CastProgressTracker
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -79,8 +80,9 @@ class LocalMoviesApplication : Application(), SingletonImageLoader.Factory {
         override fun intercept(chain: Interceptor.Chain): Response {
             val request = chain.request()
 
-            // Get the cached access token (non-blocking)
-            val accessToken = tokenCache.getAccessToken()
+            val accessToken = runBlocking {
+                tokenCache.awaitValidAccessToken()
+            }
 
             // Add Authorization header and correlation ID
             val authenticatedRequest = request.newBuilder().apply {

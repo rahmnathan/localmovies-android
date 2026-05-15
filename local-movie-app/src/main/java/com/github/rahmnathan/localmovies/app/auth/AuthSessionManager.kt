@@ -56,6 +56,12 @@ class AuthSessionManager @Inject constructor(
             serverUrl = serverUrl,
             authServerUrl = authServerUrl
         )
+        Log.d(
+            TAG,
+            "Created session: accessExpiresInSeconds=${response.expiresInSeconds}, " +
+                "refreshExpiresInSeconds=${response.offlineTokenExpiresInSeconds}, " +
+                "receivedRefreshToken=${response.offlineToken.isNotBlank()}"
+        )
         preferencesDataStore.saveCredentials(session)
         session
     }
@@ -76,6 +82,12 @@ class AuthSessionManager @Inject constructor(
             authServerUrl = credentials.authServerUrl,
             fallbackOfflineToken = credentials.offlineToken,
             fallbackOfflineTokenExpiry = credentials.offlineTokenExpiresAtEpochMillis
+        )
+        Log.d(
+            TAG,
+            "Refreshed session: accessExpiresInSeconds=${response.expiresInSeconds}, " +
+                "refreshExpiresInSeconds=${response.offlineTokenExpiresInSeconds}, " +
+                "refreshTokenRotated=${response.offlineToken.isNotBlank() && response.offlineToken != credentials.offlineToken}"
         )
         preferencesDataStore.saveCredentials(updatedSession)
         updatedSession

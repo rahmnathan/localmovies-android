@@ -17,6 +17,7 @@ import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -58,9 +59,8 @@ class MediaApi @Inject constructor(
     private val sharedOkHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .addInterceptor(Interceptor { chain ->
-                val accessToken = tokenCache.getAccessToken()
-                if (accessToken == null) {
-                    tokenCache.refreshTokenAsync()
+                val accessToken = runBlocking {
+                    tokenCache.awaitValidAccessToken()
                 }
                 val request = chain.request().newBuilder()
                     .header("x-correlation-id", java.util.UUID.randomUUID().toString())

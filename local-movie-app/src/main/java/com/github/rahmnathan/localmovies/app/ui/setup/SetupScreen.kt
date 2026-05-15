@@ -38,6 +38,24 @@ fun SetupScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        if (uiState.sessionMessage != null) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                )
+            ) {
+                Text(
+                    text = uiState.sessionMessage!!,
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         OutlinedTextField(
             value = uiState.username,
             onValueChange = viewModel::onUsernameChange,
