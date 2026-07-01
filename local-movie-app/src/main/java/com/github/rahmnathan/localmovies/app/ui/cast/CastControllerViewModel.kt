@@ -3,7 +3,6 @@ package com.github.rahmnathan.localmovies.app.ui.cast
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.rahmnathan.localmovies.app.data.local.UserPreferencesDataStore
 import com.google.android.gms.cast.MediaStatus
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.media.RemoteMediaClient
@@ -13,17 +12,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import javax.inject.Inject
 
 @HiltViewModel
 class CastControllerViewModel @Inject constructor(
-    private val castContext: CastContext?,
-    private val userPreferencesDataStore: UserPreferencesDataStore
+    private val castContext: CastContext?
 ) : ViewModel() {
     // Note: Progress tracking is handled by CastProgressTracker singleton (as fallback),
     // and by the custom Cast receiver (primary) which reports directly to the server.
@@ -39,13 +35,10 @@ class CastControllerViewModel @Inject constructor(
     init {
         // Start monitoring Cast state for UI updates
         startMonitoring()
-        // Load saved subtitle offset and send to receiver
-        loadAndSendSubtitleOffset()
     }
 
     companion object {
         private const val TAG = "CastControllerViewModel"
-        private const val CAST_NAMESPACE = "urn:x-cast:com.nathanrahm.localmovies"
     }
 
     private fun startMonitoring() {
@@ -223,88 +216,10 @@ class CastControllerViewModel @Inject constructor(
                 client.setActiveMediaTracks(newTrackIds)
                 _uiState.update { it.copy(subtitlesEnabled = !currentState) }
 
-                // If enabling subtitles, send the current offset to receiver
-                if (!currentState) {
-                    sendSubtitleOffsetToReceiver(_uiState.value.subtitleOffsetSeconds)
-                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error toggling subtitles", e)
             }
         }
     }
 
-    /**
-     * Adjust subtitle offset by the given delta and send to receiver.
-     */
-    fun adjustSubtitleOffset(deltaSeconds: Float) {
-        viewModelScope.launch {
-            val newOffset = _uiState.value.subtitleOffsetSeconds + deltaSeconds
-            _uiState.update { it.copy(subtitleOffsetSeconds = newOffset) }
-            sendSubtitleOffsetToReceiver(newOffset)
-            // Persist for future sessions
-            userPreferencesDataStore.saveSubtitleOffset(newOffset)
-            Log.d(TAG, "Subtitle offset adjusted to: $newOffset")
-        }
-    }
-
-    /**
-     * Reset subtitle offset to zero.
-     */
-    fun resetSubtitleOffset() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(subtitleOffsetSeconds = 0f) }
-            sendSubtitleOffsetToReceiver(0f)
-            userPreferencesDataStore.saveSubtitleOffset(0f)
-            Log.d(TAG, "Subtitle offset reset to 0")
-        }
-    }
-
-    /**
-     * Load saved subtitle offset and send to receiver on session start.
-     */
-    private fun loadAndSendSubtitleOffset() {
-        viewModelScope.launch {
-            try {
-                val savedOffset = userPreferencesDataStore.subtitleOffsetFlow.first()
-                _uiState.update { it.copy(subtitleOffsetSeconds = savedOffset) }
-                if (savedOffset != 0f) {
-                    // Wait a bit for Cast session to be ready
-                    delay(1000)
-                    sendSubtitleOffsetToReceiver(savedOffset)
-                }
-                Log.d(TAG, "Loaded saved subtitle offset: $savedOffset")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error loading subtitle offset", e)
-            }
-        }
-    }
-
-    /**
-     * Send subtitle offset to the Cast receiver via custom message channel.
-     */
-    private fun sendSubtitleOffsetToReceiver(offsetSeconds: Float) {
-        try {
-            val session = castContext?.sessionManager?.currentCastSession
-            if (session == null) {
-                Log.w(TAG, "No Cast session available to send subtitle offset")
-                return
-            }
-
-            val message = JSONObject().apply {
-                put("type", "SET_SUBTITLE_OFFSET")
-                put("offsetSeconds", offsetSeconds.toDouble())
-            }.toString()
-
-            session.sendMessage(CAST_NAMESPACE, message)
-                .setResultCallback { status ->
-                    if (status.isSuccess) {
-                        Log.d(TAG, "Subtitle offset sent successfully: $offsetSeconds")
-                    } else {
-                        Log.w(TAG, "Failed to send subtitle offset: ${status.statusCode}")
-                    }
-                }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error sending subtitle offset to receiver", e)
-        }
-    }
 }

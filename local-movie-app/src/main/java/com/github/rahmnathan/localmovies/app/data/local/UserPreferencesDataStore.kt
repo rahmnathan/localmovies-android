@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
@@ -63,7 +62,6 @@ class UserPreferencesDataStore @Inject constructor(
         val AUTH_MESSAGE = stringPreferencesKey("auth_message")
         val ACCESS_TOKEN_EXPIRES_AT = longPreferencesKey("access_token_expires_at")
         val REFRESH_TOKEN_EXPIRES_AT = longPreferencesKey("refresh_token_expires_at")
-        val SUBTITLE_OFFSET = floatPreferencesKey("subtitle_offset")
         val DISMISSED_RECOMMENDATION_IDS = stringSetPreferencesKey("dismissed_recommendation_ids")
     }
 
@@ -173,16 +171,6 @@ class UserPreferencesDataStore @Inject constructor(
             prefs.clear()
         }
         securePreferences.edit().clear().apply()
-    }
-
-    val subtitleOffsetFlow: Flow<Float> = context.dataStore.data.map { prefs ->
-        prefs[PreferencesKeys.SUBTITLE_OFFSET] ?: 0f
-    }
-
-    suspend fun saveSubtitleOffset(offset: Float) {
-        context.dataStore.edit { prefs ->
-            prefs[PreferencesKeys.SUBTITLE_OFFSET] = offset
-        }
     }
 
     val dismissedRecommendationIdsFlow: Flow<Set<String>> = context.dataStore.data.map { prefs ->
