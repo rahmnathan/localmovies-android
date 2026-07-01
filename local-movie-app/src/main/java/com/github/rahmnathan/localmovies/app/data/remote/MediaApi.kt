@@ -180,20 +180,11 @@ class MediaApi @Inject constructor(
         val serverUrl = getServerUrl()
         val signedUrls = getGeneratedMediaApi(serverUrl).getSignedUrls(mediaId)
 
-        fun makeAbsoluteUrl(url: String?): String? {
-            if (url == null) return null
-            return when {
-                url.startsWith("http") -> url
-                url.startsWith("/") -> "$serverUrl$url"
-                else -> "$serverUrl/$url"
-            }
-        }
-
         SignedUrls(
-            stream = makeAbsoluteUrl(signedUrls.stream) ?: throw IllegalStateException("Expected non-null stream URL"),
-            poster = makeAbsoluteUrl("/localmovie/v1/signed/media/$mediaId/poster"),
-            updatePosition = makeAbsoluteUrl(signedUrls.updatePosition) ?: throw IllegalStateException("Expected non-null updatePosition URL"),
-            subtitle = makeAbsoluteUrl(signedUrls.subtitle)
+            stream = makeAbsoluteUrl(signedUrls.stream, serverUrl) ?: throw IllegalStateException("Expected non-null stream URL"),
+            poster = makeAbsoluteUrl(signedUrls.poster, serverUrl),
+            updatePosition = makeAbsoluteUrl(signedUrls.updatePosition, serverUrl) ?: throw IllegalStateException("Expected non-null updatePosition URL"),
+            subtitle = makeAbsoluteUrl(signedUrls.subtitle, serverUrl)
         )
     }
 
@@ -301,7 +292,7 @@ class MediaApi @Inject constructor(
             streamable = streamable ?: false,
             mediaViews = mediaViews?.map { it.toAppMediaView() },
             signedUrls = SignedUrls(
-                poster = "$serverUrl/localmovie/v1/signed/media/${mediaFileId ?: ""}/poster",
+                poster = makeAbsoluteUrl(signedUrls?.poster, serverUrl),
                 stream = "",
                 updatePosition = ""
             ),
@@ -333,6 +324,15 @@ class MediaApi @Inject constructor(
             created = created?.toEpochSecond() ?: 0L,
             updated = updated?.toEpochSecond() ?: 0L
         )
+    }
+
+    private fun makeAbsoluteUrl(url: String?, serverUrl: String): String? {
+        if (url == null) return null
+        return when {
+            url.startsWith("http") -> url
+            url.startsWith("/") -> "$serverUrl$url"
+            else -> "$serverUrl/$url"
+        }
     }
 
     private fun ParentMediaDto?.toAppParentMedia(): ParentMedia? {
