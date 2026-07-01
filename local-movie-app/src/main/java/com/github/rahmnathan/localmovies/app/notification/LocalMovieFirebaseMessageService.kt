@@ -62,7 +62,7 @@ class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
         // Use coroutines for poster fetching
         serviceScope.launch {
             try {
-                val poster = getMoviePoster(data["path"])
+                val poster = getMoviePoster(data["posterUrl"])
                 if (poster != null) {
                     val bitmap = BitmapFactory.decodeByteArray(poster, 0, poster.size)
                     mBuilder.setLargeIcon(bitmap)
@@ -97,10 +97,12 @@ class LocalMovieFirebaseMessageService : FirebaseMessagingService() {
         notificationManager?.createNotificationChannel(channel)
     }
 
-    private suspend fun getMoviePoster(path: String?): ByteArray? = withContext(Dispatchers.IO) {
+    private suspend fun getMoviePoster(posterUrl: String?): ByteArray? = withContext(Dispatchers.IO) {
+        if (posterUrl.isNullOrBlank()) return@withContext null
+
         var urlConnection: HttpURLConnection? = null
         val credentials = preferencesDataStore.userCredentialsFlow.first()
-        val url = credentials.serverUrl + "/localmovies/v1/media/poster?path=" + path
+        val url = credentials.serverUrl + posterUrl
 
         try {
             urlConnection = URL(url).openConnection() as HttpURLConnection
