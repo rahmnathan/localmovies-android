@@ -15,3 +15,12 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# OpenAPI client generated code uses Jakarta/Javax annotations that are not present at runtime
+# These are compile-time only annotations and can be safely ignored
+-dontwarn jakarta.annotation.**
+-dontwarn javax.annotation.**
+
+# Jakarta validation annotations (used by OpenAPI client)
+-dontwarn jakarta.validation.**
+-dontwarn javax.validation.**
