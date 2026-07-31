@@ -33,7 +33,8 @@ data class MainUiState(
     val recommendations: List<Recommendation> = emptyList(),
     val isLoadingRecommendations: Boolean = false,
     val continueWatching: List<Media> = emptyList(),
-    val isLoadingContinueWatching: Boolean = false
+    val isLoadingContinueWatching: Boolean = false,
+    val hasSeenFilterTour: Boolean = true  // Default true to avoid flash; loaded from prefs
 ) {
     /** Current parent ID is the last item in the stack */
     val currentParentId: String? get() = parentIdStack.lastOrNull()
@@ -100,6 +101,12 @@ class MainViewModel @Inject constructor(
                         recommendations = state.recommendations.filterNot { it.media.mediaFileId in ids }
                     )
                 }
+            }
+        }
+
+        viewModelScope.launch {
+            preferencesDataStore.hasSeenFilterTourFlow.collect { hasSeen ->
+                _uiState.update { it.copy(hasSeenFilterTour = hasSeen) }
             }
         }
 
@@ -315,6 +322,12 @@ class MainViewModel @Inject constructor(
     fun onGenreFilterChange(genre: String?) {
         _uiState.update { it.copy(genreFilter = genre, currentPage = 0, hasMorePages = true) }
         loadMedia(resetList = true)
+    }
+
+    fun markFilterTourSeen() {
+        viewModelScope.launch {
+            preferencesDataStore.markFilterTourSeen()
+        }
     }
 
     fun onRecommendationNotInterested(media: Media) {

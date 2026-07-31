@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
@@ -63,6 +64,7 @@ class UserPreferencesDataStore @Inject constructor(
         val ACCESS_TOKEN_EXPIRES_AT = longPreferencesKey("access_token_expires_at")
         val REFRESH_TOKEN_EXPIRES_AT = longPreferencesKey("refresh_token_expires_at")
         val DISMISSED_RECOMMENDATION_IDS = stringSetPreferencesKey("dismissed_recommendation_ids")
+        val HAS_SEEN_FILTER_TOUR = booleanPreferencesKey("has_seen_filter_tour")
     }
 
     private companion object {
@@ -181,6 +183,16 @@ class UserPreferencesDataStore @Inject constructor(
         context.dataStore.edit { prefs ->
             val current = prefs[PreferencesKeys.DISMISSED_RECOMMENDATION_IDS] ?: emptySet()
             prefs[PreferencesKeys.DISMISSED_RECOMMENDATION_IDS] = current + mediaFileId
+        }
+    }
+
+    val hasSeenFilterTourFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[PreferencesKeys.HAS_SEEN_FILTER_TOUR] ?: false
+    }
+
+    suspend fun markFilterTourSeen() {
+        context.dataStore.edit { prefs ->
+            prefs[PreferencesKeys.HAS_SEEN_FILTER_TOUR] = true
         }
     }
 

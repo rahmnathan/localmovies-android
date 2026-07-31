@@ -164,6 +164,34 @@ class CastControllerViewModel @Inject constructor(
         }
     }
 
+    fun skipForward(seconds: Long = 30) {
+        viewModelScope.launch {
+            try {
+                val client = remoteMediaClient ?: return@launch
+                val newPosition = (client.approximateStreamPosition + (seconds * 1000))
+                    .coerceAtMost(_uiState.value.duration)
+                client.seek(newPosition)
+                _uiState.update { it.copy(currentPosition = newPosition) }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error skipping forward", e)
+            }
+        }
+    }
+
+    fun skipBackward(seconds: Long = 30) {
+        viewModelScope.launch {
+            try {
+                val client = remoteMediaClient ?: return@launch
+                val newPosition = (client.approximateStreamPosition - (seconds * 1000))
+                    .coerceAtLeast(0)
+                client.seek(newPosition)
+                _uiState.update { it.copy(currentPosition = newPosition) }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error skipping backward", e)
+            }
+        }
+    }
+
     fun stopCasting() {
         viewModelScope.launch {
             try {

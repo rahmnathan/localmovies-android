@@ -5,8 +5,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ClosedCaption
 import androidx.compose.material.icons.filled.ClosedCaptionDisabled
+import androidx.compose.material.icons.filled.Forward30
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Replay30
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
@@ -19,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.google.android.gms.cast.MediaStatus
 import kotlinx.coroutines.delay
 
 data class CastControllerUiState(
@@ -146,7 +147,7 @@ fun CastControllerScreen(
                 if (uiState.subtitlesAvailable) {
                     FloatingActionButton(
                         onClick = { viewModel.toggleSubtitles() },
-                        modifier = Modifier.size(56.dp),
+                        modifier = Modifier.size(48.dp),
                         containerColor = if (uiState.subtitlesEnabled) {
                             MaterialTheme.colorScheme.primaryContainer
                         } else {
@@ -160,9 +161,22 @@ fun CastControllerScreen(
                                 Icons.Default.ClosedCaptionDisabled
                             },
                             contentDescription = if (uiState.subtitlesEnabled) "Disable subtitles" else "Enable subtitles",
-                            modifier = Modifier.size(28.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                     }
+                }
+
+                // Skip backward 30 seconds
+                FloatingActionButton(
+                    onClick = { viewModel.skipBackward() },
+                    modifier = Modifier.size(48.dp),
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Replay30,
+                        contentDescription = "Skip back 30 seconds",
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
 
                 // Play/Pause button
@@ -183,16 +197,29 @@ fun CastControllerScreen(
                     )
                 }
 
+                // Skip forward 30 seconds
+                FloatingActionButton(
+                    onClick = { viewModel.skipForward() },
+                    modifier = Modifier.size(48.dp),
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Forward30,
+                        contentDescription = "Skip forward 30 seconds",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
                 // Next Episode button (only shown when there's a next item in queue)
                 if (uiState.hasNextQueueItem) {
                     FloatingActionButton(
                         onClick = { viewModel.skipToNext() },
-                        modifier = Modifier.size(64.dp)
+                        modifier = Modifier.size(48.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.SkipNext,
                             contentDescription = "Next Episode",
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }

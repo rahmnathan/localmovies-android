@@ -1,8 +1,13 @@
 package com.github.rahmnathan.localmovies.app.ui.main
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ripple
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -10,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FilterList
@@ -24,8 +30,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Popup
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.mediarouter.app.MediaRouteButton
@@ -136,6 +146,7 @@ fun MainScreen(
                         Text("LocalMovies")
                     }
                 },
+                expandedHeight = 56.dp,
                 actions = {
                     if (isSearchExpanded) {
                         IconButton(onClick = {
@@ -152,20 +163,30 @@ fun MainScreen(
                         // Sort button with dropdown
                         SortDropdownMenu(
                             expanded = showSortMenu,
+                            currentSortOrder = uiState.sortOrder,
+                            showTourHint = !uiState.hasSeenFilterTour,
                             onExpandedChange = { showSortMenu = it },
                             onSortOrderChange = { order ->
                                 viewModel.onSortOrderChange(order)
                                 showSortMenu = false
-                            }
+                            },
+                            onClearSort = {
+                                viewModel.onSortOrderChange("title")
+                            },
+                            onTourDismissed = { viewModel.markFilterTourSeen() }
                         )
 
                         // Filter button with dropdown
                         FilterDropdownMenu(
                             expanded = showFilterMenu,
+                            currentGenreFilter = uiState.genreFilter,
                             onExpandedChange = { showFilterMenu = it },
                             onGenreFilterChange = { genre ->
                                 viewModel.onGenreFilterChange(genre)
                                 showFilterMenu = false
+                            },
+                            onClearFilter = {
+                                viewModel.onGenreFilterChange(null)
                             }
                         )
                     }
@@ -400,45 +421,111 @@ fun MainScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SortDropdownMenu(
     expanded: Boolean,
+    currentSortOrder: String,
+    showTourHint: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-        onSortOrderChange: (String) -> Unit
+    onSortOrderChange: (String) -> Unit,
+    onClearSort: () -> Unit,
+    onTourDismissed: () -> Unit
 ) {
+    val isNonDefault = currentSortOrder != "title"
+    val haptic = LocalHapticFeedback.current
+
     Box {
-        IconButton(onClick = { onExpandedChange(true) }) {
-            Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .combinedClickable(
+                    onClick = { onExpandedChange(true) },
+                    onLongClick = {
+                        if (isNonDefault) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onClearSort()
+                        }
+                    },
+                    indication = ripple(bounded = false, radius = 24.dp),
+                    interactionSource = remember { MutableInteractionSource() }
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            BadgedBox(
+                badge = {
+                    if (isNonDefault) {
+                        Badge(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(8.dp)
+                        )
+                    }
+                }
+            ) {
+                Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
+            }
         }
+
+        // Tour tooltip - show on first launch
+        if (showTourHint) {
+            Popup(
+                alignment = Alignment.TopCenter,
+                offset = IntOffset(0, 120),
+                onDismissRequest = {
+                    onTourDismissed()
+                }
+            ) {
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.inverseSurface,
+                    shadowElevation = 4.dp
+                ) {
+                    Text(
+                        text = "Long-press to clear filters",
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        }
+
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { onExpandedChange(false) }
         ) {
             DropdownMenuItem(
                 text = { Text("Title") },
-                onClick = { onSortOrderChange("title") }
+                onClick = { onSortOrderChange("title") },
+                trailingIcon = if (currentSortOrder == "title") {{ Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }} else null
             )
             DropdownMenuItem(
                 text = { Text("Year") },
-                onClick = { onSortOrderChange("year") }
+                onClick = { onSortOrderChange("year") },
+                trailingIcon = if (currentSortOrder == "year") {{ Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }} else null
             )
             DropdownMenuItem(
                 text = { Text("Rating") },
-                onClick = { onSortOrderChange("rating") }
+                onClick = { onSortOrderChange("rating") },
+                trailingIcon = if (currentSortOrder == "rating") {{ Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }} else null
             )
             DropdownMenuItem(
                 text = { Text("Date Added") },
-                onClick = { onSortOrderChange("added") }
+                onClick = { onSortOrderChange("added") },
+                trailingIcon = if (currentSortOrder == "added") {{ Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }} else null
             )
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun FilterDropdownMenu(
     expanded: Boolean,
+    currentGenreFilter: String?,
     onExpandedChange: (Boolean) -> Unit,
-    onGenreFilterChange: (String?) -> Unit
+    onGenreFilterChange: (String?) -> Unit,
+    onClearFilter: () -> Unit
 ) {
     val genres = listOf(
         null to "All",
@@ -450,10 +537,38 @@ private fun FilterDropdownMenu(
         "thriller" to "Thriller",
         "war" to "War"
     )
+    val isNonDefault = currentGenreFilter != null
+    val haptic = LocalHapticFeedback.current
 
     Box {
-        IconButton(onClick = { onExpandedChange(true) }) {
-            Icon(Icons.Default.FilterList, contentDescription = "Filter")
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .combinedClickable(
+                    onClick = { onExpandedChange(true) },
+                    onLongClick = {
+                        if (isNonDefault) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onClearFilter()
+                        }
+                    },
+                    indication = ripple(bounded = false, radius = 24.dp),
+                    interactionSource = remember { MutableInteractionSource() }
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            BadgedBox(
+                badge = {
+                    if (isNonDefault) {
+                        Badge(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(8.dp)
+                        )
+                    }
+                }
+            ) {
+                Icon(Icons.Default.FilterList, contentDescription = "Filter")
+            }
         }
         DropdownMenu(
             expanded = expanded,
@@ -462,7 +577,8 @@ private fun FilterDropdownMenu(
             genres.forEach { (value, label) ->
                 DropdownMenuItem(
                     text = { Text(label) },
-                    onClick = { onGenreFilterChange(value) }
+                    onClick = { onGenreFilterChange(value) },
+                    trailingIcon = if (currentGenreFilter == value) {{ Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }} else null
                 )
             }
         }
