@@ -7,9 +7,9 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:9.4.0'
+        classpath 'com.android.tools.build:gradle:9.5.2'
         classpath 'com.google.gms:google-services:4.4.4'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        // Note: kotlin-gradle-plugin no longer needed with AGP 9.0+ built-in Kotlin support
         classpath 'com.google.dagger:hilt-android-gradle-plugin:2.58'
     }
 }

@@ -3,6 +3,7 @@ package com.github.rahmnathan.localmovies.app.ui.cast
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.cast.MediaSeekOptions
 import com.google.android.gms.cast.MediaStatus
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.media.RemoteMediaClient
@@ -156,7 +157,10 @@ class CastControllerViewModel @Inject constructor(
     fun seekTo(position: Long) {
         viewModelScope.launch {
             try {
-                remoteMediaClient?.seek(position)
+                val seekOptions = MediaSeekOptions.Builder()
+                    .setPosition(position)
+                    .build()
+                remoteMediaClient?.seek(seekOptions)
                 _uiState.update { it.copy(currentPosition = position) }
             } catch (e: Exception) {
                 Log.e(TAG, "Error seeking", e)
@@ -170,7 +174,10 @@ class CastControllerViewModel @Inject constructor(
                 val client = remoteMediaClient ?: return@launch
                 val newPosition = (client.approximateStreamPosition + (seconds * 1000))
                     .coerceAtMost(_uiState.value.duration)
-                client.seek(newPosition)
+                val seekOptions = MediaSeekOptions.Builder()
+                    .setPosition(newPosition)
+                    .build()
+                client.seek(seekOptions)
                 _uiState.update { it.copy(currentPosition = newPosition) }
             } catch (e: Exception) {
                 Log.e(TAG, "Error skipping forward", e)
@@ -184,7 +191,10 @@ class CastControllerViewModel @Inject constructor(
                 val client = remoteMediaClient ?: return@launch
                 val newPosition = (client.approximateStreamPosition - (seconds * 1000))
                     .coerceAtLeast(0)
-                client.seek(newPosition)
+                val seekOptions = MediaSeekOptions.Builder()
+                    .setPosition(newPosition)
+                    .build()
+                client.seek(seekOptions)
                 _uiState.update { it.copy(currentPosition = newPosition) }
             } catch (e: Exception) {
                 Log.e(TAG, "Error skipping backward", e)
