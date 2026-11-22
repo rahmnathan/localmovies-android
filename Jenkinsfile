@@ -16,7 +16,7 @@ spec:
     }
 
     tools {
-        jdk 'Java 21'
+        jdk 'Java 25'
     }
 
     parameters {
